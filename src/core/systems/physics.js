@@ -1,6 +1,6 @@
 import { System, Not } from "ecsy";
-import { PhysicsComponent, LocRotComponent, BodyComponent, RotatorComponent } from "../components/physics.js"
-import { MeshComponent } from "../components/render.js"
+import { PhysicsComponent, LocRotComponent, BodyComponent, CollisionComponent, CollidedWithComponent } from "../components/physics.js"
+import { Obj3dComponent } from "../components/render.js"
 import * as CANNON from "cannon-es"
 
 const PHYSICS_MATERIALS = {
@@ -15,6 +15,9 @@ export class PhysicsSystem extends System {
     init(attributes) {
         this.physics_world = new CANNON.World()
         this.physics_world.gravity.set(0, (attributes && attributes.gravity != undefined)?attributes.gravity:-1, 0)
+        if(attributes && attributes.collision_handler){
+            this.collision_handler = attributes.collision_handler
+        }
     }
 
     create_physics_body(e){
@@ -52,9 +55,9 @@ export class PhysicsSystem extends System {
         body1.linearDamping = 0.01
         body1.addShape(shape)
         body1.ecsy_entity = e // back reference for processing collisions
-        if( body.track_collisions){ 
+        if( body.track_collisions && this.collision_handler){ 
             body1.addEventListener("collide", event => {
-                // TODO make collisions component based
+                this.collision_handler(event.target.ecsy_entity,event.body.ecsy_entity,event)
             })
         }
         this.physics_world.addBody(body1) 
@@ -102,13 +105,13 @@ export class PhysicsMeshUpdateSystem extends System {
         let entities = this.queries.entities.results;
         entities.forEach( e => {
             let body = e.getComponent(PhysicsComponent).body
-            let mesh = e.getComponent(MeshComponent).mesh
-            mesh.position.copy(body.position)
-            mesh.quaternion.copy(body.quaternion)
+            let obj3d = e.getComponent(Obj3dComponent).obj
+            obj3d.position.copy(body.position)
+            obj3d.quaternion.copy(body.quaternion)
         })
     }
 }
 
 PhysicsMeshUpdateSystem.queries = {
-  entities: { components: [PhysicsComponent, MeshComponent] }
+  entities: { components: [PhysicsComponent, Obj3dComponent] }
 };

@@ -1,4 +1,4 @@
-import { SystemStateComponent, Component, Types } from 'ecsy'
+import { SystemStateComponent, Component, Types, TagComponent } from 'ecsy'
 import * as CANNON from "cannon-es"
 import { Vector3Type } from '../ecs_types'
 import { Vector3 } from 'three'

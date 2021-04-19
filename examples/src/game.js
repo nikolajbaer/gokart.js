@@ -1,5 +1,5 @@
 import { World } from "ecsy"
-import { CameraFollowComponent, MeshComponent, ModelComponent, RayCastTargetComponent } from "../../src/core/components/render"
+import { CameraComponent, Obj3dComponent, ModelComponent, LightComponent } from "../../src/core/components/render"
 import { BodyComponent, PhysicsComponent, LocRotComponent  } from "../../src/core/components/physics"
 import { HUDDataComponent } from "../../src/core/components/hud"
 import { RenderSystem } from "../../src/core/systems/render"
@@ -10,22 +10,25 @@ import { ControlsSystem } from "../../src/core/systems/controls"
 import { ActionListenerComponent } from "../../src/core/components/controls"
 import { MoverComponent } from "../../src/base/components/movement"
 import { MovementSystem } from "../../src/base/systems/movement"
+import { TagComponent } from "ecsy"
+
+class HitComponent extends TagComponent {}
 
 export function game_init(options){
     console.log("initializing game")
     const world = new World()
 
-    world.registerComponent(MeshComponent)
+    world.registerComponent(Obj3dComponent)
     world.registerComponent(ModelComponent)
     world.registerComponent(BodyComponent)
     world.registerComponent(PhysicsComponent)
     world.registerComponent(LocRotComponent)
-    world.registerComponent(CameraFollowComponent)
-    world.registerComponent(RayCastTargetComponent)
     world.registerComponent(HUDDataComponent)
     world.registerComponent(ActionListenerComponent)
     world.registerComponent(MoverComponent)
-
+    world.registerComponent(HitComponent)
+    world.registerComponent(CameraComponent)
+    world.registerComponent(LightComponent)
 
     if(options.touch){
         // todo init touch controls
@@ -37,7 +40,11 @@ export function game_init(options){
     world.registerSystem(HUDSystem)
     world.registerSystem(PhysicsMeshUpdateSystem)
     world.registerSystem(RenderSystem,{render_element_id:options.render_element})
-    world.registerSystem(PhysicsSystem)
+    world.registerSystem(PhysicsSystem, {collision_handler: (a,b,e) => {
+        if(b.hasComponent(HitComponent)){
+            console.log("Bop!")
+        }
+    }})
 
     // create a ground plane
     const g = world.createEntity()
@@ -49,20 +56,32 @@ export function game_init(options){
     g.addComponent( ModelComponent, {geometry:"ground",material:"ground"})
     g.addComponent( LocRotComponent, { rotation: new Vector3(-Math.PI/2,0,0) } )
 
+    const c = world.createEntity()
+    c.addComponent(CameraComponent,{lookAt: new Vector3(0,0,0),current: true})
+    c.addComponent(LocRotComponent,{location: new Vector3(10,10,-10)})
+
+    const l1 = world.createEntity()
+    l1.addComponent(LocRotComponent,{location: new Vector3(0,0,0)})
+    l1.addComponent(LightComponent,{type:"ambient"})
+
+    const l2 = world.createEntity()
+    l2.addComponent(LocRotComponent,{location: new Vector3(10,30,0)})
+    l2.addComponent(LightComponent,{type:"point",cast_shadow:true})
+
     // add a player
     const e = world.createEntity()
     e.addComponent(ModelComponent)
     e.addComponent(LocRotComponent,{location: new Vector3(0,0.5,0)})
-    e.addComponent(CameraFollowComponent,{offset: new Vector3(10,10,-10)})
     e.addComponent(ActionListenerComponent)
-    e.addComponent(BodyComponent,{body_type: BodyComponent.KINEMATIC,bounds_type:BodyComponent.BOX_TYPE})
+    e.addComponent(BodyComponent,{body_type: BodyComponent.KINEMATIC,bounds_type:BodyComponent.BOX_TYPE,track_collisions:true})
     e.addComponent(MoverComponent,{speed:1.0,kinematic:true})
 
     // add something to bump into
     const e1 = world.createEntity()
-    e1.addComponent(ModelComponent)
+    e1.addComponent(ModelComponent,{geometry:"sphere"})
+    e1.addComponent(HitComponent)
     e1.addComponent(LocRotComponent,{location: new Vector3(10,1,10)})
-    e1.addComponent(BodyComponent,{mass:1000,bounds_type:BodyComponent.BOX_TYPE})
+    e1.addComponent(BodyComponent,{mass:1000,bounds_type:BodyComponent.SPHERE_TYPE})
   
     start_game(world)
 

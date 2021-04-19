@@ -21,6 +21,7 @@ export class MovementSystem extends System {
             }
             if(actions.left){ v.x -= actions.left }
             if(actions.right){ v.x += actions.right }
+            v.normalize()
 
             if( mover.local ){
                 // TODO rotate v if local

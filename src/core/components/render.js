@@ -1,9 +1,9 @@
 import { SystemStateComponent,Component, TagComponent, Types } from 'ecsy'
 import { Vector2Type, Vector3Type, Vector3 } from '../ecs_types'
 
-export class MeshComponent extends SystemStateComponent {}
-MeshComponent.schema = {
-  mesh: { type: Types.Ref }
+export class Obj3dComponent extends SystemStateComponent {}
+Obj3dComponent.schema = {
+  obj: { type: Types.Ref }
 }
 
 export class ModelComponent extends Component {}
@@ -28,5 +28,12 @@ RayCastTargetComponent.schema = {
 export class CameraComponent extends Component {}
 CameraComponent.schema = {
   location: { type: Vector3Type },
-  //lookAt: { type: Types.Number }
+  current: { type: Types.Boolean, default: false },
+  lookAt: { type: Vector3Type, default: new Vector3(0,0,0) }
+}
+
+export class LightComponent extends Component {}
+LightComponent.schema = {
+    type: { type: Types.String, default: "point" },
+    cast_shadow: { type: Types.Boolean, default: true },
 }
