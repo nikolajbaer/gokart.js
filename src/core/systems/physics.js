@@ -12,9 +12,9 @@ const PHYSICS_MATERIALS = {
 }
 
 export class PhysicsSystem extends System {
-    init() {
+    init(attributes) {
         this.physics_world = new CANNON.World()
-        this.physics_world.gravity.set(0, -1, 0)
+        this.physics_world.gravity.set(0, (attributes && attributes.gravity != undefined)?attributes.gravity:-1, 0)
     }
 
     create_physics_body(e){

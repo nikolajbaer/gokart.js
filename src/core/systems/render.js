@@ -6,41 +6,63 @@ import * as THREE from "three"
         
 export class RenderSystem extends System {
     init(attributes) {
-        let scene = new THREE.Scene();
-        let camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 0.1, 1000 );
+        const domElement = document.getElementById(attributes.render_element_id) 
+        const renderer = this.init_three_renderer(domElement)
+        const scene = this.init_three_scene()
+        const camera = this.init_three_camera()
+        this.init_scene_lights(scene)
 
-        // Scene Lighting
+        // todo make this size from the element
+        console.log("setting size to ",window.innerWidth,window.innerHeight)
+        window.addEventListener('resize', e => {
+            this.update_renderer_size(camera,renderer,window.innerWidth,window.innerHeight)
+        })
+        this.update_renderer_size(camera,renderer,window.innerWidth,window.innerHeight)
+
+        this.renderer = renderer
+        this.scene = scene
+        this.camera = camera
+
+        // TODO maybe make this component?
+        const cam_holder = new THREE.Object3D()
+        cam_holder.add(camera)
+        this.cam_holder = cam_holder
+
+    }
+
+    update_renderer_size(camera,renderer,width,height){
+        camera.aspect = width / height
+        camera.updateProjectionMatrix()
+        renderer.setSize(width, height)
+    }
+
+    init_three_renderer(domElement){
+        let renderer = new THREE.WebGLRenderer({ antialias: true, canvas: domElement });
+        renderer.shadowMap.enabled = true;
+
+        return renderer;
+     }
+    
+    init_three_scene(){
+        let scene = new THREE.Scene();
         scene.fog = new THREE.Fog( 0x000000, 0, 500 );
+        return scene
+    }
+
+    // todo make this components
+    init_scene_lights(scene){
+        // Scene Lighting
         var ambient = new THREE.AmbientLight( 0xeeeeee );
         scene.add( ambient );
         var light = new THREE.PointLight( 0xffffff, 0.5, 100 );
         light.position.set( 10, 30, 0 );
         light.castShadow = true;
         scene.add( light );
+    }
 
-        const domElement = document.getElementById(attributes.render_element_id) 
-        let renderer = new THREE.WebGLRenderer({ antialias: true, canvas: domElement });
-        renderer.shadowMap.enabled = true;
-        //renderer.shadowMap.type = THREE.PCFShadowMap;
-
-        renderer.setSize( window.innerWidth, window.innerHeight );
-        console.log("setting size to ",window.innerWidth,window.innerHeight)
-
-        let raycaster = new THREE.Raycaster();
-
-        this.renderer = renderer
-        this.cam_holder = new THREE.Object3D()
-        this.cam_holder.add(camera)
-        this.camera = camera
-        this.scene = scene
-        this.raycaster = raycaster
-    
-        window.addEventListener('resize', e => {
-            camera.aspect = window.innerWidth / window.innerHeight
-            camera.updateProjectionMatrix()
-            renderer.setSize(window.innerWidth, window.innerHeight)
-        })
-
+    init_three_camera(){
+        const camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 0.1, 1000 );
+        return camera
     }
 
     create_mesh(e){
@@ -73,24 +95,6 @@ export class RenderSystem extends System {
             )
             this.camera.lookAt(pos);
 
-        })
-
-        // update any raycasts
-        this.queries.raycasts.results.forEach( e => {
-            const mesh = e.getComponent(MeshComponent)
-            const caster = e.getMutableComponent(RayCastTargetComponent)
-
-            const mouse = new THREE.Vector2( caster.mouse.x, caster.mouse.y)
-            this.raycaster.setFromCamera( mouse, this.camera );
-
-            const intersects = this.raycaster.intersectObjects( [mesh.mesh] )
-
-            if(intersects.length){
-                const p = intersects[0].point 
-                caster.location.x = p.x
-                caster.location.y = p.y
-                caster.location.z = p.z
-            }
         })
 
         // cleanup removed

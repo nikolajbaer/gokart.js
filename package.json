@@ -1,11 +1,12 @@
 {
   "name": "rect-web-game-starter",
   "version": "1.0.0",
-  "description": "A starting point for a web game basedon ECSY, Three.js, Cannon-ES with React HUD/UI",
+  "description": "A starting point for a web game based on ECSY, Three.js, Cannon-ES with React HUD/UI",
   "repository": {
     "type": "git",
-    "url": "https://github.com/nikolajbaer/rect-web-game-starter.git"
+    "url": "https://github.com/nikolajbaer/rect-web-game-starter.git#TODO"
   },
+  "module":"src/index.js",
   "main": "webpack.config.js",
   "scripts": {
     "build": "webpack --config ./webpack.prod.js",
