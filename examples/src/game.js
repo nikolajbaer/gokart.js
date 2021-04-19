@@ -46,6 +46,7 @@ export function game_init(options){
         bounds_type: BodyComponent.PLANE_TYPE,
         body_type: BodyComponent.STATIC,
     })
+    g.addComponent( ModelComponent, {geometry:"ground",material:"ground"})
     g.addComponent( LocRotComponent, { rotation: new Vector3(-Math.PI/2,0,0) } )
 
     // add a player

@@ -24,3 +24,9 @@ RayCastTargetComponent.schema = {
   mouse: { type: Vector2Type },
   location: { type: Vector3Type },
 }
+
+export class CameraComponent extends Component {}
+CameraComponent.schema = {
+  location: { type: Vector3Type },
+  //lookAt: { type: Types.Number }
+}

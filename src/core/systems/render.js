@@ -1,7 +1,6 @@
 import { System, Not } from "ecsy";
 import { LocRotComponent } from "../components/physics"
 import { MeshComponent, ModelComponent, CameraFollowComponent, RayCastTargetComponent } from "../components/render"
-import { GEOMETRIES, MATERIALS } from "../assets"
 import * as THREE from "three"
         
 export class RenderSystem extends System {
@@ -10,6 +9,10 @@ export class RenderSystem extends System {
         const renderer = this.init_three_renderer(domElement)
         const scene = this.init_three_scene()
         const camera = this.init_three_camera()
+
+        this.geometries = (attributes && attributes.geometries)?attributes.geometries:BASE_GEOMETRIES
+        this.materials = (attributes && attributes.materials)?attributes.materials:BASE_MATERIALS
+
         this.init_scene_lights(scene)
 
         // todo make this size from the element
@@ -65,10 +68,18 @@ export class RenderSystem extends System {
         return camera
     }
 
+    get_geometry(name){
+        return this.geometries[name]
+    }
+
+    get_material(name){
+        return this.materials[name]
+    }
+
     create_mesh(e){
         const loc = e.getComponent(LocRotComponent)
         const model = e.getComponent(ModelComponent)
-        const mesh = new THREE.Mesh( GEOMETRIES[model.geometry] , MATERIALS[model.material])
+        const mesh = new THREE.Mesh( this.get_geometry(model.geometry) , this.get_material(model.material))
         mesh.receiveShadow = model.shadow
         mesh.castShadow = model.shadow 
         mesh.scale.set( model.scale.x,model.scale.y,model.scale.z)
@@ -127,4 +138,17 @@ RenderSystem.queries = {
     remove: {
         components: [Not(ModelComponent),MeshComponent]
     }
+}
+
+
+export const BASE_GEOMETRIES = {
+    "box": new THREE.BoxGeometry(),
+    "sphere": new THREE.SphereGeometry(),
+    "plane": new THREE.PlaneGeometry(0,1,5,5),
+    "ground": new THREE.PlaneGeometry(1000,1000, 50, 50),
+}
+
+export const BASE_MATERIALS = {
+    "ground": new THREE.MeshLambertMaterial( { color: 0x333332 } ),
+    "default": new THREE.MeshLambertMaterial( { color: 0x9999fe } ),
 }

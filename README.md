@@ -1,4 +1,4 @@
-# RECT Game Starter 
+# RECT Web Game Starter 
 
 * R(eact)
 * E(csy)
@@ -7,12 +7,13 @@
 
 A web game starter kit based on ECSY.io, Three.js, Cannon-es and React with webpack bindings. This starter provides 
 a game canvas with basic Three.js rendering system, ECSY component structure, and Cannon-ES 
-physics support, as well as a React component layer to build on, and a HUD data communication
-layer. 
+physics support, controls handling, as well as a React component layer to build on, and a HUD data communication
+layer. Mostly targeted at "action" games, currently focused on single player.  
 
 #### Core Features ####
 * 3D with physics pre-connected (just customize the factory classes) 
 * Mobile touch based gamepads for on-screen controls
+* Control system to handle and map controls to "actions" (ala Godot)
 * HUD bindings to show realtime game info in React-driven HUD
 * JEST test setup for unit tests on ECS component/systems
 * Webpack example
@@ -29,6 +30,8 @@ This started as a web game experiment [procgen-bhell](https://github.com/nikolaj
 out the boilerplate pieces to facilitate an upcoming [Ludum Dare](https://ldjam.com)..
 
 ## Key Libraries ##
+
+All possible only due to much awesome work:
 
 - [ECSY](https://www.ecsy.io/) for ECS
 - [CANNON-ES](https://pmndrs.github.io/cannon-es/) for Physics
