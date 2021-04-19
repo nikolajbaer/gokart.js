@@ -59,7 +59,7 @@ export class RenderSystem extends System {
             case "point":
                 const point = new THREE.PointLight( 0xffffff, 0.5, 100 );
                 if( e.hasComponent(LocRotComponent)){
-                    const pos = e.getComponent(LocRotComponent).location
+                    const location = e.getComponent(LocRotComponent).location
                     point.position.set( location.x,location.y, location.z );
                 }
                 point.castShadow = light.cast_shadow

@@ -58,7 +58,7 @@ export function game_init(options){
 
     const c = world.createEntity()
     c.addComponent(CameraComponent,{lookAt: new Vector3(0,0,0),current: true})
-    c.addComponent(LocRotComponent,{location: new Vector3(10,10,-10)})
+    c.addComponent(LocRotComponent,{location: new Vector3(20,20,-20)})
 
     const l1 = world.createEntity()
     l1.addComponent(LocRotComponent,{location: new Vector3(0,0,0)})
