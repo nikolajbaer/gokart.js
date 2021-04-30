@@ -14,10 +14,18 @@ import { TagComponent } from "ecsy"
 
 class HitComponent extends TagComponent {}
 
+
+export function load_assets(){
+    return new Promise((resolve,reject) => {
+        resolve()
+    })
+}
+
 export function game_init(options){
     console.log("initializing game")
     const world = new World()
 
+    // register components we are using
     world.registerComponent(Obj3dComponent)
     world.registerComponent(ModelComponent)
     world.registerComponent(BodyComponent)
@@ -30,18 +38,20 @@ export function game_init(options){
     world.registerComponent(CameraComponent)
     world.registerComponent(LightComponent)
 
+    // register our systems
     if(options.touch){
         // todo init touch controls
     }else{
         world.registerSystem(ControlsSystem,{listen_element_id:options.render_element})
     }
-
     world.registerSystem(MovementSystem)
     world.registerSystem(HUDSystem)
     world.registerSystem(PhysicsMeshUpdateSystem)
     world.registerSystem(RenderSystem,{render_element_id:options.render_element})
-    world.registerSystem(PhysicsSystem, {collision_handler: (a,b,e) => {
-        if(b.hasComponent(HitComponent)){
+    // Physics we have to tie in any custom collision handlers, where 
+    // entity_a has a PhysicsComponent with track_collisions enabled 
+    world.registerSystem(PhysicsSystem, {collision_handler: (entity_a,entity_b,event) => {
+        if(entity_b.hasComponent(HitComponent)){
             console.log("Bop!")
         }
     }})
@@ -58,7 +68,7 @@ export function game_init(options){
 
     const c = world.createEntity()
     c.addComponent(CameraComponent,{lookAt: new Vector3(0,0,0),current: true})
-    c.addComponent(LocRotComponent,{location: new Vector3(20,20,-20)})
+    c.addComponent(LocRotComponent,{location: new Vector3(0,20,-20)})
 
     const l1 = world.createEntity()
     l1.addComponent(LocRotComponent,{location: new Vector3(0,0,0)})

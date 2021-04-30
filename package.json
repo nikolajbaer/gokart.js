@@ -1,6 +1,6 @@
 {
   "name": "rect-web-game-starter",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "A starting point for a web game based on ECSY, Three.js, Cannon-ES with React HUD/UI",
   "repository": {
     "type": "git",

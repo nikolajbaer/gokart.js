@@ -19,8 +19,8 @@ export class MovementSystem extends System {
                 if(actions.up){ v.y += actions.up }
                 if(actions.down){ v.y -= actions.down }
             }
-            if(actions.left){ v.x -= actions.left }
-            if(actions.right){ v.x += actions.right }
+            if(actions.left){ v.x += actions.left }
+            if(actions.right){ v.x -= actions.right }
             v.normalize()
 
             if( mover.local ){
