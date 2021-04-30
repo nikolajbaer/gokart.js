@@ -1,6 +1,7 @@
 import { World } from "ecsy"
-import { CameraComponent, Obj3dComponent, ModelComponent, LightComponent } from "../../src/core/components/render"
-import { BodyComponent, PhysicsComponent, LocRotComponent  } from "../../src/core/components/physics"
+import { CameraComponent, Obj3dComponent, ModelComponent, LightComponent, Project2dComponent } from "../../src/core/components/render"
+import { BodyComponent, PhysicsComponent  } from "../../src/core/components/physics"
+import { LocRotComponent } from "../../src/core/components/position"
 import { HUDDataComponent } from "../../src/core/components/hud"
 import { RenderSystem } from "../../src/core/systems/render"
 import { PhysicsMeshUpdateSystem, PhysicsSystem } from "../../src/core/systems/physics"
@@ -37,6 +38,7 @@ export function game_init(options){
     world.registerComponent(HitComponent)
     world.registerComponent(CameraComponent)
     world.registerComponent(LightComponent)
+    world.registerComponent(Project2dComponent)
 
     // register our systems
     if(options.touch){

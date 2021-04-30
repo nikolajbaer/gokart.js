@@ -62,8 +62,7 @@ export class GameComponent extends React.Component {
         return (
         <div id="game">
             <canvas id="render"></canvas>
-            <canvas id="overlay2d"></canvas>
-            {this.props.children(this.state.hudState)}
+            {this.props.children?this.props.children(this.state.hudState):""}
         </div>
         )
     }
