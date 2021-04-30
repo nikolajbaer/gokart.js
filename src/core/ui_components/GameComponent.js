@@ -9,7 +9,6 @@ export class GameComponent extends React.Component {
         this.state = { 
             hudState: null, 
             fullscreen: false,
-            score: null,
             world: null,
         }
         this.handleFullscreen = this.handleFullscreen.bind(this)
@@ -19,12 +18,32 @@ export class GameComponent extends React.Component {
         if(this.state.world != null){
             this.state.world.stop()
         }
-        const options = {render_element: "render"}
+        const options = {
+            render_element: "render",
+            overlay_element: "overlay2d",
+            game_over: () => this.handleGameOver(),
+            game_paused: () => this.handleGamePaused()
+        }
+        if(this.props.mesh_creator){
+            options.mesh_creator = this.props.mesh_creator
+        }
         const world = this.props.init_game(options)
         this.setState({
             hudState:world.getSystem(HUDSystem).state,
             world:world
         })
+    }
+
+    handleGameOver(){
+        if(this.props.gameOverHandler){
+            this.props.gameOverHandler()
+        }
+    }
+
+    handleGamePaused(){
+        if(this.props.gamePausedHandler){
+            this.props.gamePausedHandler()
+        }
     }
 
     handleFullscreen(event){
@@ -40,21 +59,11 @@ export class GameComponent extends React.Component {
     }
 
     render() {
-        let touch_controls = ""
-        if('ontouchstart' in window){
-            touch_controls = (
-                <React.Fragment>
-                    <MobileStick className="dpad" joystickId="dpad" pad_radius={20} width={150} height={150} />
-                    <MobileStick activeColor="rgba(255,0,0,0.3)" clasSName="aim" joystickId="aim" pad_radius={20} width={150} height={150} />
-                </React.Fragment>
-            )
-        }
-
         return (
         <div id="game">
             <canvas id="render"></canvas>
-            <HUDView hudState={this.state.hudState} />
-            {touch_controls}
+            <canvas id="overlay2d"></canvas>
+            {this.props.children(this.state.hudState)}
         </div>
         )
     }

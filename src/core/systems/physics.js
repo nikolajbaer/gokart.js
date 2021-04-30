@@ -1,5 +1,6 @@
 import { System, Not } from "ecsy";
-import { PhysicsComponent, LocRotComponent, BodyComponent, CollisionComponent, CollidedWithComponent } from "../components/physics.js"
+import { PhysicsComponent, BodyComponent, CollisionComponent, CollidedWithComponent } from "../components/physics.js"
+import { LocRotComponent } from "../components/position.js"
 import { Obj3dComponent } from "../components/render.js"
 import * as CANNON from "cannon-es"
 
@@ -104,10 +105,18 @@ export class PhysicsMeshUpdateSystem extends System {
     execute(delta){
         let entities = this.queries.entities.results;
         entities.forEach( e => {
-            let body = e.getComponent(PhysicsComponent).body
-            let obj3d = e.getComponent(Obj3dComponent).obj
+            const body = e.getComponent(PhysicsComponent).body
+            const obj3d = e.getComponent(Obj3dComponent).obj
+            const loc = e.getMutableComponent(LocRotComponent) 
             obj3d.position.copy(body.position)
             obj3d.quaternion.copy(body.quaternion)
+            // update our locrot component
+            loc.location.x = body.position.x
+            loc.location.y = body.position.y
+            loc.location.z = body.position.z
+            loc.rotation.x = obj3d.rotation.x
+            loc.rotation.y = obj3d.rotation.y
+            loc.rotation.z = obj3d.rotation.z
         })
     }
 }

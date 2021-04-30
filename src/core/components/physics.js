@@ -5,12 +5,6 @@ import { Vector3 } from 'three'
 
 // inpsired by https://github.com/macaco-maluco/thermal-runway/blob/master/src/components/
 
-export class LocRotComponent extends Component {}
-LocRotComponent.schema = {
-  location: { type: Vector3Type },
-  rotation: { type: Vector3Type },
-}
-
 export class BodyComponent extends Component {}
 BodyComponent.schema = {
   mass: { type: Types.Number, default: 1  },
@@ -20,7 +14,7 @@ BodyComponent.schema = {
   material: { type: Types.String, default: 'default' },
   velocity: { type: Vector3Type },
   destroy_on_collision: { type: Types.Boolean, default: false },
-  track_collisions: { type: Types.Boolean, default: false },
+  track_collisions: { type: Types.Boolean, default: false }, // CONSIDER this drives  
   fixed_rotation: { type: Types.Boolean, default: false },
 }
 // Bounds Types

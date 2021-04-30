@@ -14,6 +14,8 @@ export class ControlsSystem extends System {
             "ArrowLeft":"left",
             "ArrowRight":"right",
             "Space":"jump",
+            "ShiftLeft":"shift",
+            "ShiftRight":"shift",
         }
         if(attributes.action_key_map){
             action_key_map = attributes.action_key_map
