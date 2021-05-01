@@ -15,7 +15,6 @@ import { TagComponent } from "ecsy"
 
 class HitComponent extends TagComponent {}
 
-
 export function load_assets(){
     return new Promise((resolve,reject) => {
         resolve()
@@ -49,7 +48,11 @@ export function game_init(options){
     world.registerSystem(MovementSystem)
     world.registerSystem(HUDSystem)
     world.registerSystem(PhysicsMeshUpdateSystem)
-    world.registerSystem(RenderSystem,{render_element_id:options.render_element})
+
+    world.registerSystem(RenderSystem,{
+        render_element_id:options.render_element,
+        mesh_creator: options.mesh_creator?options.mesh_creator:null
+    })
     // Physics we have to tie in any custom collision handlers, where 
     // entity_a has a PhysicsComponent with track_collisions enabled 
     world.registerSystem(PhysicsSystem, {collision_handler: (entity_a,entity_b,event) => {
@@ -82,7 +85,7 @@ export function game_init(options){
 
     // add a player
     const e = world.createEntity()
-    e.addComponent(ModelComponent)
+    e.addComponent(ModelComponent,{geometry:"character"})
     e.addComponent(LocRotComponent,{location: new Vector3(0,0.5,0)})
     e.addComponent(ActionListenerComponent)
     e.addComponent(BodyComponent,{body_type: BodyComponent.KINEMATIC,bounds_type:BodyComponent.BOX_TYPE,track_collisions:true})

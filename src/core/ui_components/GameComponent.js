@@ -20,7 +20,6 @@ export class GameComponent extends React.Component {
         }
         const options = {
             render_element: "render",
-            overlay_element: "overlay2d",
             game_over: () => this.handleGameOver(),
             game_paused: () => this.handleGamePaused()
         }

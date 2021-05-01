@@ -2,6 +2,7 @@ import { System, Not } from "ecsy";
 import { LocRotComponent } from "../components/position"
 import { Obj3dComponent, ModelComponent, CameraComponent, LightComponent, Project2dComponent } from "../components/render"
 import * as THREE from "three"
+import { DefaultMeshCreator } from "../asset_creator/mesh_creator"
         
 export class RenderSystem extends System {
     init(attributes) {
@@ -155,40 +156,4 @@ RenderSystem.queries = {
     remove: {
         components: [Not(ModelComponent),Obj3dComponent,Not(CameraComponent),Not(LightComponent)]
     },
-}
-
-
-export class BaseMeshCreator {
-    create_mesh(geometry,material){
-        return new THREE.Mesh(new THREE.BoxGeometry(),new THREE.MeshLambertMaterial({color: 0x9999fe }))
-    }
-
-    load(){
-        // return a promise (in this case empty) to do "loading" work
-        return Promise((resolve,reject) => resolve() )
-    }
-}
-
-class DefaultMeshCreator extends BaseMeshCreator {
-    BASE_GEOMETRIES = {
-        "box": new THREE.BoxGeometry(),
-        "sphere": new THREE.SphereGeometry(0.5),
-        "plane": new THREE.PlaneGeometry(0,1,5,5),
-        "ground": new THREE.PlaneGeometry(1000,1000, 50, 50),
-    }
-
-    BASE_MATERIALS = {
-        "ground": new THREE.MeshLambertMaterial( { color: 0x333332 } ),
-        "default": new THREE.MeshLambertMaterial( { color: 0x9999fe } ),
-    }
-
-    create_mesh(geometry,material,receiveShadow,castShadow){
-        const m =new THREE.Mesh(
-            this.BASE_GEOMETRIES[geometry],
-            this.BASE_MATERIALS[material]?this.BASE_MATERIALS[material]:new THREE.MeshLambertMaterial({ color: material })
-        )
-        m.receiveShadow = receiveShadow
-        m.castShadow = castShadow
-        return m
-    }
 }
