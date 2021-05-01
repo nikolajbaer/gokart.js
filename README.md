@@ -1,9 +1,4 @@
-# RECT Web Game Starter 
-
-* R(eact)
-* E(csy)
-* C(annon-es)
-* T(hree)
+# Web Game Starter 
 
 A web game starter kit based on ECSY.io, Three.js, Cannon-es and React with webpack bindings. This starter provides 
 a game canvas with basic Three.js rendering system, ECSY component structure, and Cannon-ES 
@@ -23,18 +18,24 @@ layer. Mostly targeted at "action" games, currently focused on single player.
 
 TBD still figuring out how to make this reusable! 
 
+For now you just clone it and rework the "example" folder.
+
 ## Origin ##
 
 This started as a web game experiment [procgen-bhell](https://github.com/nikolajbaer/procgen-bhell), playable at
-[bullethell.nikolaj.dev](https://bullethell.nikolaj.dev), where I put these pieces together. I wanted to abstract
-out the boilerplate pieces to facilitate an upcoming [Ludum Dare](https://ldjam.com)..
+[bullethell.nikolaj.dev](https://bullethell.nikolaj.dev), where I put these pieces together. Further advanced in
+[our LD48 game](https://ldjam.com/events/ludum-dare/48/oumuamua-from-outer-space-to-deeper-and-deepr-down-the-well), playable
+at [ld48.nikolaj.dev](https://ld48.nikolaj.dev). 
 
 ## Key Libraries ##
 
 All possible only due to much awesome work:
 
 - [ECSY](https://www.ecsy.io/) for ECS
-- [CANNON-ES](https://pmndrs.github.io/cannon-es/) for Physics
+- [CANNON-ES](https://pmndrs.github.io/cannon-es/) for 3D Physics
 - [THREE.js](https://threejs.org/) for Rendering
 - [React](https://reactjs.org/) for UI
 - [MobX](https://mobx.js.org/) for HUD communication
+- [Planck.js](https://https://piqnt.com/planck.js/) for 2D Physics
+- [Howler.js](https://howlerjs.com/) for Sound (TBD)
+
