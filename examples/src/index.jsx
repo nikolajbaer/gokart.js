@@ -4,7 +4,6 @@ import { DefaultMeshCreator } from "../../src/core/asset_creator/mesh_creator";
 import { GameComponent } from "../../src/core/ui_components/GameComponent"
 import { game_init } from "./game.js"
 import characterFBX from "./assets/characterLargeMale.fbx"
-import mechFBX from "./assets/mecha.fbx"
 import "./style.css"
 
 export class Game extends React.Component {
