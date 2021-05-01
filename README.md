@@ -5,6 +5,8 @@ a game canvas with basic Three.js rendering system, ECSY component structure, an
 physics support, controls handling, as well as a React component layer to build on, and a HUD data communication
 layer. Mostly targeted at "action" games, currently focused on single player.  
 
+[Try Out the Demo](https://webgamestarter.nikolaj.dev)
+
 #### Core Features ####
 * 3D with physics pre-connected (just customize the factory classes) 
 * Mobile touch based gamepads for on-screen controls
