@@ -46,9 +46,9 @@ export class DefaultMeshCreator extends BaseMeshCreator {
                             prefab.obj = scene
 
                             if(gltf.animations){
-                                prefab.animations = gltf.animations;
+                                scene.animations = gltf.animations;
                             }
-                            console.log("loaded ",prefab.url," with scale ",prefab.scale,prefab.obj,prefab.animations)
+                            console.log("loaded ",prefab.url," with scale ",prefab.scale,prefab.obj)
                             resolve()
                         })
                     })
@@ -75,7 +75,8 @@ export class DefaultMeshCreator extends BaseMeshCreator {
 
     create_prefab(geometry,receiveShadow,castShadow){
         const obj = new THREE.Group()
-        const prefab = SkeletonUtils.clone(this.PREFABS[geometry].obj)
+        const og = this.PREFABS[geometry].obj
+        const prefab = SkeletonUtils.clone(og)
         obj.add(prefab)
         obj.traverse( function ( child ) {
             if ( child.isMesh ) {
@@ -83,6 +84,9 @@ export class DefaultMeshCreator extends BaseMeshCreator {
                 child.receiveShadow = receiveShadow;
             }
         }); 
+
+        og.animations.forEach( a => obj.animations.push(a) )
+
         console.log("built a ",geometry,obj)
         window.obj = obj
         return obj

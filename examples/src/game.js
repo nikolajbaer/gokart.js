@@ -14,6 +14,8 @@ import { MovementSystem } from "../../src/common/systems/movement"
 import { TagComponent } from "ecsy"
 import { CameraFollowComponent } from "../../src/common/components/camera_follow"
 import { CameraFollowSystem } from "../../src/common/systems/camera_follow"
+import { AnimatedComponent, PlayActionComponent } from "../../src/core/components/animated"
+import { AnimatedSystem } from "../../src/core/systems/animated"
 
 class HitComponent extends TagComponent {}
 
@@ -41,6 +43,8 @@ export function game_init(options){
     world.registerComponent(LightComponent)
     world.registerComponent(Project2dComponent)
     world.registerComponent(CameraFollowComponent)
+    world.registerComponent(AnimatedComponent)
+    world.registerComponent(PlayActionComponent)
 
     // register our systems
     if(options.touch){
@@ -52,6 +56,7 @@ export function game_init(options){
     world.registerSystem(HUDSystem)
     world.registerSystem(PhysicsMeshUpdateSystem)
     world.registerSystem(CameraFollowSystem)
+    world.registerSystem(AnimatedSystem)
 
     world.registerSystem(RenderSystem,{
         render_element_id:options.render_element,
@@ -93,7 +98,9 @@ export function game_init(options){
     e.addComponent(LocRotComponent,{location: new Vector3(0,0.5,0)})
     e.addComponent(ActionListenerComponent)
     e.addComponent(BodyComponent,{body_type: BodyComponent.KINEMATIC,bounds_type:BodyComponent.BOX_TYPE,track_collisions:true})
-    e.addComponent(MoverComponent,{speed:1.0,kinematic:true})
+    e.addComponent(MoverComponent,{speed:10.0,kinematic:true})
+    e.addComponent(AnimatedComponent)
+    e.addComponent(PlayActionComponent,{action:"Walk"})
     e.addComponent(CameraFollowComponent,{offset:new Vector3(0,20,-20)})
 
     // add something to bump into
@@ -126,6 +133,7 @@ function start_game(world){
         let time = performance.now() / 1000
         let delta = time - lastTime
         world.execute(delta,time) 
+        lastTime = time
     }
     animate();
 }
