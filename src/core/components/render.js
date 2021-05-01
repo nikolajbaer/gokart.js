@@ -15,11 +15,6 @@ ModelComponent.schema = {
   receive_shadow: { type: Types.Boolean, default: true },
 }
 
-export class CameraFollowComponent extends Component {}
-CameraFollowComponent.schema = {
-  offset: { type: Vector3Type },
-}
-
 export class RayCastTargetComponent extends Component {}
 RayCastTargetComponent.schema = {
   mouse: { type: Vector2Type },

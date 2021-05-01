@@ -3,7 +3,7 @@ import ReactDOM from "react-dom";
 import { DefaultMeshCreator } from "../../src/core/asset_creator/mesh_creator";
 import { GameComponent } from "../../src/core/ui_components/GameComponent"
 import { game_init } from "./game.js"
-import characterFBX from "./assets/characterLargeMale.fbx"
+import mechaGLB from "./assets/mecha.glb"
 import "./style.css"
 
 export class Game extends React.Component {
@@ -20,7 +20,7 @@ export class Game extends React.Component {
         this.setState({loading:true}) 
         if(this.state.mesh_creator == null){
             const creator = new DefaultMeshCreator()
-            creator.PREFABS["character"] = {url:characterFBX,scale:0.01}
+            creator.PREFABS["mecha"] = {url:mechaGLB,scale:1}
             creator.load().then( () => {
                 this.startGame()
             })

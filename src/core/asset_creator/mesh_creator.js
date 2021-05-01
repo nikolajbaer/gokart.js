@@ -1,6 +1,6 @@
 import * as THREE from "three";
-import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js';
 import { SkeletonUtils } from 'three/examples/jsm/utils/SkeletonUtils';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 export class BaseMeshCreator {
     create_mesh(geometry,material){
@@ -14,7 +14,9 @@ export class BaseMeshCreator {
 }
 
 export class DefaultMeshCreator extends BaseMeshCreator {
-    PREFABS = {}
+    PREFABS = {
+        // {url:"glb_url",obj:null,animations:null}
+    } 
     BASE_GEOMETRIES = {
         "box": new THREE.BoxGeometry(),
         "sphere": new THREE.SphereGeometry(0.5),
@@ -29,18 +31,24 @@ export class DefaultMeshCreator extends BaseMeshCreator {
 
     load(){
         const manager = new THREE.LoadingManager()
-        const loader = new FBXLoader(manager)
+        const loader = new GLTFLoader(manager)
 
         return new Promise((all_resolve,all_reject) => {
             return Promise.all(
                 Object.values(this.PREFABS).map( prefab => {
                     return new Promise((resolve,reject) => {
-                        loader.load(prefab.url, (fbx) =>{
+                        loader.load(prefab.url, (gltf) =>{
+                            const scene = gltf.scene
+                            //console.log("glb loaded ",gltf)
                             if(prefab.scale){
-                                fbx.scale.set(prefab.scale,prefab.scale,prefab.scale)
+                                scene.scale.set(prefab.scale,prefab.scale,prefab.scale)
                             }
-                            prefab.obj = fbx
-                            console.log("loaded ",prefab.url," with scale ",prefab.scale,prefab.obj)
+                            prefab.obj = scene
+
+                            if(gltf.animations){
+                                prefab.animations = gltf.animations;
+                            }
+                            console.log("loaded ",prefab.url," with scale ",prefab.scale,prefab.obj,prefab.animations)
                             resolve()
                         })
                     })

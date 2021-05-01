@@ -9,9 +9,11 @@ import { HUDSystem } from "../../src/core/systems/hud"
 import { Vector3 } from "../../src/core/ecs_types"
 import { ControlsSystem } from "../../src/core/systems/controls"
 import { ActionListenerComponent } from "../../src/core/components/controls"
-import { MoverComponent } from "../../src/base/components/movement"
-import { MovementSystem } from "../../src/base/systems/movement"
+import { MoverComponent } from "../../src/common/components/movement"
+import { MovementSystem } from "../../src/common/systems/movement"
 import { TagComponent } from "ecsy"
+import { CameraFollowComponent } from "../../src/common/components/camera_follow"
+import { CameraFollowSystem } from "../../src/common/systems/camera_follow"
 
 class HitComponent extends TagComponent {}
 
@@ -38,6 +40,7 @@ export function game_init(options){
     world.registerComponent(CameraComponent)
     world.registerComponent(LightComponent)
     world.registerComponent(Project2dComponent)
+    world.registerComponent(CameraFollowComponent)
 
     // register our systems
     if(options.touch){
@@ -48,6 +51,7 @@ export function game_init(options){
     world.registerSystem(MovementSystem)
     world.registerSystem(HUDSystem)
     world.registerSystem(PhysicsMeshUpdateSystem)
+    world.registerSystem(CameraFollowSystem)
 
     world.registerSystem(RenderSystem,{
         render_element_id:options.render_element,
@@ -85,11 +89,12 @@ export function game_init(options){
 
     // add a player
     const e = world.createEntity()
-    e.addComponent(ModelComponent,{geometry:"character"})
+    e.addComponent(ModelComponent,{geometry:"mecha"})
     e.addComponent(LocRotComponent,{location: new Vector3(0,0.5,0)})
     e.addComponent(ActionListenerComponent)
     e.addComponent(BodyComponent,{body_type: BodyComponent.KINEMATIC,bounds_type:BodyComponent.BOX_TYPE,track_collisions:true})
     e.addComponent(MoverComponent,{speed:1.0,kinematic:true})
+    e.addComponent(CameraFollowComponent,{offset:new Vector3(0,20,-20)})
 
     // add something to bump into
     const e1 = world.createEntity()

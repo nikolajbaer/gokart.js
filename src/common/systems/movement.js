@@ -27,10 +27,12 @@ export class MovementSystem extends System {
                 // TODO rotate v if local
             }
 
+            const speed = actions.shift?mover.speed*mover.run_mult:mover.speed
+
             if( mover.kinematic){
-                body.velocity = v.scale(mover.speed)
+                body.velocity = v.scale(speed)
             }else{
-                body.applyForce(v.scale(mover.speed),body.position)
+                body.applyForce(v.scale(speed),body.position)
             }
 
         })
