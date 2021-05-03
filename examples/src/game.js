@@ -18,6 +18,8 @@ import { AnimatedComponent, PlayActionComponent } from "../../src/core/component
 import { AnimatedSystem } from "../../src/core/systems/animated"
 import { AnimatedMovementComponent } from "../../src/common/components/animated_movement"
 import { AnimatedMovementSystem } from "../../src/common/systems/animated_movement"
+import { SoundEffectSystem } from "../../src/core/systems/sound"
+import { MusicLoopComponent, SoundEffectComponent } from "../../src/core/components/sound"
 
 class HitComponent extends TagComponent {}
 
@@ -28,7 +30,7 @@ export function load_assets(){
 }
 
 export function game_init(options){
-    console.log("initializing game")
+    console.log("initializing game",options)
     const world = new World()
 
     // register components we are using
@@ -48,6 +50,8 @@ export function game_init(options){
     world.registerComponent(AnimatedComponent)
     world.registerComponent(PlayActionComponent)
     world.registerComponent(AnimatedMovementComponent)
+    world.registerComponent(SoundEffectComponent)
+    world.registerComponent(MusicLoopComponent)
 
     // register our systems
     if(options.touch){
@@ -61,6 +65,7 @@ export function game_init(options){
     world.registerSystem(CameraFollowSystem)
     world.registerSystem(AnimatedSystem)
     world.registerSystem(AnimatedMovementSystem)
+    world.registerSystem(SoundEffectSystem,{sounds:options.sound_loader.SOUNDS})
 
     world.registerSystem(RenderSystem,{
         render_element_id:options.render_element,
@@ -69,8 +74,8 @@ export function game_init(options){
     // Physics we have to tie in any custom collision handlers, where 
     // entity_a has a PhysicsComponent with track_collisions enabled 
     world.registerSystem(PhysicsSystem, {collision_handler: (entity_a,entity_b,event) => {
-        if(entity_b.hasComponent(HitComponent)){
-            console.log("Bop!")
+        if(entity_b.hasComponent(HitComponent) || entity_a.hasComponent(HitComponent)){
+            entity_b.addComponent(SoundEffectComponent,{sound:"bleep"})
         }
     }})
 
@@ -101,7 +106,13 @@ export function game_init(options){
     e.addComponent(ModelComponent,{geometry:"mecha"})
     e.addComponent(LocRotComponent,{location: new Vector3(0,0.5,0)})
     e.addComponent(ActionListenerComponent)
-    e.addComponent(BodyComponent,{body_type: BodyComponent.KINEMATIC,bounds_type:BodyComponent.BOX_TYPE,track_collisions:true})
+    e.addComponent(BodyComponent,{
+        body_type: BodyComponent.KINEMATIC,
+        bounds_type:BodyComponent.BOX_TYPE,
+        track_collisions:true,
+        bounds: new Vector3(2,3,2),
+    })
+    e.addComponent(HitComponent)
     e.addComponent(MoverComponent,{speed:10.0,kinematic:true})
     e.addComponent(AnimatedComponent)
     e.addComponent(AnimatedMovementComponent,{
