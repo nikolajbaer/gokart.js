@@ -29,10 +29,10 @@ export class GameComponent extends React.Component {
         if(this.props.sound_loader){
             options.sound_loader = this.props.sound_loader
         }
-        const world = this.props.init_game(options)
+        const scene = this.props.init_game(options)
         this.setState({
-            hudState:world.getSystem(HUDSystem).state,
-            world:world
+            hudState:scene.world.getSystem(HUDSystem).state,
+            world:scene.world
         })
     }
 
