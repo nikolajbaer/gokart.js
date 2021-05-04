@@ -15,24 +15,12 @@ export class GameComponent extends React.Component {
     }
 
     componentDidMount(){
-        if(this.state.world != null){
-            this.state.world.stop()
-        }
-        const options = {
-            render_element: "render",
-            game_over: () => this.handleGameOver(),
-            game_paused: () => this.handleGamePaused()
-        }
-        if(this.props.mesh_creator){
-            options.mesh_creator = this.props.mesh_creator
-        }
-        if(this.props.sound_loader){
-            options.sound_loader = this.props.sound_loader
-        }
-        const scene = this.props.init_game(options)
+        this.props.scene.init("render")
+        this.props.scene.start()
+
         this.setState({
-            hudState:scene.world.getSystem(HUDSystem).state,
-            world:scene.world
+            hudState:this.props.scene.world.getSystem(HUDSystem).state,
+            world:this.props.scene.world
         })
     }
 

@@ -7,7 +7,6 @@ export class AnimatedMovementSystem extends System {
 
     play_action(e,anim,action,blend_time,playback_speed){
         if(anim.current_action != action){
-            //console.log("requesting ",action,"from",anim.current_action,playback_speed)
             if(e.hasComponent(PlayActionComponent)){
                 const p = e.getMutableComponent(PlayActionComponent)
                 p.action = action

@@ -10,9 +10,7 @@ export class SoundEffectSystem extends System {
     execute(delta,time){
         this.queries.effects.results.forEach( e => {
             const sound = e.getComponent(SoundEffectComponent)
-            console.log("Playing ",sound.sound)
             if(this.sounds[sound.sound]){
-                console.log("triggering")
                 this.sounds[sound.sound].sound.volume(sound.volume)
                 this.sounds[sound.sound].sound.play()
             }

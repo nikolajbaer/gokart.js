@@ -10,23 +10,50 @@ import { ControlsSystem } from "../../src/core/systems/controls"
 import { ActionListenerComponent } from "../../src/core/components/controls"
 import { CameraFollowComponent } from "../../src/common/components/camera_follow"
 import { CameraFollowSystem } from "../../src/common/systems/camera_follow"
-import { AnimatedComponent, PlayActionComponent } from "../../src/core/components/animated"
-import { AnimatedSystem } from "../../src/core/systems/animated"
-import { AnimatedMovementComponent } from "../../src/common/components/animated_movement"
-import { AnimatedMovementSystem } from "../../src/common/systems/animated_movement"
 import { SoundEffectSystem } from "../../src/core/systems/sound"
 import { MusicLoopComponent, SoundEffectComponent } from "../../src/core/components/sound"
+import { DefaultMeshCreator } from "../core/asset_creator/mesh_creator"
+import { SoundLoader } from "../core/asset_creator/sound_loader"
 
 export class BaseScene {
-    constructor(render_element,mesh_creator,sound_loader){
+    constructor(){
         this.lastTime = null
         this.paused = false
-        this.render_element = render_element
-        this.mesh_creator = mesh_creator
-        this.sound_loader = sound_loader
+        this.render_element_id = null
+        this.init_mesh_creator()
+        this.init_sound_loader()
     }
 
-    build_world(){
+    init_mesh_creator(mesh_data){
+        this.mesh_creator = new DefaultMeshCreator() 
+        this.mesh_creator.PREFABS = this.get_meshes_to_load()
+    }
+
+    init_sound_loader(){
+        this.sound_loader = new SoundLoader()
+        this.sound_loader.SOUNDS = this.get_sounds_to_load()
+    }
+
+    get_meshes_to_load(){
+        return {}
+    }
+
+    get_sounds_to_load(){
+        return {}
+    }
+
+    load(){
+        return new Promise((resolve,reject) => {
+            this.mesh_creator.load().then( () => {
+                this.sound_loader.load().then( () => {
+                    resolve() 
+                })
+            })
+        })
+    }
+
+    init(render_element_id){
+        this.render_element_id = render_element_id
         this.world = new World()
         this.register_components()
         this.register_systems()
@@ -44,11 +71,6 @@ export class BaseScene {
         this.world.registerComponent(Project2dComponent)
         this.world.registerComponent(RayCastTargetComponent)
 
-        // Possibly move these elsewhere
-        // animation components
-        this.world.registerComponent(AnimatedComponent)
-        this.world.registerComponent(AnimatedMovementComponent)
-        this.world.registerComponent(PlayActionComponent)
 
         // sound components
         this.world.registerComponent(SoundEffectComponent)
@@ -58,22 +80,29 @@ export class BaseScene {
 
     register_systems(){
         this.world.registerSystem(ControlsSystem,{
-            listen_element_id:this.render_element
+            listen_element_id:this.render_element_id
         })
         this.world.registerSystem(HUDSystem)
         this.world.registerSystem(CameraFollowSystem)
-        this.world.registerSystem(AnimatedSystem)
-        this.world.registerSystem(AnimatedMovementSystem)
         this.world.registerSystem(SoundEffectSystem,{
             sounds:this.sound_loader.SOUNDS
         })
         this.world.registerSystem(RenderSystem,{
-            render_element_id:this.render_element,
+            render_element_id:this.render_element_id,
             mesh_creator: this.mesh_creator?this.mesh_creator:null
         })
     }
 
+    init_entities(){
+        // Add initial entities here
+    }
+
     start(){
+        if(!this.world){
+            console.error("You must call init with a render element id before starting your scene")
+            return
+        }
+        this.init_entities()
         this.lastTime = performance.now() / 1000
         this.paused = false
         this.loop()
@@ -100,13 +129,12 @@ export class Physics3dScene extends BaseScene {
     register_systems(){
         super.register_systems()
         this.world.registerSystem(PhysicsMeshUpdateSystem)
+        this.world.registerSystem(PhysicsSystem, {
+            collision_handler: (entity_a,entity_b,event) => this.handle_collision(entity_a,entity_b,event)
+         })
+    }
 
-        // Physics we have to tie in any custom collision handlers, where 
-        // entity_a has a PhysicsComponent with track_collisions enabled 
-        this.world.registerSystem(PhysicsSystem, {collision_handler: (entity_a,entity_b,event) => {
-            if(entity_b.hasComponent(HitComponent) || entity_a.hasComponent(HitComponent)){
-                entity_b.addComponent(SoundEffectComponent,{sound:"bleep"})
-            }
-        }})
+    handle_collision(entity_a,entity_b,event){
+        // place handling code here
     }
 }
