@@ -17,10 +17,12 @@ import { SoundEffectComponent } from "../../src/core/components/sound"
 // asset urls
 import mechaGLB from "./assets/mecha.glb"
 import bleepMP3 from "./assets/bleep.mp3"
+import { MouseLookComponent } from "../../src/common/components/mouselook"
+import { MouseLookSystem } from "../../src/common/systems/mouselook"
 
 class HitComponent extends TagComponent {}
 
-export class DemoScene extends Physics3dScene {
+export class FPSScene extends Physics3dScene {
     register_components(){
         super.register_components()
         this.world.registerComponent(MoverComponent)
@@ -28,6 +30,7 @@ export class DemoScene extends Physics3dScene {
         this.world.registerComponent(AnimatedComponent)
         this.world.registerComponent(AnimatedMovementComponent)
         this.world.registerComponent(PlayActionComponent)
+        this.world.registerComponent(MouseLookComponent)
     }
 
     register_systems(){
@@ -35,6 +38,7 @@ export class DemoScene extends Physics3dScene {
         this.world.registerSystem(MovementSystem)
         this.world.registerSystem(AnimatedSystem)
         this.world.registerSystem(AnimatedMovementSystem)
+        this.world.registerSystem(MouseLookSystem,{listen_element_id:this.render_element_id})
     }
 
     handle_collision(entity_a,entity_b){
@@ -55,9 +59,6 @@ export class DemoScene extends Physics3dScene {
         g.addComponent( ModelComponent, {geometry:"ground",material:"ground"})
         g.addComponent( LocRotComponent, { rotation: new Vector3(-Math.PI/2,0,0) } )
 
-        const c = this.world.createEntity()
-        c.addComponent(CameraComponent,{lookAt: new Vector3(0,0,0),current: true})
-        c.addComponent(LocRotComponent,{location: new Vector3(0,20,-20)})
 
         const l1 = this.world.createEntity()
         l1.addComponent(LocRotComponent,{location: new Vector3(0,0,0)})
@@ -67,26 +68,25 @@ export class DemoScene extends Physics3dScene {
         l2.addComponent(LocRotComponent,{location: new Vector3(10,30,0)})
         l2.addComponent(LightComponent,{type:"point",cast_shadow:true})
 
+        // Add our FPS camera
+        const c = this.world.createEntity()
+        c.addComponent(CameraComponent,{lookAt: new Vector3(0,0,1),current: true, fov:60})
+        c.addComponent(LocRotComponent,{location: new Vector3(0,20,-20)})
+
         // add a player
         const e = this.world.createEntity()
-        e.addComponent(ModelComponent,{geometry:"mecha"})
+        e.addComponent(ModelComponent,{geometry:"none"})
         e.addComponent(LocRotComponent,{location: new Vector3(0,0.5,0)})
         e.addComponent(ActionListenerComponent)
         e.addComponent(BodyComponent,{
             body_type: BodyComponent.KINEMATIC,
             bounds_type:BodyComponent.BOX_TYPE,
             track_collisions:true,
-            bounds: new Vector3(2,3,2),
+            bounds: new Vector3(1,2,1),
         })
         e.addComponent(HitComponent)
-        e.addComponent(MoverComponent,{speed:10.0,kinematic:true})
-        e.addComponent(AnimatedComponent)
-        e.addComponent(AnimatedMovementComponent,{
-            rest: "Rest",
-            walk: "Walk",
-            run: "Walk",
-        })
-        e.addComponent(CameraFollowComponent,{offset:new Vector3(0,20,-20)})
+        e.addComponent(MoverComponent,{speed:10.0,kinematic:true,turner:false})
+        e.addComponent(MouseLookComponent,{offset:new Vector3(0,2,0),invert_y:true})
 
         // add something to bump into
         const e1 = this.world.createEntity()

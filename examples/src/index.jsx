@@ -1,7 +1,8 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import { GameComponent } from "../../src/core/ui_components/GameComponent"
-import { DemoScene } from "./demo_scene.js"
+import { TopDownScene } from "./topdown_scene.js"
+import { FPSScene } from "./fps_scene.js"
 import "./style.css"
 
 export class Game extends React.Component {
@@ -16,7 +17,7 @@ export class Game extends React.Component {
     
     componentDidMount(){
         this.setState({loading:true}) 
-        const scene = new DemoScene()
+        const scene = new FPSScene() //TopDownScene()
         scene.load().then( () => {
             this.startGame()
         })

@@ -1,5 +1,4 @@
 import { System } from "ecsy";
-import { action } from "mobx";
 import { ActionListenerComponent } from "../components/controls";
 
 export class ControlsSystem extends System {
