@@ -27,6 +27,8 @@ export class DefaultMeshCreator extends BaseMeshCreator {
     BASE_MATERIALS = {
         "ground": new THREE.MeshLambertMaterial( { color: 0x333332 } ),
         "default": new THREE.MeshLambertMaterial( { color: 0x9999fe } ),
+        // useful for FPS character, from https://stackoverflow.com/a/50163740
+        "invisible": new THREE.MeshBasicMaterial({color:0xff00ff,colorWrite:false,depthWrite:false}), 
     }
 
     load(){

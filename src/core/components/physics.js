@@ -21,6 +21,7 @@ BodyComponent.schema = {
 BodyComponent.SPHERE_TYPE = 0
 BodyComponent.BOX_TYPE = 1
 BodyComponent.PLANE_TYPE = 2
+BodyComponent.CYLINDER_TYPE = 3
 // Body Types
 BodyComponent.KINEMATIC = CANNON.Body.KINEMATIC
 BodyComponent.DYNAMIC = CANNON.Body.DYNAMIC

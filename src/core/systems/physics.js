@@ -22,7 +22,7 @@ export class PhysicsSystem extends System {
             this.contact_materials = {
                 "ground": new CANNON.Material("ground"),
                 "default": new CANNON.Material(),
-                "slide": new CANNON.Material({name:"slide",friction:0.0}),
+                "player": new CANNON.Material({name:"player",friction:0.0,restitution: 0.00}),
             }
         }
     }
@@ -41,6 +41,9 @@ export class PhysicsSystem extends System {
                 break;
             case BodyComponent.PLANE_TYPE:
                 shape = new CANNON.Plane()
+                break;
+            case BodyComponent.CYLINDER_TYPE:
+                shape = new CANNON.Cylinder(body.bounds.x/2,body.bounds.x/2,body.bounds.y)
                 break;
             default:
                 shape = new CANNON.Sphere(body.bounds.x/2)

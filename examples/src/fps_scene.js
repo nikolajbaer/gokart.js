@@ -19,6 +19,7 @@ import mechaGLB from "./assets/mecha.glb"
 import bleepMP3 from "./assets/bleep.mp3"
 import { MouseLookComponent } from "../../src/common/components/mouselook"
 import { MouseLookSystem } from "../../src/common/systems/mouselook"
+import * as CANNON from "cannon-es"
 
 class HitComponent extends TagComponent {}
 
@@ -42,13 +43,27 @@ export class FPSScene extends Physics3dScene {
     }
 
     handle_collision(entity_a,entity_b,contact){
-        if(entity_b.hasComponent(HitComponent) || entity_a.hasComponent(HitComponent)){
+        if(entity_b.hasComponent(HitComponent) && entity_a.hasComponent(HitComponent)){
             entity_b.addComponent(SoundEffectComponent,{sound:"bleep"})
         }
 
-        if(entity_a.hasComponent(MoverComponent) || entity_b.hasComponent(MoverComponent)){
-            console.log(entity_a,entity_b,contact)
+        let mover = null
+        let contactNormal = new CANNON.Vec3()
+        if(entity_a.hasComponent(MoverComponent)){
+            mover = entity_a
+            contact.ni.negate(contactNormal)
+        }else if(entity_b.hasComponent(MoverComponent)){
+            mover = entity_b
+            contactNormal.copy(contact.ni)
         }
+
+        if(mover){
+            if (contactNormal.dot(new CANNON.Vec3(0,1,0)) > 0.5) {
+                const m = mover.getMutableComponent(MoverComponent)
+                m.can_jump = true
+            }
+        }
+
     }
 
     init_entities(){
@@ -70,7 +85,7 @@ export class FPSScene extends Physics3dScene {
 
         const l2 = this.world.createEntity()
         l2.addComponent(LocRotComponent,{location: new Vector3(10,30,0)})
-        l2.addComponent(LightComponent,{type:"point",cast_shadow:true})
+        l2.addComponent(LightComponent,{type:"point",cast_shadow:true,intensity:0.8})
 
         // Add our FPS camera
         const c = this.world.createEntity()
@@ -79,19 +94,26 @@ export class FPSScene extends Physics3dScene {
 
         // add a player
         const e = this.world.createEntity()
-        e.addComponent(ModelComponent,{geometry:"sphere"})
+        e.addComponent(ModelComponent,{geometry:"none",scale: new Vector3(1,1,1)})
         e.addComponent(LocRotComponent,{location: new Vector3(0,0.5,0)})
         e.addComponent(ActionListenerComponent)
         e.addComponent(BodyComponent,{
             body_type: BodyComponent.DYNAMIC,
             bounds_type:BodyComponent.SPHERE_TYPE,
             track_collisions:true,
+            //fixed_rotation: true,
             bounds: new Vector3(1,1,1),
-            material: "slide",
+            material: "player",
             mass: 100,
         })
         e.addComponent(HitComponent)
-        e.addComponent(MoverComponent,{speed:10.0,kinematic:true,turner:false,local:true})
+        e.addComponent(MoverComponent,{
+            speed:10.0,
+            kinematic:true,
+            turner:false,
+            local:true,
+            jump_speed: 10,
+        })
         e.addComponent(MouseLookComponent,{offset:new Vector3(0,2,0),invert_y:true})
         //e.addComponent(CameraFollowComponent,{offset:new Vector3(0,10,-10)})
 
@@ -102,7 +124,7 @@ export class FPSScene extends Physics3dScene {
         e1.addComponent(BodyComponent,{mass:100,bounds_type:BodyComponent.SPHERE_TYPE})
 
         // and some walls
-        for(var i=0; i<3;i++){
+        for(var i=0; i<4;i++){
             const w = this.world.createEntity()
             w.addComponent(ModelComponent,{geometry:"box",material:"ground",scale:new Vector3(50,10,5)})
             w.addComponent(BodyComponent,{
@@ -112,7 +134,12 @@ export class FPSScene extends Physics3dScene {
                 mass: 0,
             })
             w.addComponent(LocRotComponent,{
-                location: new Vector3(0,0,25),
+                location: [
+                    new Vector3(0,0,25),
+                    new Vector3(25,0,0),
+                    new Vector3(0,0,-25),
+                    new Vector3(-25,0,0),
+                ][i],
                 rotation:new Vector3(0,i*Math.PI/2,0)
             })
         }

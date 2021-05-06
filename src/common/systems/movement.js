@@ -51,8 +51,9 @@ export class MovementSystem extends System {
             // special case
             mover.current_reverse = (v.z < 0)
 
-            if(actions.jump && mover.canJump){
+            if(actions.jump && mover.can_jump){
                 vel.y = mover.jump_speed
+                mover.can_jump = false
             }else{
                 vel.y = body.velocity.y // maintain Y vel for gravity
             }
