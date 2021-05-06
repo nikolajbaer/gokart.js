@@ -143,6 +143,14 @@ export class FPSScene extends Physics3dScene {
                 rotation:new Vector3(0,i*Math.PI/2,0)
             })
         }
+
+        for(var i=0; i<10; i++){
+            const box = this.world.createEntity()
+            box.addComponent(ModelComponent,{geometry:"box"})
+            box.addComponent(LocRotComponent,{location: new Vector3(20 - Math.random()*40,10,20 - Math.random()*40)})
+            box.addComponent(BodyComponent,{mass:100,bounds_type:BodyComponent.BOX_TYPE})
+        }
+
     }
 
     get_meshes_to_load(){

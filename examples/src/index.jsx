@@ -17,7 +17,8 @@ export class Game extends React.Component {
     
     componentDidMount(){
         this.setState({loading:true}) 
-        const scene = new FPSScene() //TopDownScene()
+        const scene = new FPSScene() 
+        // const scene = new TopDownScene()
         scene.load().then( () => {
             this.startGame()
         })

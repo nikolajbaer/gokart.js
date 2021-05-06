@@ -88,11 +88,12 @@ export class TopDownScene extends Physics3dScene {
         })
         e.addComponent(CameraFollowComponent,{offset:new Vector3(0,20,-20)})
 
-        // add something to bump into
+        // add some things to bump into
         const e1 = this.world.createEntity()
         e1.addComponent(ModelComponent,{geometry:"sphere"})
         e1.addComponent(LocRotComponent,{location: new Vector3(10,1,10)})
         e1.addComponent(BodyComponent,{mass:1000,bounds_type:BodyComponent.SPHERE_TYPE})
+
     }
 
     get_meshes_to_load(){
