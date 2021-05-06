@@ -4,20 +4,26 @@ import { LocRotComponent } from "../components/position.js"
 import { Obj3dComponent } from "../components/render.js"
 import * as CANNON from "cannon-es"
 
-const PHYSICS_MATERIALS = {
-    "ground": new CANNON.Material("ground"),
-    "default": new CANNON.Material(),
-    "chaser": new CANNON.Material({name:"chaser",friction:1.0}),
-    "player": new CANNON.Material({name:"player",friction:0.0}),
-    "mover": new CANNON.Material({name:"mover",friction:0.0}),
-}
-
 export class PhysicsSystem extends System {
     init(attributes) {
         this.physics_world = new CANNON.World()
-        this.physics_world.gravity.set(0, (attributes && attributes.gravity != undefined)?attributes.gravity:-1, 0)
+        this.physics_world.gravity.set(0, (attributes && attributes.gravity != undefined)?attributes.gravity:-10, 0)
+        console.log("Gravity",this.physics_world.gravity)
+
         if(attributes && attributes.collision_handler){
             this.collision_handler = attributes.collision_handler
+        }else{
+            this.collision_handler = null
+        }
+
+        if(attributes && attributes.contact_materials){
+            this.contact_materials = attributes.contact_materials
+        }else{
+            this.contact_materials = {
+                "ground": new CANNON.Material("ground"),
+                "default": new CANNON.Material(),
+                "slide": new CANNON.Material({name:"slide",friction:0.0}),
+            }
         }
     }
 
@@ -40,7 +46,7 @@ export class PhysicsSystem extends System {
                 shape = new CANNON.Sphere(body.bounds.x/2)
                 break;
         }
-        const mat = PHYSICS_MATERIALS[body.material]
+        const mat = this.contact_materials[body.material]
         const body1  = new CANNON.Body({
             mass: body.mass, //mass
             material: mat,
@@ -58,7 +64,7 @@ export class PhysicsSystem extends System {
         body1.ecsy_entity = e // back reference for processing collisions
         if( body.track_collisions && this.collision_handler){ 
             body1.addEventListener("collide", event => {
-                this.collision_handler(event.target.ecsy_entity,event.body.ecsy_entity,event)
+                this.collision_handler(event.target.ecsy_entity,event.body.ecsy_entity,event.contact)
             })
         }
         this.physics_world.addBody(body1) 

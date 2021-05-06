@@ -130,11 +130,22 @@ export class Physics3dScene extends BaseScene {
         super.register_systems()
         this.world.registerSystem(PhysicsMeshUpdateSystem)
         this.world.registerSystem(PhysicsSystem, {
-            collision_handler: (entity_a,entity_b,event) => this.handle_collision(entity_a,entity_b,event)
+            collision_handler: (entity_a,entity_b,event) => this.handle_collision(entity_a,entity_b,event),
+            contact_materials: this.contact_materials(),
+            gravity: this.get_gravity(),
          })
     }
 
-    handle_collision(entity_a,entity_b,event){
+    handle_collision(entity_a,entity_b,contact){
         // place handling code here
+        // contact normal is contact.ni
+    }
+
+    contact_materials(){
+        return {}
+    }
+
+    get_gravity(){
+        return -10
     }
 }
