@@ -14,20 +14,20 @@ export class Game extends React.Component {
             scene: null,
         }
     }
-    
-    componentDidMount(){
+
+    startLoading(selected_scene){
         this.setState({loading:true}) 
-        const scene = new FPSScene() 
-        // const scene = new TopDownScene()
+        let scene = null
+        if(selected_scene == "fps"){
+            scene = new FPSScene() 
+        }else if(selected_scene == "topdown"){
+            scene = new TopDownScene()
+        }
         scene.load().then( () => {
-            this.startGame()
+            this.setState({playing:true,loading:false})
         })
         this.setState({scene:scene})
     } 
-
-    startGame(){
-        this.setState({playing:true,loading:false})
-    }
 
     render(){
         if(this.state.playing){
@@ -41,10 +41,18 @@ export class Game extends React.Component {
                     )}
                 </GameComponent>
             )
-        }else{
+        }else if(this.state.loading){
             return (
                 <div className="menu">
                     <p>LOADING ASSETS..</p>
+                </div>
+            )
+        }else{
+            return (
+                <div className="menu">
+                    <h1>Select Example Scene Type:</h1>
+                    <button onClick={() => this.startLoading("fps")}>FPS</button>
+                    <button onClick={() => this.startLoading("topdown")}>Top Down</button>
                 </div>
             )
         }

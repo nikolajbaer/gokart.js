@@ -2,6 +2,8 @@ body {
     margin: 0px;
     padding: 0px;
     background-color: black;
+    color: white;
+    font-family: monospace;
 }
 
 #game {
@@ -13,9 +15,19 @@ body {
     position: absolute;
     top: 4px;
     left: 4px;
-    color: white;
-    font-family: monospace;
 }
 .overlay a {
     color: white;
+}
+
+.menu {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+.menu button {
+    margin: 8px;
+    cursor: pointer;
 }
