@@ -101,40 +101,4 @@ export class DefaultMeshCreator extends BaseMeshCreator {
         return obj
     }
 
-    create_terrain(material,entity,receiveShadow,castShadow){
-        // Based on https://threejs.org/examples/webgl_geometry_terrain_raycast.html
-        const hf = entity.getComponent(HeightfieldDataComponent)
-        const data = hf.data
-        // unroll since i can't figure out how to pack the triangle strips
-        const data_unrolled = []
-        data.forEach( row => {
-            row.forEach( v => { data_unrolled.push(v)})
-        }) 
-        const geometry = new THREE.PlaneGeometry( hf.width * hf.element_size, hf.height * hf.element_size, hf.width - 1, hf.height - 1 )
-        const vertices = geometry.attributes.position.array
-        // todo figure out how to manage the triangle strip iteration?
-        for ( let i = 0, j = 0; i < data_unrolled.length; i ++, j += 3 ) {
-            vertices[ j + 2 ] = data_unrolled[ i ]; // * hf.element_size;
-        }
-        geometry.rotateZ( Math.PI ) // flip it around
-        geometry.translate((hf.width*hf.element_size)/2,(hf.width*hf.element_size)/2,0)
-        geometry.computeFaceNormals()
-
-        const m = new THREE.Mesh(
-            geometry,
-            // Maybe terrain material at some point too?
-            this.BASE_MATERIALS[material]?this.BASE_MATERIALS[material]:new THREE.MeshLambertMaterial({ color: material })
-        )
-
-        // debug
-        const l = new THREE.LineSegments(
-            geometry,
-            new THREE.LineBasicMaterial({color: material})
-        )
-        m.add(l)
-
-        m.receiveShadow = receiveShadow
-        m.castShadow = castShadow
-        return m
-    }
 }
