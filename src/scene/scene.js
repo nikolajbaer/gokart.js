@@ -14,6 +14,7 @@ import { SoundEffectSystem } from "../../src/core/systems/sound"
 import { MusicLoopComponent, SoundEffectComponent } from "../../src/core/components/sound"
 import { DefaultMeshCreator } from "../core/asset_creator/mesh_creator"
 import { SoundLoader } from "../core/asset_creator/sound_loader"
+import { HeightfieldDataComponent } from "../core/components/heightfield"
 
 export class BaseScene {
     constructor(){
@@ -123,6 +124,7 @@ export class Physics3dScene extends BaseScene {
     register_components(){
         super.register_components()
         this.world.registerComponent(BodyComponent)
+        this.world.registerComponent(HeightfieldDataComponent)
         this.world.registerComponent(PhysicsComponent)
     }
 

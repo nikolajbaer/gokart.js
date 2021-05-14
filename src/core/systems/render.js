@@ -41,7 +41,6 @@ export class RenderSystem extends System {
     init_three_renderer(domElement){
         let renderer = new THREE.WebGLRenderer({ antialias: true, canvas: domElement });
         renderer.shadowMap.enabled = true;
-
         return renderer;
      }
     
@@ -69,6 +68,35 @@ export class RenderSystem extends System {
                 this.scene.add(point)
                 e.addComponent(Obj3dComponent,{obj:point})
                 break
+            case "directional":
+                const holder = new THREE.Object3D()
+                const dir = new THREE.DirectionalLight( light.color, light.intensity )
+                holder.add(dir)
+                dir.castShadow = light.cast_shadow
+                if( e.hasComponent(LocRotComponent)){
+                    const location = e.getComponent(LocRotComponent).location
+                    dir.position.set( location.x,location.y, location.z );
+                    const rotation = e.getComponent(LocRotComponent).rotation
+                    const target = new THREE.Vector3(0,0,1)
+                    const tpos = target.applyEuler( new THREE.Euler(rotation.x,rotation.y, rotation.z ,'YZX'))
+                    const t = new THREE.Object3D()
+                    t.position.set(tpos.x,tpos.y,tpos.z)
+                    holder.add(t)
+                    dir.target = t
+                    // TODO create obj3d target 
+                }
+                if(light.cast_shadow){
+                    // todo make htis customizeable
+                    dir.shadow.mapSize.width = 1024; // default
+                    dir.shadow.mapSize.height = 1024; // default
+                    dir.shadow.camera.near = 0.5; // default
+                    dir.shadow.camera.far = 1000; // default
+                }
+                const helper = new THREE.DirectionalLightHelper( dir, 5 );
+                holder.add( helper );
+                this.scene.add(holder)
+                e.addComponent(Obj3dComponent, {obj:holder})
+                break
         }
     }
 
@@ -94,7 +122,7 @@ export class RenderSystem extends System {
         const loc = e.getComponent(LocRotComponent)
         const model = e.getComponent(ModelComponent)
         
-        const mesh = this.mesh_creator.create_mesh(model.geometry,model.material,model.cast_shadow,model.receive_shadow)
+        const mesh = this.mesh_creator.create_mesh(model.geometry,model.material,model.cast_shadow,model.receive_shadow,e)
         mesh.scale.set( model.scale.x,model.scale.y,model.scale.z)
         mesh.position.set(loc.location.x,loc.location.y,loc.location.z)
         this.scene.add( mesh )

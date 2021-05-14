@@ -17,11 +17,14 @@ BodyComponent.schema = {
   track_collisions: { type: Types.Boolean, default: false }, // CONSIDER this drives  
   fixed_rotation: { type: Types.Boolean, default: false },
 }
+
 // Bounds Types
 BodyComponent.SPHERE_TYPE = 0
 BodyComponent.BOX_TYPE = 1
 BodyComponent.PLANE_TYPE = 2
 BodyComponent.CYLINDER_TYPE = 3
+BodyComponent.HEIGHTFIELD_TYPE = 4
+
 // Body Types
 BodyComponent.KINEMATIC = CANNON.Body.KINEMATIC
 BodyComponent.DYNAMIC = CANNON.Body.DYNAMIC

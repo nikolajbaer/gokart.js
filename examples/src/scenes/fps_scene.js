@@ -1,24 +1,22 @@
-import { CameraComponent,  ModelComponent, LightComponent  } from "../../src/core/components/render"
-import { BodyComponent } from "../../src/core/components/physics"
-import { LocRotComponent } from "../../src/core/components/position"
-import { Vector3 } from "../../src/core/ecs_types"
-import { ActionListenerComponent } from "../../src/core/components/controls"
-import { MoverComponent } from "../../src/common/components/movement"
+import { CameraComponent,  ModelComponent, LightComponent  } from "../../../src/core/components/render"
+import { BodyComponent } from "../../../src/core/components/physics"
+import { LocRotComponent } from "../../../src/core/components/position"
+import { Vector3 } from "../../../src/core/ecs_types"
+import { ActionListenerComponent } from "../../../src/core/components/controls"
+import { MoverComponent } from "../../../src/common/components/movement"
 import { TagComponent } from "ecsy"
-import { CameraFollowComponent } from "../../src/common/components/camera_follow"
-import { AnimatedComponent, PlayActionComponent } from "../../src/core/components/animated"
-import { AnimatedMovementComponent } from "../../src/common/components/animated_movement"
-import { Physics3dScene } from "../../src/scene/scene"
-import { MovementSystem } from "../../src/common/systems/movement"
-import { AnimatedSystem } from "../../src/core/systems/animated"
-import { AnimatedMovementSystem } from "../../src/common/systems/animated_movement"
-import { SoundEffectComponent } from "../../src/core/components/sound"
+import { AnimatedComponent, PlayActionComponent } from "../../../src/core/components/animated"
+import { AnimatedMovementComponent } from "../../../src/common/components/animated_movement"
+import { Physics3dScene } from "../../../src/scene/scene"
+import { MovementSystem } from "../../../src/common/systems/movement"
+import { AnimatedSystem } from "../../../src/core/systems/animated"
+import { AnimatedMovementSystem } from "../../../src/common/systems/animated_movement"
+import { SoundEffectComponent } from "../../../src/core/components/sound"
 
 // asset urls
-import mechaGLB from "./assets/mecha.glb"
-import bleepMP3 from "./assets/bleep.mp3"
-import { MouseLookComponent } from "../../src/common/components/mouselook"
-import { MouseLookSystem } from "../../src/common/systems/mouselook"
+import bleepMP3 from "../assets/bleep.mp3"
+import { MouseLookComponent } from "../../../src/common/components/mouselook"
+import { MouseLookSystem } from "../../../src/common/systems/mouselook"
 import * as CANNON from "cannon-es"
 
 class HitComponent extends TagComponent {}
@@ -153,12 +151,6 @@ export class FPSScene extends Physics3dScene {
             box.addComponent(BodyComponent,{mass:s*s*s*density,bounds_type:BodyComponent.BOX_TYPE,bounds: new Vector3(s,s,s)})
         }
 
-    }
-
-    get_meshes_to_load(){
-        return {
-            "mecha":{ url:mechaGLB },
-        }
     }
 
     get_sounds_to_load(){

@@ -1,9 +1,10 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import { GameComponent } from "../../src/core/ui_components/GameComponent"
-import { TopDownScene } from "./topdown_scene.js"
-import { FPSScene } from "./fps_scene.js"
+import { TopDownScene } from "./scenes/topdown_scene.js"
+import { FPSScene } from "./scenes/fps_scene.js"
 import "./style.css"
+import { ThirdPersonScene } from "./scenes/thirdperson_scene";
 
 export class Game extends React.Component {
     constructor(props){
@@ -22,6 +23,8 @@ export class Game extends React.Component {
             scene = new FPSScene() 
         }else if(selected_scene == "topdown"){
             scene = new TopDownScene()
+        }else if(selected_scene == "thirdperson"){
+            scene = new ThirdPersonScene()
         }
         scene.load().then( () => {
             this.setState({playing:true,loading:false})
@@ -53,6 +56,7 @@ export class Game extends React.Component {
                     <h1>Select Example Scene Type:</h1>
                     <button onClick={() => this.startLoading("fps")}>FPS</button>
                     <button onClick={() => this.startLoading("topdown")}>Top Down</button>
+                    <button onClick={() => this.startLoading("thirdperson")}>Third Person</button>
                 </div>
             )
         }

@@ -1,5 +1,6 @@
 import { System, Not } from "ecsy";
-import { PhysicsComponent, BodyComponent, CollisionComponent, CollidedWithComponent } from "../components/physics.js"
+import { PhysicsComponent, BodyComponent } from "../components/physics.js"
+import { HeightfieldDataComponent } from "../components/heightfield.js"
 import { LocRotComponent } from "../components/position.js"
 import { Obj3dComponent } from "../components/render.js"
 import * as CANNON from "cannon-es"
@@ -45,6 +46,16 @@ export class PhysicsSystem extends System {
             case BodyComponent.CYLINDER_TYPE:
                 shape = new CANNON.Cylinder(body.bounds.x/2,body.bounds.x/2,body.bounds.y)
                 break;
+            case BodyComponent.HEIGHTFIELD_TYPE:
+                if(!e.hasComponent(HeightfieldDataComponent)){ 
+                    console.error("height field bodies must have a HeightfieldDataComponent, defaulting to a Plane") 
+                    shape = new CANNON.Plane()
+                }else{
+                    const hfield = e.getComponent(HeightfieldDataComponent)
+                    shape = new CANNON.Heightfield(hfield.data, { elementSize: hfield.element_size })
+                    console.log(shape)
+                }
+                break
             default:
                 shape = new CANNON.Sphere(body.bounds.x/2)
                 break;
