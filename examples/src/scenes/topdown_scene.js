@@ -1,5 +1,4 @@
 import { CameraComponent,  ModelComponent, LightComponent  } from "../../../src/core/components/render"
-import { BodyComponent } from "../../../src/core/components/physics"
 import { LocRotComponent } from "../../../src/core/components/position"
 import { Vector3 } from "../../../src/core/ecs_types"
 import { ActionListenerComponent } from "../../../src/core/components/controls"
@@ -8,19 +7,21 @@ import { TagComponent } from "ecsy"
 import { CameraFollowComponent } from "../../../src/common/components/camera_follow"
 import { AnimatedComponent, PlayActionComponent } from "../../../src/core/components/animated"
 import { AnimatedMovementComponent } from "../../../src/common/components/animated_movement"
-import { Physics3dScene } from "../../../src/scene/scene"
-import { MovementSystem } from "../../../src/common/systems/movement"
+import { Physics2dScene } from "../../../src/scene/scene"
 import { AnimatedSystem } from "../../../src/core/systems/animated"
 import { AnimatedMovementSystem } from "../../../src/common/systems/animated_movement"
+import { Body2dComponent } from "../../../src/core/components/physics2d"
+import { Movement2dSystem } from "../../../src/common/systems/movement2d"
 import { SoundEffectComponent } from "../../../src/core/components/sound"
 
 // asset urls
 import mechaGLB from "../assets/mecha.glb"
 import bleepMP3 from "../assets/bleep.mp3"
+import * as pl from "planck-js"
 
 class HitComponent extends TagComponent {}
 
-export class TopDownScene extends Physics3dScene {
+export class TopDownScene extends Physics2dScene {
     register_components(){
         super.register_components()
         this.world.registerComponent(MoverComponent)
@@ -32,14 +33,14 @@ export class TopDownScene extends Physics3dScene {
 
     register_systems(){
         super.register_systems()
-        this.world.registerSystem(MovementSystem)
+        this.world.registerSystem(Movement2dSystem)
         this.world.registerSystem(AnimatedSystem)
         this.world.registerSystem(AnimatedMovementSystem)
     }
 
     handle_collision(entity_a,entity_b){
         if(entity_b.hasComponent(HitComponent) || entity_a.hasComponent(HitComponent)){
-            entity_b.addComponent(SoundEffectComponent,{sound:"bleep"})
+            //entity_b.addComponent(SoundEffectComponent,{sound:"bleep"})
         }
     }
 
@@ -47,17 +48,12 @@ export class TopDownScene extends Physics3dScene {
 
         // create a ground plane
         const g = this.world.createEntity()
-        g.addComponent( BodyComponent, {
-            mass: 0,
-            bounds_type: BodyComponent.PLANE_TYPE,
-            body_type: BodyComponent.STATIC,
-        })
         g.addComponent( ModelComponent, {geometry:"ground",material:"ground"})
-        g.addComponent( LocRotComponent, { rotation: new Vector3(-Math.PI/2,0,0) } )
+        g.addComponent( LocRotComponent, { rotation: new Vector3(-Math.PI/2,0,0), location: new Vector3(0,0,0) } )
 
         const c = this.world.createEntity()
         c.addComponent(CameraComponent,{lookAt: new Vector3(0,0,0),current: true})
-        c.addComponent(LocRotComponent,{location: new Vector3(0,20,-20)})
+        c.addComponent(LocRotComponent,{location: new Vector3(0,35,-15)})
 
         const l1 = this.world.createEntity()
         l1.addComponent(LocRotComponent,{location: new Vector3(0,0,0)})
@@ -72,11 +68,11 @@ export class TopDownScene extends Physics3dScene {
         e.addComponent(ModelComponent,{geometry:"mecha"})
         e.addComponent(LocRotComponent,{location: new Vector3(0,0.5,0)})
         e.addComponent(ActionListenerComponent)
-        e.addComponent(BodyComponent,{
-            body_type: BodyComponent.KINEMATIC,
-            bounds_type:BodyComponent.BOX_TYPE,
+        e.addComponent(Body2dComponent,{
+            body_type: "kinematic",
             track_collisions:true,
-            bounds: new Vector3(2,3,2),
+            width: 2,
+            height: 2,
         })
         e.addComponent(HitComponent)
         e.addComponent(MoverComponent,{speed:10.0,kinematic:true})
@@ -86,13 +82,13 @@ export class TopDownScene extends Physics3dScene {
             walk: "Walk",
             run: "Walk",
         })
-        e.addComponent(CameraFollowComponent,{offset:new Vector3(0,20,-20)})
+        e.addComponent(CameraFollowComponent,{offset:new Vector3(0,35,-15)})
 
         // add some things to bump into
         const e1 = this.world.createEntity()
         e1.addComponent(ModelComponent,{geometry:"sphere"})
         e1.addComponent(LocRotComponent,{location: new Vector3(10,1,10)})
-        e1.addComponent(BodyComponent,{mass:1000,bounds_type:BodyComponent.SPHERE_TYPE})
+        e1.addComponent(Body2dComponent,{mass:1,body_type:"dynamic"})
 
     }
 
@@ -106,5 +102,9 @@ export class TopDownScene extends Physics3dScene {
         return {
             "bleep": {url: bleepMP3 },
         }
+    }
+
+    get_world_attributes(){
+        return {gravity: new pl.Vec2(0,0)}
     }
 }

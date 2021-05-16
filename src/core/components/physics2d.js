@@ -9,7 +9,7 @@ Body2dComponent.schema = {
   bounds_type: { type: Types.String, default:"circle" },
   width: { type: Types.Number, default: 1 },
   height: { type: Types.Number, default: 1 },
-  body_type: { type: Types.Number, default: "static"  }, 
+  body_type: { type: Types.String, default: "static"  }, 
   velocity: { type: Vector2Type, default: new Vector2(0,0) },
   destroy_on_collision: { type: Types.Boolean, default: false },
   track_collisions: { type: Types.Boolean, default: false }, 

@@ -23,6 +23,7 @@ export class Physics2dSystem extends System {
         if(attributes && attributes.collision_handler){
             this.collision_handler = attributes.collision_handler
         }
+
     }
 
     begin_contact(contact){
@@ -164,6 +165,12 @@ Physics2dSystem.queries = {
 
 
 export class Physics2dMeshUpdateSystem extends System {
+    init(attributes){
+        // by default we do y up for THREE, and have to convert from 2d-y to 3d-z
+        // but make this configurable
+        this.z_up = (attributes && attributes.z_up)?attributes.z_up:false
+    }
+
     execute(delta){
         let entities = this.queries.entities.results;
         entities.forEach( e => {
@@ -172,15 +179,25 @@ export class Physics2dMeshUpdateSystem extends System {
             const loc = e.getMutableComponent(LocRotComponent) 
             const pos = body.getPosition()
             const ang =body.getAngle()
+
             obj3d.position.x = pos.x
-            obj3d.position.y = pos.y
-            obj3d.rotation.z = ang
+            if(this.z_up){
+                obj3d.position.y = pos.y
+                obj3d.rotation.z = ang
+            }else{
+                obj3d.position.z = pos.y
+                obj3d.rotation.y = ang
+            }
 
             if(loc){ // might be gone on final removal
                 loc.location.x = pos.x
-                loc.location.y = pos.y
-                loc.location.z = 0 
-                loc.rotation.z = ang
+                if(this.z_up){
+                    loc.location.y = pos.y
+                    loc.rotation.z = ang
+                }else{
+                    loc.location.z = pos.y
+                    loc.rotation.y = ang
+                }
             }
         })
     }

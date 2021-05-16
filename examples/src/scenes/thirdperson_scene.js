@@ -1,7 +1,7 @@
 import { CameraComponent,  ModelComponent, LightComponent  } from "../../../src/core/components/render"
 import { BodyComponent } from "../../../src/core/components/physics"
 import { LocRotComponent } from "../../../src/core/components/position"
-import { Vector3 } from "../../../src/core/ecs_types"
+import { Vector3, Vector3Type } from "../../../src/core/ecs_types"
 import { ActionListenerComponent } from "../../../src/core/components/controls"
 import { MoverComponent } from "../../../src/common/components/movement"
 import { CameraFollowComponent } from "../../../src/common/components/camera_follow"
@@ -53,6 +53,8 @@ export class ThirdPersonScene extends Physics3dScene {
     handle_collision(entity_a,entity_b,contact){
         let mover = null
         let contactNormal = new CANNON.Vec3()
+
+        // Handle Mover
         if(entity_a.hasComponent(MoverComponent)){
             mover = entity_a
             contact.ni.negate(contactNormal)
@@ -68,6 +70,7 @@ export class ThirdPersonScene extends Physics3dScene {
             }
         }
 
+        // Handle CollideAndSlideComponent
     }
 
     init_entities(){

@@ -1,7 +1,7 @@
 import { System } from "ecsy"
 import { ActionListenerComponent } from "../../core/components/controls"
 import { PhysicsComponent } from "../../core/components/physics"
-import { MotionComponent, MoverComponent } from "../components/movement"
+import { MoverComponent } from "../components/movement"
 import * as CANNON from "cannon-es"
 import * as THREE from "three"
 
