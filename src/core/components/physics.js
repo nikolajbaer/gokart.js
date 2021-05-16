@@ -16,6 +16,7 @@ BodyComponent.schema = {
   destroy_on_collision: { type: Types.Boolean, default: false },
   track_collisions: { type: Types.Boolean, default: false }, // CONSIDER this drives  
   fixed_rotation: { type: Types.Boolean, default: false },
+  collision_group: { type: Types.Number, default: 1 },
 }
 
 // Bounds Types

@@ -3,7 +3,7 @@ import { BodyComponent } from "../../../src/core/components/physics"
 import { LocRotComponent } from "../../../src/core/components/position"
 import { Vector3, Vector3Type } from "../../../src/core/ecs_types"
 import { ActionListenerComponent } from "../../../src/core/components/controls"
-import { MoverComponent } from "../../../src/common/components/movement"
+import { MoverComponent, OnGroundComponent } from "../../../src/common/components/movement"
 import { CameraFollowComponent } from "../../../src/common/components/camera_follow"
 import { AnimatedComponent, PlayActionComponent } from "../../../src/core/components/animated"
 import { AnimatedMovementComponent } from "../../../src/common/components/animated_movement"
@@ -15,6 +15,8 @@ import * as SimplexNoise from "simplex-noise"
 import { HeightfieldDataComponent } from "../../../src/core/components/heightfield"
 import { TerrainSystem } from "../../../src/common/systems/terrain"
 import { TerrainTileComponent } from "../../../src/common/components/terrain"
+import { CharacterCollideComponent } from "../../../src/common/components/character_collide"
+import { CharacterCollideSystem } from "../../../src/common/systems/character_collide"
 
 function random_heightmap(w,h,ymin,ymax,q){
     const data = [] 
@@ -40,6 +42,8 @@ export class ThirdPersonScene extends Physics3dScene {
         this.world.registerComponent(AnimatedMovementComponent)
         this.world.registerComponent(PlayActionComponent)
         this.world.registerComponent(TerrainTileComponent)
+        this.world.registerComponent(CharacterCollideComponent)
+        this.world.registerComponent(OnGroundComponent)
     }
 
     register_systems(){
@@ -48,10 +52,7 @@ export class ThirdPersonScene extends Physics3dScene {
         this.world.registerSystem(AnimatedSystem)
         this.world.registerSystem(AnimatedMovementSystem)
         this.world.registerSystem(TerrainSystem)
-    }
-
-    handle_collision(entity_a,entity_b,contact){
-        super.handle_collision()
+        this.world.registerSystem(CharacterCollideSystem)
     }
 
     init_entities(){
@@ -74,9 +75,10 @@ export class ThirdPersonScene extends Physics3dScene {
         g.addComponent( ModelComponent, {geometry:"terrain",material:0x247d3c})
         g.addComponent( TerrainTileComponent )
         g.addComponent( LocRotComponent, { 
-            location: new Vector3(-(hf_w*hf_esz)/2,-10,(hf_w*hf_esz)/2),  // CANNON Heightfield registers in top left, so center it on origin
+            location: new Vector3(-(hf_w*hf_esz)/2,-5,(hf_w*hf_esz)/2),  // CANNON Heightfield registers in top left, so center it on origin
             rotation: new Vector3(-Math.PI/2,0,0)  // plane and heightfield are naturally x/y pointing Z, so flip so they are Y up
         } )
+        g.name="ground"
 
         const l1 = this.world.createEntity()
         l1.addComponent(LocRotComponent,{location: new Vector3(0,0,0)})
@@ -93,7 +95,7 @@ export class ThirdPersonScene extends Physics3dScene {
         // add a player
         const e = this.world.createEntity()
         e.addComponent(ModelComponent,{geometry:"cylinder",scale: new Vector3(1,2,1)})
-        e.addComponent(LocRotComponent,{location: new Vector3(0,1,0)})
+        e.addComponent(LocRotComponent,{location: new Vector3(0,5,0)})
         e.addComponent(ActionListenerComponent)
         e.addComponent(BodyComponent,{
             body_type: BodyComponent.KINEMATIC,
@@ -102,20 +104,29 @@ export class ThirdPersonScene extends Physics3dScene {
             bounds: new Vector3(1,2,1),
             material: "player",
             mass: 100,
+            collision_group: 2, // kinematic character need to be their own group so our raycasts don't hit ourselves
         })
         e.addComponent(MoverComponent,{
-            speed:10.0,
+            speed:15.0,
             kinematic:true,
             turner:false,
             local:true,
             jump_speed: 10,
         })
         e.addComponent(CameraFollowComponent,{offset:new Vector3(10,50,-50)})
+        e.addComponent(CharacterCollideComponent,{offset_y:1,gravity: new Vector3(0,-20,0)})
+        e.name = "player"
 
+        for(var i=0;i<5;i++){
+            const box = this.world.createEntity()
+            box.addComponent(ModelComponent,{geometry:"box",material:"ground",scale: new Vector3(10,2,10)})
+            box.addComponent(BodyComponent,{mass:0,bounds:new Vector3(10,2,10),body_type:BodyComponent.STATIC,bounds_type:BodyComponent.BOX_TYPE})
+            box.addComponent(LocRotComponent,{location: new Vector3(10 + i*12,0,10)})
+        }
         // test our terrain with a ball drop!
         const half = (hf_w*hf_esz*0.5)
-        for(let x = -half; x < half; x += half/5){
-            for(let z =-half; z < half; z += half/5){
+        for(let x = -half; x < half; x += half/4){
+            for(let z =-half; z < half; z += half/4){
                 const e1 = this.world.createEntity()
                 e1.addComponent(ModelComponent,{geometry:"sphere"})
                 e1.addComponent(LocRotComponent,{location: new Vector3(x,20,z)})

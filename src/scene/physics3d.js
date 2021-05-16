@@ -36,17 +36,21 @@ export class Physics3dScene extends BaseScene {
         if(bodyc_a.track_collisions){
             collider = entity_a
             collided = entity_b
-            contact.ni.negate(contactNormal)
-            contactPoint.copy(contact.bi)
+            if(contact){
+                contact.ni.negate(contactNormal)
+                contactPoint.copy(contact.bi)
+            }
         }else if(bodyc_b.track_collisions){
             collider = entity_b
             collided = entity_a
-            contactNormal.copy(contact.ni)
-            contactPoint.copy(contact.bj)
+            if(contact){
+                contactNormal.copy(contact.ni)
+                contactPoint.copy(contact.bj)
+            }
         }
 
         if(collider){
-            console.log(contact)
+            console.log(entity_a.name,entity_b.name,contact)
             if(collider.hasComponent(CollisionComponent)){
                 const collision = collider.getMutableComponent(CollisionComponent)
                 collision.entity = collided

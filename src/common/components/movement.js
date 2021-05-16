@@ -1,5 +1,4 @@
-import { Component, Types } from "ecsy"
-import { Vector3Type } from "../../core/ecs_types"
+import { Component, TagComponent, Types } from "ecsy"
 
 export class MoverComponent extends Component {}
 MoverComponent.schema = {
@@ -12,5 +11,6 @@ MoverComponent.schema = {
     current: { type: Types.String, default: "rest"  },
     current_reverse: { type: Types.Boolean, default: false }, // if we are currently in reverse (useful for playing animations backwards)
     jump_speed: { type:Types.Number, default: 10.0 },
-    can_jump: { type:Types.Number, default: true },
 }
+
+export class OnGroundComponent extends TagComponent {}

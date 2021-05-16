@@ -3,7 +3,7 @@ import { BodyComponent } from "../../../src/core/components/physics"
 import { LocRotComponent } from "../../../src/core/components/position"
 import { Vector3 } from "../../../src/core/ecs_types"
 import { ActionListenerComponent } from "../../../src/core/components/controls"
-import { MoverComponent } from "../../../src/common/components/movement"
+import { OnGroundComponent, MoverComponent } from "../../../src/common/components/movement"
 import { TagComponent } from "ecsy"
 import { AnimatedComponent, PlayActionComponent } from "../../../src/core/components/animated"
 import { AnimatedMovementComponent } from "../../../src/common/components/animated_movement"
@@ -17,7 +17,6 @@ import { SoundEffectComponent } from "../../../src/core/components/sound"
 import bleepMP3 from "../assets/bleep.mp3"
 import { MouseLookComponent } from "../../../src/common/components/mouselook"
 import { MouseLookSystem } from "../../../src/common/systems/mouselook"
-import * as CANNON from "cannon-es"
 
 class HitComponent extends TagComponent {}
 
@@ -25,6 +24,7 @@ export class FPSScene extends Physics3dScene {
     register_components(){
         super.register_components()
         this.world.registerComponent(MoverComponent)
+        this.world.registerComponent(OnGroundComponent)
         this.world.registerComponent(HitComponent)
         this.world.registerComponent(AnimatedComponent)
         this.world.registerComponent(AnimatedMovementComponent)
@@ -59,6 +59,7 @@ export class FPSScene extends Physics3dScene {
         })
         g.addComponent( ModelComponent, {geometry:"ground",material:"ground"})
         g.addComponent( LocRotComponent, { rotation: new Vector3(-Math.PI/2,0,0) } )
+        g.name = "ground_plane"
 
 
         const l1 = this.world.createEntity()
@@ -97,30 +98,32 @@ export class FPSScene extends Physics3dScene {
             jump_speed: 10,
         })
         e.addComponent(MouseLookComponent,{offset:new Vector3(0,2,0),invert_y:true})
-        //e.addComponent(CameraFollowComponent,{offset:new Vector3(0,10,-10)})
+        e.name = "player"
 
         // add something to bump into
         const e1 = this.world.createEntity()
         e1.addComponent(ModelComponent,{geometry:"sphere"})
         e1.addComponent(LocRotComponent,{location: new Vector3(10,1,10)})
         e1.addComponent(BodyComponent,{mass:100,bounds_type:BodyComponent.SPHERE_TYPE})
+        e1.addComponent(HitComponent)
 
         // and some walls
+        const W = 100
         for(var i=0; i<4;i++){
             const w = this.world.createEntity()
-            w.addComponent(ModelComponent,{geometry:"box",material:"ground",scale:new Vector3(50,10,5)})
+            w.addComponent(ModelComponent,{geometry:"box",material:"ground",scale:new Vector3(W,10,5)})
             w.addComponent(BodyComponent,{
                 bounds_type:BodyComponent.BOX_TYPE,
                 body_type:BodyComponent.STATIC,
-                bounds: new Vector3(50,10,5),
+                bounds: new Vector3(W,10,5),
                 mass: 0,
             })
             w.addComponent(LocRotComponent,{
                 location: [
-                    new Vector3(0,0,25),
-                    new Vector3(25,0,0),
-                    new Vector3(0,0,-25),
-                    new Vector3(-25,0,0),
+                    new Vector3(0,0,W/2),
+                    new Vector3(W/2,0,0),
+                    new Vector3(0,0,-W/2),
+                    new Vector3(-W/2,0,0),
                 ][i],
                 rotation:new Vector3(0,i*Math.PI/2,0)
             })
@@ -135,6 +138,19 @@ export class FPSScene extends Physics3dScene {
             box.addComponent(BodyComponent,{mass:s*s*s*density,bounds_type:BodyComponent.BOX_TYPE,bounds: new Vector3(s,s,s)})
         }
 
+        // create a slope test
+        for(var i=0; i<5; i++){
+            const slope = this.world.createEntity()
+            slope.addComponent(ModelComponent,{geometry:"box",material:"ground",scale:new Vector3(10,2,4)})
+            slope.addComponent(LocRotComponent,{location: new Vector3(10,0,-W/3 + 12*i),rotation:new Vector3(0,0,Math.PI/180*(i*15 + 15))})
+            slope.addComponent(BodyComponent,{
+                mass:0,
+                bounds_type:BodyComponent.BOX_TYPE,
+                bounds: new Vector3(10,2,4),
+                body_type:BodyComponent.STATIC
+            })
+
+        }
     }
 
     get_sounds_to_load(){

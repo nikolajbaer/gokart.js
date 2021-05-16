@@ -1,7 +1,7 @@
 import { System } from "ecsy"
 import { ActionListenerComponent } from "../../core/components/controls"
 import { CollisionComponent, PhysicsComponent } from "../../core/components/physics"
-import { MoverComponent } from "../components/movement"
+import { OnGroundComponent, MoverComponent } from "../components/movement"
 import * as CANNON from "cannon-es"
 import * as THREE from "three"
 
@@ -22,8 +22,8 @@ export class MovementSystem extends System {
             if(e.hasComponent(CollisionComponent)){
                 let collision = e.getComponent(CollisionComponent)
                 const contactNormal = new CANNON.Vec3(collision.contact_normal.x,collision.contact_normal.y,collision.contact_normal.z)
-                if (contactNormal.dot(UP) > 0.5) {
-                    mover.can_jump = true
+                if (contactNormal.dot(UP) > 0.5 && !e.hasComponent(OnGroundComponent)) {
+                    e.addComponent(OnGroundComponent) 
                 }
             }
 
@@ -59,9 +59,9 @@ export class MovementSystem extends System {
             // special case
             mover.current_reverse = (v.z < 0)
 
-            if(actions.jump && mover.can_jump){
+            if(actions.jump && e.hasComponent(OnGroundComponent)){
                 vel.y = mover.jump_speed
-                mover.can_jump = false
+                e.removeComponent(OnGroundComponent) 
             }else{
                 vel.y = body.velocity.y // maintain Y vel for gravity
             }
