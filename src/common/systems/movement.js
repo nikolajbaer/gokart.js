@@ -1,6 +1,6 @@
 import { System } from "ecsy"
 import { ActionListenerComponent } from "../../core/components/controls"
-import { PhysicsComponent } from "../../core/components/physics"
+import { CollisionComponent, PhysicsComponent } from "../../core/components/physics"
 import { MoverComponent } from "../components/movement"
 import * as CANNON from "cannon-es"
 import * as THREE from "three"
@@ -18,6 +18,14 @@ export class MovementSystem extends System {
             const mover = e.getMutableComponent(MoverComponent)
 
             const v = new CANNON.Vec3()
+
+            if(e.hasComponent(CollisionComponent)){
+                let collision = e.getComponent(CollisionComponent)
+                const contactNormal = new CANNON.Vec3(collision.contact_normal.x,collision.contact_normal.y,collision.contact_normal.z)
+                if (contactNormal.dot(UP) > 0.5) {
+                    mover.can_jump = true
+                }
+            }
 
             if(actions.up){ v.z += actions.up }
             if(actions.down){ v.z -= actions.down }

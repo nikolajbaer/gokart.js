@@ -1,10 +1,8 @@
 import { World} from "ecsy"
 import { CameraComponent, Obj3dComponent, ModelComponent, LightComponent, Project2dComponent, RayCastTargetComponent } from "../../src/core/components/render"
-import { BodyComponent, PhysicsComponent  } from "../../src/core/components/physics"
 import { LocRotComponent } from "../../src/core/components/position"
 import { HUDDataComponent } from "../../src/core/components/hud"
 import { RenderSystem } from "../../src/core/systems/render"
-import { PhysicsMeshUpdateSystem, PhysicsSystem } from "../../src/core/systems/physics"
 import { HUDSystem } from "../../src/core/systems/hud"
 import { ControlsSystem } from "../../src/core/systems/controls"
 import { ActionListenerComponent } from "../../src/core/components/controls"
@@ -14,9 +12,6 @@ import { SoundEffectSystem } from "../../src/core/systems/sound"
 import { MusicLoopComponent, SoundEffectComponent } from "../../src/core/components/sound"
 import { DefaultMeshCreator } from "../core/asset_creator/mesh_creator"
 import { SoundLoader } from "../core/asset_creator/sound_loader"
-import { HeightfieldDataComponent } from "../core/components/heightfield"
-import { Body2dComponent, Collision2dComponent, Joint2dComponent, Physics2dComponent, PhysicsJoint2dComponent } from "../core/components/physics2d"
-import { Physics2dMeshUpdateSystem, Physics2dSystem } from "../core/systems/physics2d"
 
 export class BaseScene {
     constructor(){
@@ -123,64 +118,3 @@ export class BaseScene {
     }
 }
 
-export class Physics3dScene extends BaseScene {
-    register_components(){
-        super.register_components()
-        this.world.registerComponent(BodyComponent)
-        this.world.registerComponent(HeightfieldDataComponent)
-        this.world.registerComponent(PhysicsComponent)
-    }
-
-    register_systems(){
-        super.register_systems()
-        this.world.registerSystem(PhysicsMeshUpdateSystem)
-        this.world.registerSystem(PhysicsSystem, {
-            collision_handler: (entity_a,entity_b,event) => this.handle_collision(entity_a,entity_b,event),
-            contact_materials: this.contact_materials(),
-            gravity: this.get_gravity(),
-         })
-    }
-
-    handle_collision(entity_a,entity_b,contact){
-        // place handling code here
-        // contact normal is contact.ni
-    }
-
-    contact_materials(){
-        return {}
-    }
-
-    get_gravity(){
-        return -10
-    }
-}
-
-export class Physics2dScene extends BaseScene {
-    register_components(){
-        super.register_components()
-        this.world.registerComponent(Body2dComponent)
-        this.world.registerComponent(Physics2dComponent)
-        this.world.registerComponent(Joint2dComponent)
-        this.world.registerComponent(Collision2dComponent)
-        this.world.registerComponent(PhysicsJoint2dComponent)
-    }
-
-    register_systems(){
-        super.register_systems()
-        this.world.registerSystem(Physics2dMeshUpdateSystem,{z_up:false})
-        this.world.registerSystem(Physics2dSystem,{world_attributes:this.get_world_attributes()})
-    }
-
-    handle_collision(entity_a,entity_b,contact){
-        // place handling code here
-        // contact normal is contact.ni
-    }
-
-    contact_materials(){
-        return {}
-    }
-
-    get_world_attributes(){
-        return {}
-    }
-}

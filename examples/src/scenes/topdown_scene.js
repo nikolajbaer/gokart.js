@@ -7,12 +7,11 @@ import { TagComponent } from "ecsy"
 import { CameraFollowComponent } from "../../../src/common/components/camera_follow"
 import { AnimatedComponent, PlayActionComponent } from "../../../src/core/components/animated"
 import { AnimatedMovementComponent } from "../../../src/common/components/animated_movement"
-import { Physics2dScene } from "../../../src/scene/scene"
+import { Physics2dScene } from "../../../src/scene/physics2d"
 import { AnimatedSystem } from "../../../src/core/systems/animated"
 import { AnimatedMovementSystem } from "../../../src/common/systems/animated_movement"
 import { Body2dComponent } from "../../../src/core/components/physics2d"
 import { Movement2dSystem } from "../../../src/common/systems/movement2d"
-import { SoundEffectComponent } from "../../../src/core/components/sound"
 
 // asset urls
 import mechaGLB from "../assets/mecha.glb"

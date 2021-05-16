@@ -35,3 +35,11 @@ PhysicsComponent.schema = {
   body: { type: Types.Ref }
 }
 
+export class CollisionComponent extends Component {}
+CollisionComponent.schema = {
+  entity: { type: Types.Ref },
+  contact_normal: { type: Vector3Type },
+  contact_point: { type: Vector3Type }, // world coordinates of contact point in relation to this entity's body
+  impact_velocity: { type: Types.Number },
+}
+

@@ -1,5 +1,5 @@
 import { System, Not } from "ecsy";
-import { PhysicsComponent, BodyComponent } from "../components/physics.js"
+import { PhysicsComponent, BodyComponent, CollisionComponent } from "../components/physics.js"
 import { HeightfieldDataComponent } from "../components/heightfield.js"
 import { LocRotComponent } from "../components/position.js"
 import { Obj3dComponent } from "../components/render.js"
@@ -103,6 +103,15 @@ export class PhysicsSystem extends System {
             e.removeComponent(PhysicsComponent)
         })
 
+        // clean up old collisions
+        // we are assuming here that physics is the last system to register/run
+        // and when run, any collision components are added in the event system
+        // so every system that wants a chance to process a collision can do so
+        // CONSIDER what about multiple collisions? How do we handle that?
+        this.queries.colliders.results.forEach( e => {
+            e.removeComponent(CollisionComponent)
+        })
+
         this.physics_world.step(1/60,delta)
     }
  }
@@ -114,6 +123,9 @@ PhysicsSystem.queries = {
         listen: {
             removed: true
         }
+    },
+    colliders: {
+        components: [CollisionComponent,PhysicsComponent],
     },
     remove: {
         components: [PhysicsComponent,Not(BodyComponent)]

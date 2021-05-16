@@ -7,7 +7,7 @@ import { MoverComponent } from "../../../src/common/components/movement"
 import { TagComponent } from "ecsy"
 import { AnimatedComponent, PlayActionComponent } from "../../../src/core/components/animated"
 import { AnimatedMovementComponent } from "../../../src/common/components/animated_movement"
-import { Physics3dScene } from "../../../src/scene/scene"
+import { Physics3dScene } from "../../../src/scene/physics3d"
 import { MovementSystem } from "../../../src/common/systems/movement"
 import { AnimatedSystem } from "../../../src/core/systems/animated"
 import { AnimatedMovementSystem } from "../../../src/common/systems/animated_movement"
@@ -41,27 +41,11 @@ export class FPSScene extends Physics3dScene {
     }
 
     handle_collision(entity_a,entity_b,contact){
+        super.handle_collision(entity_a,entity_b,contact)
+
         if(entity_b.hasComponent(HitComponent) && entity_a.hasComponent(HitComponent)){
             entity_b.addComponent(SoundEffectComponent,{sound:"bleep"})
         }
-
-        let mover = null
-        let contactNormal = new CANNON.Vec3()
-        if(entity_a.hasComponent(MoverComponent)){
-            mover = entity_a
-            contact.ni.negate(contactNormal)
-        }else if(entity_b.hasComponent(MoverComponent)){
-            mover = entity_b
-            contactNormal.copy(contact.ni)
-        }
-
-        if(mover){
-            if (contactNormal.dot(new CANNON.Vec3(0,1,0)) > 0.5) {
-                const m = mover.getMutableComponent(MoverComponent)
-                m.can_jump = true
-            }
-        }
-
     }
 
     init_entities(){
