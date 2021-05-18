@@ -5,6 +5,7 @@ import { TopDownScene } from "./scenes/topdown_scene.js"
 import { FPSScene } from "./scenes/fps_scene.js"
 import "./style.css"
 import { ThirdPersonScene } from "./scenes/thirdperson_scene";
+import { PhysicsTestScene } from "./scenes/physics_test_scene";
 
 export class Game extends React.Component {
     constructor(props){
@@ -25,6 +26,8 @@ export class Game extends React.Component {
             scene = new TopDownScene()
         }else if(selected_scene == "thirdperson"){
             scene = new ThirdPersonScene()
+        }else if(selected_scene == "physics_test"){
+            scene = new PhysicsTestScene()
         }
         scene.load().then( () => {
             this.setState({playing:true,loading:false})
@@ -57,6 +60,7 @@ export class Game extends React.Component {
                     <button onClick={() => this.startLoading("fps")}>FPS</button>
                     <button onClick={() => this.startLoading("topdown")}>Top Down</button>
                     <button onClick={() => this.startLoading("thirdperson")}>Third Person</button>
+                    <button onClick={() => this.startLoading("physics_test")}>3D Physics Test</button>
                 </div>
             )
         }

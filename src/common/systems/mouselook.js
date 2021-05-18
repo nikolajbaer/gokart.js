@@ -111,6 +111,6 @@ MouseLookSystem.queries = {
         components: [CameraComponent]
     },
     mouselook: {
-        components: [MouseLookComponent,Obj3dComponent,PhysicsComponent]
+        components: [MouseLookComponent,Obj3dComponent]
     }  
 }
