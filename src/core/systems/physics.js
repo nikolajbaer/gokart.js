@@ -3,35 +3,56 @@ import { PhysicsComponent, BodyComponent, CollisionComponent } from "../componen
 import { HeightfieldDataComponent } from "../components/heightfield.js"
 import { LocRotComponent } from "../components/position.js"
 import { Obj3dComponent } from "../components/render.js"
-import * as CANNON from "cannon-es"
+import * as THREE from "three"
+
+
+const BODYMAP = {}
 
 export class PhysicsSystem extends System {
     init(attributes) {
-        this.physics_world = new CANNON.World()
-        this.physics_world.gravity.set(0, (attributes && attributes.gravity != undefined)?attributes.gravity:-10, 0)
-        console.log("Gravity",this.physics_world.gravity)
+        import('@dimforge/rapier3d').then(RAPIER => {
+            this.RAPIER = RAPIER
+            let gravity = new RAPIER.Vector3(0,-10,0)
+            this.physics_world = new RAPIER.World(gravity)
+
+            if(attributes && attributes.contact_materials){
+                this.contact_materials = attributes.contact_materials
+            }else{
+                this.contact_materials = {}
+            }
+
+            BODYMAP[BodyComponent.DYNAMIC] = RAPIER.BodyStatus.Dynamic
+            BODYMAP[BodyComponent.STATIC] = RAPIER.BodyStatus.Static
+            BODYMAP[BodyComponent.KINEMATIC] = RAPIER.BodyStatus.KINEMATIC
+
+        })
 
         if(attributes && attributes.collision_handler){
             this.collision_handler = attributes.collision_handler
         }else{
             this.collision_handler = null
         }
-
-        if(attributes && attributes.contact_materials){
-            this.contact_materials = attributes.contact_materials
-        }else{
-            this.contact_materials = {
-                "ground": new CANNON.Material("ground"),
-                "default": new CANNON.Material(),
-                "player": new CANNON.Material({name:"player",friction:0.0,restitution: 0.00}),
-            }
-        }
     }
 
     create_physics_body(e){
         const body = e.getComponent(BodyComponent)
         const locrot = e.getComponent(LocRotComponent)
+        const RAPIER = this.RAPIER
 
+        const quat = new THREE.Quaternion()
+        quat.setFromEuler(new THREE.Euler(locrot.x,locrot.y,locrot.z,'YZX'))
+
+        let rigidBodyDesc = new RAPIER.RigidBodyDesc(BODYMAP[body.type])
+                .setTranslation(locrot.location.x,locrot.location.y,locrot.location.z)
+                .setRotation(quat)
+        let rigidBody = this.physics_world.createRigidBody(rigidBodyDesc)
+        let colliderDesc = new RAPIER.ColliderDesc.cuboid(body.bounds.x, body.bounds.y, body.bounds.z)
+                .setDensity(2.0); // The default density is 1.0.
+        let collider = this.physics_world.createCollider(colliderDesc, rigidBody.handle);
+
+        e.addComponent(PhysicsComponent, { body: rigidBody })
+
+        /*
         const quat = new CANNON.Quaternion()
         quat.setFromEuler(locrot.rotation.x,locrot.rotation.y,locrot.rotation.z)
 
@@ -82,10 +103,10 @@ export class PhysicsSystem extends System {
                 this.collision_handler(event.target.ecsy_entity,event.body.ecsy_entity,event.contact)
             })
         }
-        this.physics_world.addBody(body1) 
-        
-        e.addComponent(PhysicsComponent, { body: body1 })
 
+        this.physics_world.addBody(body1) 
+        e.addComponent(PhysicsComponent, { body: body1 })
+        */
     }
 
     execute(delta,time){
@@ -100,7 +121,7 @@ export class PhysicsSystem extends System {
         this.queries.remove.results.forEach( e => {
             const body = e.getComponent(PhysicsComponent).body
             body.ecsy_entity = null // clear back reference
-            this.physics_world.removeBody(body)
+            //this.physics_world.removeBody(body)
             e.removeComponent(PhysicsComponent)
         })
 
@@ -113,7 +134,7 @@ export class PhysicsSystem extends System {
             e.removeComponent(CollisionComponent)
         })
 
-        this.physics_world.step(1/60,delta)
+        this.physics_world.step()
     }
  }
 
@@ -141,12 +162,15 @@ export class PhysicsMeshUpdateSystem extends System {
             const body = e.getComponent(PhysicsComponent).body
             const obj3d = e.getComponent(Obj3dComponent).obj
             const loc = e.getMutableComponent(LocRotComponent) 
-            obj3d.position.copy(body.position)
-            obj3d.quaternion.copy(body.quaternion)
+            const pos = body.translation()
+
+            obj3d.position.copy(pos)
+            obj3d.quaternion.copy(body.rotation())
+
             // update our locrot component
-            loc.location.x = body.position.x
-            loc.location.y = body.position.y
-            loc.location.z = body.position.z
+            loc.location.x = pos.x
+            loc.location.y = pos.y
+            loc.location.z = pos.z
             loc.rotation.x = obj3d.rotation.x
             loc.rotation.y = obj3d.rotation.y
             loc.rotation.z = obj3d.rotation.z

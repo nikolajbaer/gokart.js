@@ -1,5 +1,4 @@
 import { SystemStateComponent, Component, Types, TagComponent } from 'ecsy'
-import * as CANNON from "cannon-es"
 import { Vector3Type } from '../ecs_types'
 import { Vector3 } from 'three'
 
@@ -10,7 +9,7 @@ BodyComponent.schema = {
   mass: { type: Types.Number, default: 1  },
   bounds_type: { type: Types.Number, default: 0  },
   bounds: { type: Vector3Type, default: new Vector3(1,1,1) },
-  body_type: { type: Types.Number, default: CANNON.Body.DYNAMIC }, 
+  body_type: { type: Types.String, default: 0 }, 
   material: { type: Types.String, default: 'default' },
   velocity: { type: Vector3Type },
   destroy_on_collision: { type: Types.Boolean, default: false },
@@ -27,9 +26,9 @@ BodyComponent.CYLINDER_TYPE = 3
 BodyComponent.HEIGHTFIELD_TYPE = 4
 
 // Body Types
-BodyComponent.KINEMATIC = CANNON.Body.KINEMATIC
-BodyComponent.DYNAMIC = CANNON.Body.DYNAMIC
-BodyComponent.STATIC = CANNON.Body.STATIC
+BodyComponent.DYNAMIC = 0 
+BodyComponent.KINEMATIC = 1
+BodyComponent.STATIC = 2
 
 export class PhysicsComponent extends SystemStateComponent {}
 PhysicsComponent.schema = {

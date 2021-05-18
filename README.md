@@ -34,7 +34,7 @@ at [ld48.nikolaj.dev](https://ld48.nikolaj.dev).
 All possible only due to much awesome work:
 
 - [ECSY](https://www.ecsy.io/) for ECS
-- [CANNON-ES](https://pmndrs.github.io/cannon-es/) for 3D Physics
+- [Rapier](https://rapier.rs/) for 3D Physics
 - [THREE.js](https://threejs.org/) for Rendering
 - [React](https://reactjs.org/) for UI
 - [MobX](https://mobx.js.org/) for HUD communication

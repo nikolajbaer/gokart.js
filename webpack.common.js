@@ -29,7 +29,12 @@ module.exports = {
           test: /\.(js|jsx)$/,
           exclude: /node_modules/,
           use: ['babel-loader']
-        }
+        },
+        {
+          test: /\.wasm$/,
+          type: 'javascript/auto',
+          loader: 'file-loader',
+        },
     ],
   },
   plugins: [
@@ -39,5 +44,5 @@ module.exports = {
       template: 'examples/src/index.html',
       inject: true,
     }),
-  ],
+  ]
 }

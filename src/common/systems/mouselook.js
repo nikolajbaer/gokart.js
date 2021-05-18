@@ -3,10 +3,8 @@ import { CameraComponent, Obj3dComponent } from "../../core/components/render";
 import { MouseLookComponent } from "../components/mouselook";
 import * as THREE from "three"
 import { PhysicsComponent } from "../../core/components/physics";
-import * as CANNON from "cannon-es"
         
 const _PI_2 = Math.PI / 2;
-const UP = new CANNON.Vec3(0,1,0)
 
 // Based on https://threejs.org/examples/jsm/controls/PointerLockControls.js
 export class MouseLookSystem extends System {
@@ -87,7 +85,8 @@ export class MouseLookSystem extends System {
         // rotate object as well on y only
         if(e.hasComponent(PhysicsComponent)){
             const body = e.getComponent(PhysicsComponent).body
-            body.quaternion.setFromAxisAngle(UP, this.euler.y) 
+            //body.quaternion.setFromAxisAngle(UP, this.euler.y) 
+
         // todo figure out 2d physics rotation
         }else{
             obj.rotation.y = this.euler.y

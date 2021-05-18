@@ -75,7 +75,7 @@ export class ThirdPersonScene extends Physics3dScene {
         g.addComponent( ModelComponent, {geometry:"terrain",material:0x247d3c})
         g.addComponent( TerrainTileComponent )
         g.addComponent( LocRotComponent, { 
-            location: new Vector3(-(hf_w*hf_esz)/2,-5,(hf_w*hf_esz)/2),  // CANNON Heightfield registers in top left, so center it on origin
+            location: new Vector3(-(hf_w*hf_esz)/2,-5,(hf_w*hf_esz)/2),  // Heightfield registers in top left, so center it on origin
             rotation: new Vector3(-Math.PI/2,0,0)  // plane and heightfield are naturally x/y pointing Z, so flip so they are Y up
         } )
         g.name="ground"
