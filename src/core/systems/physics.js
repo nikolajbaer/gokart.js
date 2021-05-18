@@ -13,7 +13,6 @@ export class PhysicsSystem extends System {
 
         if(attributes && attributes.collision_handler){
             this.collision_handler = attributes.collision_handler
-            //this.physics_world.addEventListener('beginContact',(event) => { this.handle_begin_contact(event) })
         }else{
             this.collision_handler = null
         }
@@ -28,13 +27,6 @@ export class PhysicsSystem extends System {
             }
         }
     }
-
-    /* TODO consider how we handle kinematic-static collisions for a character controller?
-    handle_begin_contact(event){
-        if(this.collision_handler){
-            this.collision_handler(event.bodyA.ecsy_entity,event.bodyB.ecsy_entity,null)
-        }
-    }*/
 
     create_physics_body(e){
         const body = e.getComponent(BodyComponent)

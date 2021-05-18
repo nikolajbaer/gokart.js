@@ -95,7 +95,7 @@ export class ThirdPersonScene extends Physics3dScene {
         // add a player
         const e = this.world.createEntity()
         e.addComponent(ModelComponent,{geometry:"cylinder",scale: new Vector3(1,2,1)})
-        e.addComponent(LocRotComponent,{location: new Vector3(0,5,0)})
+        e.addComponent(LocRotComponent,{location: new Vector3(0,8,0)})
         e.addComponent(ActionListenerComponent)
         e.addComponent(BodyComponent,{
             body_type: BodyComponent.KINEMATIC,
@@ -117,16 +117,19 @@ export class ThirdPersonScene extends Physics3dScene {
         e.addComponent(CharacterCollideComponent,{offset_y:1,gravity: new Vector3(0,-20,0)})
         e.name = "player"
 
+        // create some ramps and platforms to test character controller on
         for(var i=0;i<5;i++){
-            const box = this.world.createEntity()
-            box.addComponent(ModelComponent,{geometry:"box",material:"ground",scale: new Vector3(10,2,10)})
-            box.addComponent(BodyComponent,{mass:0,bounds:new Vector3(10,2,10),body_type:BodyComponent.STATIC,bounds_type:BodyComponent.BOX_TYPE})
-            box.addComponent(LocRotComponent,{location: new Vector3(10 + i*12,0,10)})
+            for(var j=0;j<5;j++){
+                const box = this.world.createEntity()
+                box.addComponent(ModelComponent,{geometry:"box",material:"ground",scale: new Vector3(10,2,10)})
+                box.addComponent(BodyComponent,{mass:0,bounds:new Vector3(10,2,10),body_type:BodyComponent.STATIC,bounds_type:BodyComponent.BOX_TYPE})
+                box.addComponent(LocRotComponent,{location: new Vector3(10 + i*15,i+1,10+j*15),rotation: new Vector3(Math.PI/180 * (j*15),0,0)})
+            }
         }
         // test our terrain with a ball drop!
         const half = (hf_w*hf_esz*0.5)
-        for(let x = -half; x < half; x += half/4){
-            for(let z =-half; z < half; z += half/4){
+        for(let x = -half; x < half; x += half/3){
+            for(let z =-half; z < half; z += half/3){
                 const e1 = this.world.createEntity()
                 e1.addComponent(ModelComponent,{geometry:"sphere"})
                 e1.addComponent(LocRotComponent,{location: new Vector3(x,20,z)})
