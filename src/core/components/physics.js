@@ -9,7 +9,7 @@ BodyComponent.schema = {
   mass: { type: Types.Number, default: 1  },
   bounds_type: { type: Types.Number, default: 0  },
   bounds: { type: Vector3Type, default: new Vector3(1,1,1) },
-  body_type: { type: Types.String, default: 0 }, 
+  body_type: { type: Types.Number, default: 0 }, 
   material: { type: Types.String, default: 'default' },
   velocity: { type: Vector3Type },
   destroy_on_collision: { type: Types.Boolean, default: false },

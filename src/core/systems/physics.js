@@ -40,15 +40,14 @@ export class PhysicsSystem extends System {
 
         const quat = new THREE.Quaternion()
         quat.setFromEuler(new THREE.Euler(locrot.x,locrot.y,locrot.z,'YZX'))
+        const rquat = new RAPIER.Quaternion(quat.x,quat.y,quat.z,quat.w)
 
-        let rigidBodyDesc = new RAPIER.RigidBodyDesc(BODYMAP[body.type])
+        let rigidBodyDesc = new RAPIER.RigidBodyDesc(BODYMAP[body.body_type])
                 .setTranslation(locrot.location.x,locrot.location.y,locrot.location.z)
-                .setRotation(quat)
+                .setRotation(rquat)
         let rigidBody = this.physics_world.createRigidBody(rigidBodyDesc)
-        let colliderDesc = new RAPIER.ColliderDesc.cuboid(body.bounds.x, body.bounds.y, body.bounds.z)
-                .setDensity(2.0); // The default density is 1.0.
-        let collider = this.physics_world.createCollider(colliderDesc, rigidBody.handle);
-
+        let colliderDesc = new RAPIER.ColliderDesc.cuboid(body.bounds.x/2, body.bounds.y/2, body.bounds.z/2)
+        let collider = this.physics_world.createCollider(colliderDesc, rigidBody.handle)
         e.addComponent(PhysicsComponent, { body: rigidBody })
 
         /*

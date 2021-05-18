@@ -54,11 +54,12 @@ export class FPSScene extends Physics3dScene {
         const g = this.world.createEntity()
         g.addComponent( BodyComponent, {
             mass: 0,
-            bounds_type: BodyComponent.PLANE_TYPE,
+            bounds_type: BodyComponent.BOX_TYPE,
             body_type: BodyComponent.STATIC,
+            bounds: new Vector3(1000,1,1000),
         })
         g.addComponent( ModelComponent, {geometry:"ground",material:"ground"})
-        g.addComponent( LocRotComponent, { rotation: new Vector3(-Math.PI/2,0,0) } )
+        g.addComponent( LocRotComponent, { rotation: new Vector3(0,0,0), location: new Vector3(0,-0.5,0) } )
         g.name = "ground_plane"
 
 
@@ -81,8 +82,8 @@ export class FPSScene extends Physics3dScene {
         e.addComponent(LocRotComponent,{location: new Vector3(0,0.5,0)})
         e.addComponent(ActionListenerComponent)
         e.addComponent(BodyComponent,{
-            body_type: BodyComponent.DYNAMIC,
-            bounds_type:BodyComponent.SPHERE_TYPE,
+            body_type: BodyComponent.KINEMATIC,
+            bounds_type: BodyComponent.SPHERE_TYPE,
             track_collisions:true,
             //fixed_rotation: true,
             bounds: new Vector3(1,1,1),
