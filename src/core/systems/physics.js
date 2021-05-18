@@ -4,14 +4,14 @@ import { HeightfieldDataComponent } from "../components/heightfield.js"
 import { LocRotComponent } from "../components/position.js"
 import { Obj3dComponent } from "../components/render.js"
 import * as THREE from "three"
-
+import * as RAPIER from  '@dimforge/rapier3d-compat'
 
 const BODYMAP = {}
 
 export class PhysicsSystem extends System {
     init(attributes) {
-        import('@dimforge/rapier3d').then(RAPIER => {
-            this.RAPIER = RAPIER
+        RAPIER.init().then( () => {
+            RAPIER = RAPIER
             let gravity = new RAPIER.Vector3(0,-10,0)
             this.physics_world = new RAPIER.World(gravity)
 
@@ -37,7 +37,6 @@ export class PhysicsSystem extends System {
     create_physics_body(e){
         const body = e.getComponent(BodyComponent)
         const locrot = e.getComponent(LocRotComponent)
-        const RAPIER = this.RAPIER
 
         const quat = new THREE.Quaternion()
         quat.setFromEuler(new THREE.Euler(locrot.x,locrot.y,locrot.z,'YZX'))

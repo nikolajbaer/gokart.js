@@ -33,7 +33,7 @@ module.exports = {
         {
           test: /\.wasm$/,
           type: 'javascript/auto',
-          loader: 'file-loader',
+          use: 'wasm-loader',
         },
     ],
   },
@@ -44,5 +44,5 @@ module.exports = {
       template: 'examples/src/index.html',
       inject: true,
     }),
-  ]
+  ],
 }
