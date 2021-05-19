@@ -3,19 +3,19 @@ import { BodyComponent } from "../../../src/core/components/physics"
 import { LocRotComponent } from "../../../src/core/components/position"
 import { Vector3 } from "../../../src/core/ecs_types"
 import { Physics3dScene } from "../../../src/scene/physics3d"
-
-import { MouseLookComponent } from "../../../src/common/components/mouselook"
-import { MouseLookSystem } from "../../../src/common/systems/mouselook"
+import { OrbitControlComponent } from "../../../src/common/components/orbit_controls"
+import { OrbitControlsSystem } from "../../../src/common/systems/orbit_controls"
+import { HUDDataComponent } from "../../../src/core/components/hud"
 
 export class PhysicsTestScene extends Physics3dScene {
     register_components(){
         super.register_components()
-        this.world.registerComponent(MouseLookComponent)
+        this.world.registerComponent(OrbitControlComponent)
     }
 
     register_systems(){
         super.register_systems()
-        this.world.registerSystem(MouseLookSystem,{listen_element_id:this.render_element_id})
+        this.world.registerSystem(OrbitControlsSystem,{listen_element_id:this.render_element_id})
     }
 
     init_entities(){
@@ -40,11 +40,17 @@ export class PhysicsTestScene extends Physics3dScene {
         l2.addComponent(LightComponent,{type:"point",cast_shadow:true,intensity:0.8})
 
         const c = this.world.createEntity()
-        c.addComponent(CameraComponent,{lookAt: new Vector3(0,0,0),current: true, fov:60})
-        c.addComponent(LocRotComponent,{location: new Vector3(0,40,-40), rotation: new Vector3(0,Math.PI,0)})
+        c.addComponent(CameraComponent,{current: true, fov:60})
+        c.addComponent(LocRotComponent,{location: new Vector3(0,0,0), rotation: new Vector3(0,0,0)})
+
+        // orbit center
+        const e = this.world.createEntity()
+        e.addComponent(LocRotComponent)
+        e.addComponent(OrbitControlComponent,{offset:new Vector3(0,0,100)})
+        e.addComponent(HUDDataComponent,{fps:0})
 
         const density = 1
-        const n = 8 
+        const n = 10 
         const sp = 4
         for(var x=0; x<n; x++){
             for(var y =0; y<n; y++){

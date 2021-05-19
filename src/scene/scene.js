@@ -3,7 +3,7 @@ import { CameraComponent, Obj3dComponent, ModelComponent, LightComponent, Projec
 import { LocRotComponent } from "../../src/core/components/position"
 import { HUDDataComponent } from "../../src/core/components/hud"
 import { RenderSystem } from "../../src/core/systems/render"
-import { HUDSystem } from "../../src/core/systems/hud"
+import { HUDState, HUDSystem } from "../../src/core/systems/hud"
 import { ControlsSystem } from "../../src/core/systems/controls"
 import { ActionListenerComponent } from "../../src/core/components/controls"
 import { CameraFollowComponent } from "../../src/common/components/camera_follow"
@@ -12,6 +12,7 @@ import { SoundEffectSystem } from "../../src/core/systems/sound"
 import { MusicLoopComponent, SoundEffectComponent } from "../../src/core/components/sound"
 import { DefaultMeshCreator } from "../core/asset_creator/mesh_creator"
 import { SoundLoader } from "../core/asset_creator/sound_loader"
+import { runInAction } from "mobx"
 
 export class BaseScene {
     constructor(){
@@ -20,6 +21,12 @@ export class BaseScene {
         this.render_element_id = null
         this.init_mesh_creator()
         this.init_sound_loader()
+        this.fps = null 
+        this.hud_state = this.init_hud_state()
+    }
+
+    init_hud_state(){
+        return new HUDState()
     }
 
     init_mesh_creator(mesh_data){
@@ -80,7 +87,7 @@ export class BaseScene {
         this.world.registerSystem(ControlsSystem,{
             listen_element_id:this.render_element_id
         })
-        this.world.registerSystem(HUDSystem)
+        this.world.registerSystem(HUDSystem,{hud_state:this.hud_state})
         this.world.registerSystem(CameraFollowSystem)
         this.world.registerSystem(SoundEffectSystem,{
             sounds:this.sound_loader.SOUNDS
@@ -115,6 +122,10 @@ export class BaseScene {
         let delta = time - this.lastTime
         this.world.execute(delta,time) 
         this.lastTime = time
+
+        runInAction( () => {
+            this.hud_state.fps = 1/delta
+        })
     }
 }
 

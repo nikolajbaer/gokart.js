@@ -5,6 +5,7 @@ import { HUDDataComponent } from "../components/hud"
 /* make an observable object and pass in as hudstate  */
 export class HUDState {
     score = 0
+    fps = 0
 
     constructor(){
         makeAutoObservable(this)
