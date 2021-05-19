@@ -21,7 +21,7 @@ export class DefaultMeshCreator extends BaseMeshCreator {
     BASE_GEOMETRIES = {
         "box": new THREE.BoxGeometry(),
         "sphere": new THREE.SphereGeometry(0.5),
-        "cylinder": new THREE.CylinderGeometry(1,1,1,32),
+        "cylinder": new THREE.CylinderGeometry(0.5,0.5,1,32),
         "plane": new THREE.PlaneGeometry(0,1,5,5),
         "ground": new THREE.PlaneGeometry(1000,1000, 50, 50),
     }

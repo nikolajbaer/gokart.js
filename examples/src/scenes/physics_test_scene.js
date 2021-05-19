@@ -52,14 +52,20 @@ export class PhysicsTestScene extends Physics3dScene {
         const density = 1
         const n = 10 
         const sp = 4
+        const variations = [
+            {g:"box",b:BodyComponent.BOX_TYPE},
+            {g:"sphere",b:BodyComponent.SPHERE_TYPE},
+            {g:"cylinder",b:BodyComponent.CYLINDER_TYPE},
+        ] 
         for(var x=0; x<n; x++){
             for(var y =0; y<n; y++){
                 for(var z=0; z<n; z++){
                     const box = this.world.createEntity()
                     const s = 2 
-                    box.addComponent(ModelComponent,{geometry:"box",scale:new Vector3(s,s,s)})
+                    let t = variations[Math.round(Math.random()*(variations.length-1))]
+                    box.addComponent(ModelComponent,{geometry:t.g,scale:new Vector3(s,s,s)})
                     box.addComponent(LocRotComponent,{location: new Vector3((n/2*sp) - x * sp,sp*4 + y * sp, (n/2*sp) - z * sp)})
-                    box.addComponent(BodyComponent,{mass:s*s*s*density,bounds_type:BodyComponent.BOX_TYPE,bounds: new Vector3(s,s,s)})
+                    box.addComponent(BodyComponent,{mass:s*s*s*density,bounds_type:t.b,bounds: new Vector3(s,s,s)})
                 }
             }
         }

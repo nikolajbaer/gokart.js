@@ -23,7 +23,7 @@ export class PhysicsSystem extends System {
 
             BODYMAP[BodyComponent.DYNAMIC] = RAPIER.BodyStatus.Dynamic
             BODYMAP[BodyComponent.STATIC] = RAPIER.BodyStatus.Static
-            BODYMAP[BodyComponent.KINEMATIC] = RAPIER.BodyStatus.KINEMATIC
+            BODYMAP[BodyComponent.KINEMATIC] = RAPIER.BodyStatus.Kinematic
 
         })
 
@@ -46,7 +46,38 @@ export class PhysicsSystem extends System {
                 .setTranslation(locrot.location.x,locrot.location.y,locrot.location.z)
                 .setRotation(rquat)
         let rigidBody = this.physics_world.createRigidBody(rigidBodyDesc)
-        let colliderDesc = new RAPIER.ColliderDesc.cuboid(body.bounds.x/2, body.bounds.y/2, body.bounds.z/2)
+        let colliderDesc = null
+        switch(body.bounds_type){
+            case BodyComponent.SPHERE_TYPE:
+                colliderDesc = new RAPIER.ColliderDesc.ball(body.bounds.x/2)
+                break
+            case BodyComponent.CYLINDER_TYPE:
+                colliderDesc = new RAPIER.ColliderDesc.cylinder(body.bounds.y/2, body.bounds.z/2)
+                break
+            case BodyComponent.CAPSULE_TYPE:
+                colliderDesc = new RAPIER.ColliderDesc.capsule(body.bounds.y/2, body.bounds.z/2)
+                break
+            case BodyComponent.HEIGHTFIELD_TYPE:
+                if(!e.hasComponent(HeightfieldDataComponent)){ 
+                    console.error("height field bodies must have a HeightfieldDataComponent, defaulting to a Plane") 
+                }else{
+                    const hfield = e.getComponent(HeightfieldDataComponent)
+                    const unrolled = hfield.data.reduce( (acc,row) => acc.concat(row), [])
+                    colliderDesc = new RAPIER.ColliderDesc.heightfield(
+                        width,height,
+                        unrolled, // column major order
+                        new RAPIER.Vector3(hfield.element_size,hfield.element_size,hfield.element_size)
+                    )
+                }
+                break
+            case BodyComponent.BOX_TYPE:
+                colliderDesc = new RAPIER.ColliderDesc.cuboid(body.bounds.x/2, body.bounds.y/2, body.bounds.z/2)
+                break
+            default:
+                console.error("Unknown body type",body.body_type)
+                e.removeComponent(BodyComponent)
+                break
+        }
         let collider = this.physics_world.createCollider(colliderDesc, rigidBody.handle)
         e.addComponent(PhysicsComponent, { body: rigidBody })
 
