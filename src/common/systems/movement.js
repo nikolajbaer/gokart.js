@@ -38,8 +38,11 @@ export class MovementSystem extends System {
 
             if( mover.local ){
                 // we only move in X/Z, not Y
+                const bquat = body.rotation()
+                const beul = new THREE.Euler() 
+                beul.setFromQuaternion(new THREE.Quaternion(bquat.x,bquat.y,bquat.z,bquat.w),'YZX')
                 const v = new THREE.Vector3(vel.x,vel.y,vel.z)
-                v.applyAxisAngle(new THREE.Vector3(0,1,0),body.rotation().y)
+                v.applyAxisAngle(new THREE.Vector3(0,1,0),beul.y)
                 vel.x = v.x
                 vel.y = v.y
                 vel.z = v.z

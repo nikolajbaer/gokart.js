@@ -119,7 +119,7 @@ export class ThirdPersonScene extends Physics3dScene {
             fly_mode: true,
         })
         //e.addComponent(CameraFollowComponent,{offset:new Vector3(10,50,-50)})
-        e.addComponent(OrbitControlComponent,{offset:new Vector3(0,0,40)})
+        e.addComponent(OrbitControlComponent,{offset:new Vector3(0,0,-40)})
         e.addComponent(CharacterCollideComponent,{offset_y:1,gravity: new Vector3(0,-20,0)})
         e.name = "player"
 
