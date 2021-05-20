@@ -17,18 +17,21 @@ import { TerrainSystem } from "../../../src/common/systems/terrain"
 import { TerrainTileComponent } from "../../../src/common/components/terrain"
 import { CharacterCollideComponent } from "../../../src/common/components/character_collide"
 import { CharacterCollideSystem } from "../../../src/common/systems/character_collide"
+import { OrbitControlComponent } from "../../../src/common/components/orbit_controls"
+import { OrbitControlsSystem } from "../../../src/common/systems/orbit_controls"
 
 function random_heightmap(w,h,ymin,ymax,q){
     const data = [] 
     const simplex = new SimplexNoise()
     for(var y=0; y<h; y++){
-        const row = []
+        //const row = []
         for(var x=0; x<w; x++){ 
             // height of 0-1 projected onto ymin/ymax range
             const v = (simplex.noise2D(x*q,y*q)+1)/2 * (ymax-ymin) + ymin
-            row.push(v) 
+            //row.push(v) 
+            data.push(v)
         }
-        data.push(row)
+        //data.push(row)
     }
     return data
 }
@@ -44,6 +47,7 @@ export class ThirdPersonScene extends Physics3dScene {
         this.world.registerComponent(TerrainTileComponent)
         this.world.registerComponent(CharacterCollideComponent)
         this.world.registerComponent(OnGroundComponent)
+        this.world.registerComponent(OrbitControlComponent)
     }
 
     register_systems(){
@@ -53,6 +57,7 @@ export class ThirdPersonScene extends Physics3dScene {
         this.world.registerSystem(AnimatedMovementSystem)
         this.world.registerSystem(TerrainSystem)
         this.world.registerSystem(CharacterCollideSystem)
+        this.world.registerSystem(OrbitControlsSystem,{listen_element_id:this.render_element_id})
     }
 
     init_entities(){
@@ -67,16 +72,15 @@ export class ThirdPersonScene extends Physics3dScene {
         const hf_w = 32 // width/depth of points in heightfield
         const hf_esz = 10 // spacing of grid of points in heightfield
         g.addComponent( HeightfieldDataComponent, {
-            data: random_heightmap(hf_w,hf_w,0,10,0.1), // 0-1 range of heights, scale simplex noise by 0.1
+            data: random_heightmap(hf_w,hf_w,0,1,0.1), // 0-1 range of heights, scale simplex noise by 0.1
             width: hf_w, 
             height: hf_w,
-            element_size: hf_esz,
+            scale: new Vector3(hf_w*hf_esz,10,hf_w*hf_esz),
         })
         g.addComponent( ModelComponent, {geometry:"terrain",material:0x247d3c})
         g.addComponent( TerrainTileComponent )
         g.addComponent( LocRotComponent, { 
-            location: new Vector3(-(hf_w*hf_esz)/2,-5,(hf_w*hf_esz)/2),  // Heightfield registers in top left, so center it on origin
-            rotation: new Vector3(-Math.PI/2,0,0)  // plane and heightfield are naturally x/y pointing Z, so flip so they are Y up
+            //rotation: new Vector3(-Math.PI/2,0,0)  // plane and heightfield are naturally x/y pointing Z, so flip so they are Y up
         } )
         g.name="ground"
 
@@ -94,7 +98,7 @@ export class ThirdPersonScene extends Physics3dScene {
 
         // add a player
         const e = this.world.createEntity()
-        e.addComponent(ModelComponent,{geometry:"cylinder",scale: new Vector3(1,2,1)})
+        e.addComponent(ModelComponent,{geometry:"box",scale: new Vector3(1,2,1)})
         e.addComponent(LocRotComponent,{location: new Vector3(0,8,0)})
         e.addComponent(ActionListenerComponent)
         e.addComponent(BodyComponent,{
@@ -112,8 +116,10 @@ export class ThirdPersonScene extends Physics3dScene {
             turner:false,
             local:true,
             jump_speed: 10,
+            fly_mode: true,
         })
-        e.addComponent(CameraFollowComponent,{offset:new Vector3(10,50,-50)})
+        //e.addComponent(CameraFollowComponent,{offset:new Vector3(10,50,-50)})
+        e.addComponent(OrbitControlComponent,{offset:new Vector3(0,0,40)})
         e.addComponent(CharacterCollideComponent,{offset_y:1,gravity: new Vector3(0,-20,0)})
         e.name = "player"
 
@@ -123,7 +129,7 @@ export class ThirdPersonScene extends Physics3dScene {
                 const box = this.world.createEntity()
                 box.addComponent(ModelComponent,{geometry:"box",material:"ground",scale: new Vector3(10,2,10)})
                 box.addComponent(BodyComponent,{mass:0,bounds:new Vector3(10,2,10),body_type:BodyComponent.STATIC,bounds_type:BodyComponent.BOX_TYPE})
-                box.addComponent(LocRotComponent,{location: new Vector3(10 + i*15,i+1,10+j*15),rotation: new Vector3(Math.PI/180 * (j*15),0,0)})
+                box.addComponent(LocRotComponent,{location: new Vector3(10 + i*15,i+10,10+j*15),rotation: new Vector3(Math.PI/180 * (j*15),0,0)})
             }
         }
         // test our terrain with a ball drop!

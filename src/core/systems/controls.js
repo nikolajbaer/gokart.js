@@ -3,7 +3,7 @@ import { ActionListenerComponent } from "../components/controls";
 
 export class ControlsSystem extends System {
     init(attributes) {
-        let action_key_map = {
+        let action_key_map = { // Nikolaj's preferred defaults :)
             "KeyW":"up",
             "KeyS":"down",
             "KeyA":"left",
@@ -13,6 +13,8 @@ export class ControlsSystem extends System {
             "ArrowLeft":"left",
             "ArrowRight":"right",
             "Space":"jump",
+            "KeyC":"crouch",
+            "LeftControl":"crouch",
             "ShiftLeft":"shift",
             "ShiftRight":"shift",
         }

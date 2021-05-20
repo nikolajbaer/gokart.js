@@ -1,17 +1,17 @@
 import { System } from "ecsy"
 import { BodyComponent, PhysicsComponent } from "../../core/components/physics"
-import * as CANNON from "cannon-es"
 import { CharacterCollideComponent } from "../components/character_collide"
 import { OnGroundComponent } from "../components/movement"
 
 // Collide and Slide Reference: https://docs.nvidia.com/gameworks/content/gameworkslibrary/physx/guide/Manual/CharacterControllers.html
-const UP = new CANNON.Vec3(0,1,0)
+//const UP = new CANNON.Vec3(0,1,0)
 
 export class CharacterCollideSystem extends System {
     check_ground(e){
         const character = e.getComponent(CharacterCollideComponent)
         const body = e.getComponent(PhysicsComponent).body
 
+        /*
         // RayCast to the ground
         const r_from = new CANNON.Vec3()
         const r_to = new CANNON.Vec3()
@@ -41,9 +41,11 @@ export class CharacterCollideSystem extends System {
                 e.removeComponent(OnGroundComponent)
             }
         }
+        */
     }
 
     check_walls(e,delta){
+        /*
         const body = e.getComponent(PhysicsComponent).body
         const body_def = e.getComponent(BodyComponent)
 
@@ -76,15 +78,16 @@ export class CharacterCollideSystem extends System {
             body.velocity.z = newvel.z
             // leave y up to ground collider
         }
+        */
     }
 
     execute(delta,time){
         this.queries.characters.results.forEach( e => {
             this.check_ground(e)
             this.check_walls(e,delta)
-            if(!e.hasComponent(OnGroundComponent)){
+            /*if(!e.hasComponent(OnGroundComponent)){
                 e.getComponent(PhysicsComponent).body.velocity.y += e.getComponent(CharacterCollideComponent).gravity.y * delta
-            }
+            }*/
         })
     }
 }

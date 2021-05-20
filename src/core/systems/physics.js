@@ -1,5 +1,5 @@
 import { System, Not } from "ecsy";
-import { PhysicsComponent, BodyComponent, CollisionComponent } from "../components/physics.js"
+import { PhysicsComponent, BodyComponent, CollisionComponent, ApplyVelocityComponent, SetRotationComponent } from "../components/physics.js"
 import { HeightfieldDataComponent } from "../components/heightfield.js"
 import { LocRotComponent } from "../components/position.js"
 import { Obj3dComponent } from "../components/render.js"
@@ -7,6 +7,12 @@ import * as THREE from "three"
 import * as RAPIER from  '@dimforge/rapier3d-compat'
 
 const BODYMAP = {}
+
+const AXIS = {
+    X: new THREE.Vector3(1,0,0),
+    Y: new THREE.Vector3(0,1,0),
+    Z: new THREE.Vector3(0,0,1),
+}
 
 export class PhysicsSystem extends System {
     init(attributes) {
@@ -38,15 +44,11 @@ export class PhysicsSystem extends System {
         const body = e.getComponent(BodyComponent)
         const locrot = e.getComponent(LocRotComponent)
 
-        const quat = new THREE.Quaternion()
-        quat.setFromEuler(new THREE.Euler(locrot.x,locrot.y,locrot.z,'YZX'))
-        const rquat = new RAPIER.Quaternion(quat.x,quat.y,quat.z,quat.w)
-
         let rigidBodyDesc = new RAPIER.RigidBodyDesc(BODYMAP[body.body_type])
                 .setTranslation(locrot.location.x,locrot.location.y,locrot.location.z)
-                .setRotation(rquat)
         let rigidBody = this.physics_world.createRigidBody(rigidBodyDesc)
         let colliderDesc = null
+
         switch(body.bounds_type){
             case BodyComponent.SPHERE_TYPE:
                 colliderDesc = new RAPIER.ColliderDesc.ball(body.bounds.x/2)
@@ -62,11 +64,15 @@ export class PhysicsSystem extends System {
                     console.error("height field bodies must have a HeightfieldDataComponent, defaulting to a Plane") 
                 }else{
                     const hfield = e.getComponent(HeightfieldDataComponent)
-                    const unrolled = hfield.data.reduce( (acc,row) => acc.concat(row), [])
                     colliderDesc = new RAPIER.ColliderDesc.heightfield(
-                        width,height,
-                        unrolled, // column major order
-                        new RAPIER.Vector3(hfield.element_size,hfield.element_size,hfield.element_size)
+                        hfield.width - 1,
+                        hfield.height - 1,
+                        hfield.data, // column major order
+                        new RAPIER.Vector3(
+                            hfield.scale.x,
+                            hfield.scale.y,
+                            hfield.scale.z
+                        )
                     )
                 }
                 break
@@ -78,64 +84,16 @@ export class PhysicsSystem extends System {
                 e.removeComponent(BodyComponent)
                 break
         }
+
+        const quat = new THREE.Quaternion()
+        quat.setFromEuler(new THREE.Euler(locrot.x,locrot.y,locrot.z,'YZX'))
+        const rquat = new RAPIER.Quaternion(quat.x,quat.y,quat.z,quat.w)
+        colliderDesc.setRotation(rquat)
+
         let collider = this.physics_world.createCollider(colliderDesc, rigidBody.handle)
+        // consider do i need to clean up colliders?
         e.addComponent(PhysicsComponent, { body: rigidBody })
 
-        /*
-        const quat = new CANNON.Quaternion()
-        quat.setFromEuler(locrot.rotation.x,locrot.rotation.y,locrot.rotation.z)
-
-        let shape = null
-        switch(body.bounds_type){
-            case BodyComponent.BOX_TYPE:
-                shape = new CANNON.Box(new CANNON.Vec3(body.bounds.x/2,body.bounds.y/2,body.bounds.z/2))
-                break;
-            case BodyComponent.PLANE_TYPE:
-                shape = new CANNON.Plane()
-                break;
-            case BodyComponent.CYLINDER_TYPE:
-                shape = new CANNON.Cylinder(body.bounds.x/2,body.bounds.x/2,body.bounds.y)
-                break;
-            case BodyComponent.HEIGHTFIELD_TYPE:
-                if(!e.hasComponent(HeightfieldDataComponent)){ 
-                    console.error("height field bodies must have a HeightfieldDataComponent, defaulting to a Plane") 
-                    shape = new CANNON.Plane()
-                }else{
-                    const hfield = e.getComponent(HeightfieldDataComponent)
-                    shape = new CANNON.Heightfield(hfield.data, { elementSize: hfield.element_size })
-                    console.log(shape)
-                }
-                break
-            default:
-                shape = new CANNON.Sphere(body.bounds.x/2)
-                break;
-        }
-        const mat = this.contact_materials[body.material]
-        const body1  = new CANNON.Body({
-            mass: body.mass, //mass
-            material: mat,
-            position: new CANNON.Vec3(locrot.location.x,locrot.location.y,locrot.location.z),
-            quaternion: quat,
-            type: body.body_type,
-            velocity: new CANNON.Vec3(body.velocity.x,body.velocity.y,body.velocity.z),
-            fixedRotation: body.fixed_rotation,
-            collisionFilterGroup: body.collision_group,
-        })
-        if( body.fixed_rotation ){
-            body1.updateMassProperties()
-        }
-        body1.linearDamping = 0.01
-        body1.addShape(shape)
-        body1.ecsy_entity = e // back reference for processing collisions
-        if( body.track_collisions && this.collision_handler){ 
-            body1.addEventListener("collide", event => {
-                this.collision_handler(event.target.ecsy_entity,event.body.ecsy_entity,event.contact)
-            })
-        }
-
-        this.physics_world.addBody(body1) 
-        e.addComponent(PhysicsComponent, { body: body1 })
-        */
     }
 
     execute(delta,time){
@@ -146,6 +104,55 @@ export class PhysicsSystem extends System {
             this.create_physics_body(e)
         })
 
+        this.queries.updated_velocity.results.forEach( e => {
+            let body = e.getComponent(PhysicsComponent).body
+            let vel = e.getComponent(ApplyVelocityComponent)
+            if(vel.linear_velocity != null){
+                const lv = new RAPIER.Vector3(vel.linear_velocity.x,vel.linear_velocity.y,vel.linear_velocity.z)
+                if(body.isKinematic){
+                    const next_pos = new RAPIER.Vector3(
+                        body.translation().x + vel.linear_velocity.x * delta,
+                        body.translation().y + vel.linear_velocity.y * delta,
+                        body.translation().z + vel.linear_velocity.z * delta
+                    )
+                    body.setNextKinematicTranslation(next_pos)
+                }else{
+                    body.setLinvel(lv,true)
+                }
+            }
+            if(vel.angular_velocity != null){
+                const av = new RAPIER.Vector3(vel.angular_velocity.x,vel.angular_velocity.y,vel.angular_velocity.z)
+                if(body.isKinematic){
+
+                }else{
+                    body.setAngvel(av,true)
+                }
+            }
+            e.removeComponent(ApplyVelocityComponent)
+        })
+
+        this.queries.set_rotation.results.forEach( e => {
+            const rot = e.getComponent(SetRotationComponent)
+            const body = e.getComponent(PhysicsComponent).body
+
+            const quat = new THREE.Quaternion()
+            if(rot.x != null) {
+                quat.setFromAxisAngle(AXIS.X,rot.x)
+            }
+            if(rot.y != null) {
+                quat.setFromAxisAngle(AXIS.Y,rot.y)
+            }
+            if(rot.z != null) {
+                quat.setFromAxisAngle(AXIS.Z,rot.z)
+            }
+            if(body.isKinematic){
+                body.setNextKinematicRotation(quat)
+            }else{
+                body.setRotation(quat)
+            }
+            e.removeComponent(SetRotationComponent)
+        })
+        
         // todo then remove any removed bodies
         this.queries.remove.results.forEach( e => {
             const body = e.getComponent(PhysicsComponent).body
@@ -174,6 +181,12 @@ PhysicsSystem.queries = {
         listen: {
             removed: true
         }
+    },
+    updated_velocity: {
+        components: [PhysicsComponent,ApplyVelocityComponent],
+    },
+    set_rotation: {
+        components: [SetRotationComponent,PhysicsComponent],
     },
     colliders: {
         components: [CollisionComponent,PhysicsComponent],

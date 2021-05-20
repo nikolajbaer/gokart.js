@@ -2,7 +2,7 @@ import { System } from "ecsy"
 import { CameraComponent, Obj3dComponent } from "../../core/components/render";
 import { MouseLookComponent } from "../components/mouselook";
 import * as THREE from "three"
-import { PhysicsComponent } from "../../core/components/physics";
+import { PhysicsComponent, SetRotationComponent } from "../../core/components/physics";
         
 const _PI_2 = Math.PI / 2;
 
@@ -84,11 +84,12 @@ export class MouseLookSystem extends System {
 
         // rotate object as well on y only
         if(e.hasComponent(PhysicsComponent)){
-            const body = e.getComponent(PhysicsComponent).body
-            //body.quaternion.setFromAxisAngle(UP, this.euler.y) 
-
-        // todo figure out 2d physics rotation
-        }else{
+            if(e.hasComponent(SetRotationComponent)){
+                e.getComponent(SetRotationComponent).y = this.euler.y
+            }else{
+                e.addComponent(SetRotationComponent,{y:this.euler.y})
+            }
+        }else{ 
             obj.rotation.y = this.euler.y
         }
 

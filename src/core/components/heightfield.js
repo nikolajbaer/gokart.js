@@ -1,9 +1,10 @@
 import { Component, Types } from 'ecsy'
+import { Vector3Type } from "../ecs_types"
 
 export class HeightfieldDataComponent extends Component {}
 HeightfieldDataComponent.schema = {
   data: { type: Types.Ref },
   width: { type: Types.Number, default: 100 },
   height: { type: Types.Number, default: 100 },
-  element_size: { type: Types.Number, default: 1 },
+  scale: { type: Vector3Type },
 }

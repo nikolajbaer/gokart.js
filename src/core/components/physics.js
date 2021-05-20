@@ -43,3 +43,15 @@ CollisionComponent.schema = {
   impact_velocity: { type: Types.Number },
 }
 
+export class ApplyVelocityComponent extends Component {}
+ApplyVelocityComponent.schema = {
+  linear_velocity: { type: Vector3Type, default: null },
+  angular_velocity: { type: Vector3Type, default: null },
+}
+
+export class SetRotationComponent extends Component {}
+SetRotationComponent.schema = {
+  x: { type: Types.Number, default: null }, // unroll since we may only want to set a specific rotation for a specific axis
+  y: { type: Types.Number, default: null },
+  z: { type: Types.Number, default: null },
+}

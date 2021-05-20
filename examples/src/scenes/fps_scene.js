@@ -58,7 +58,7 @@ export class FPSScene extends Physics3dScene {
             body_type: BodyComponent.STATIC,
             bounds: new Vector3(1000,1,1000),
         })
-        g.addComponent( ModelComponent, {geometry:"ground",material:"ground"})
+        g.addComponent( ModelComponent, {geometry:"box",material:"ground",scale: new Vector3(1000,1,1000)})
         g.addComponent( LocRotComponent, { rotation: new Vector3(0,0,0), location: new Vector3(0,-0.5,0) } )
         g.name = "ground_plane"
 
@@ -83,9 +83,8 @@ export class FPSScene extends Physics3dScene {
         e.addComponent(ActionListenerComponent)
         e.addComponent(BodyComponent,{
             body_type: BodyComponent.KINEMATIC,
-            bounds_type: BodyComponent.SPHERE_TYPE,
+            bounds_type: BodyComponent.CYLINDER_TYPE,
             track_collisions:true,
-            //fixed_rotation: true,
             bounds: new Vector3(1,1,1),
             material: "player",
             mass: 100,
@@ -97,6 +96,7 @@ export class FPSScene extends Physics3dScene {
             turner:false,
             local:true,
             jump_speed: 10,
+            fly_mode: true,
         })
         e.addComponent(MouseLookComponent,{offset:new Vector3(0,2,0),invert_y:true})
         e.name = "player"
