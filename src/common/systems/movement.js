@@ -77,7 +77,6 @@ export class MovementSystem extends System {
                     }else{
                         e.addComponent(ApplyVelocityComponent,{
                             linear_velocity:new Vector3(vel.x,vel.y,vel.z),
-                            angular_velocity:new Vector3(av.x,av.y,av.z)
                         })
                     }
                 }else{

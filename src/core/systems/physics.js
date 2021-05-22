@@ -44,10 +44,14 @@ export class PhysicsSystem extends System {
     create_physics_body(e){
         const body = e.getComponent(BodyComponent)
         const locrot = e.getComponent(LocRotComponent)
-
+        const quat = new THREE.Quaternion().setFromEuler(new THREE.Euler(locrot.rotation.x,locrot.rotation.y,locrot.rotation.z,'YZX'))
+        const rquat = new RAPIER.Quaternion(quat.x,quat.y,quat.z,quat.w)
+ 
         let rigidBodyDesc = new RAPIER.RigidBodyDesc(BODYMAP[body.body_type])
-                .setTranslation(locrot.location.x,locrot.location.y,locrot.location.z)
+        rigidBodyDesc.setTranslation(locrot.location.x,locrot.location.y,locrot.location.z)
+        rigidBodyDesc.setRotation(rquat)
         let rigidBody = this.physics_world.createRigidBody(rigidBodyDesc)
+
         let colliderDesc = null
 
         switch(body.bounds_type){
@@ -86,10 +90,6 @@ export class PhysicsSystem extends System {
                 break
         }
 
-        const quat = new THREE.Quaternion()
-        quat.setFromEuler(new THREE.Euler(locrot.x,locrot.y,locrot.z,'YZX'))
-        const rquat = new RAPIER.Quaternion(quat.x,quat.y,quat.z,quat.w)
-        colliderDesc.setRotation(rquat)
         colliderDesc.setCollisionGroups(body.collision_groups)
 
         let collider = this.physics_world.createCollider(colliderDesc, rigidBody.handle)
@@ -103,43 +103,41 @@ export class PhysicsSystem extends System {
         const body_def = e.getComponent(BodyComponent)
 
         if(!body.isKinematic){
-            console.error("Warning: body needs to be kinematic to do collide and slide. Removing collide and slide component")
+            console.error("Warning: body needs to be kinematic to do collide and slide. Removing kinematic collide component")
             e.removeComponent(KinematicColliderComponent)
             return
         }
+
         const kine = e.getMutableComponent(KinematicColliderComponent)
 
         const v = new RAPIER.Vector3(0,0,0)
         let apply_vel = null
+        // If we have a velocity we want to change to
         if(e.hasComponent(ApplyVelocityComponent)){
             apply_vel = e.getMutableComponent(ApplyVelocityComponent)
             const vel = apply_vel.linear_velocity
             v.x = vel.x
             v.y = vel.y
             v.z = vel.z
+        }else{
+            // otherwise maintain our current velocity
+            v.x = kine.velocity.x
+            v.y = kine.velocity.y
+            v.z = kine.velocity.z
         }
-        // CONSIDER kinematic bodies don't maintain linear velocity, so we need 
-        // to transmit it here.
+
+        // Now check for collisions
+        const cur_pos = body.translation()
+        const cur_quat = body.rotation()
         const result = this.physics_world.castShape(
             this.physics_world.colliders, // can we narrow this?
-            body.translation(),
-            body.rotation(),
+            cur_pos,
+            cur_quat,
             v,
             new RAPIER.Capsule(body_def.bounds.y/2,body_def.bounds.z/2),
             delta,
             kine.collision_groups,
         )
-
-        if(result != null){
-            const body_quat = new THREE.Quaternion().copy(body.rotation())
-            if(kine.max_slope != null){                        
-                const normal = new THREE.Vector3().copy(result.normal2).applyQuaternion(body_quat)
-                if(normal.dot(AXIS.Y) > kine.max_slope && !e.hasComponent(OnGroundComponent)){
-                    console.log("on ground!")
-                    e.addComponent(OnGroundComponent) 
-                }
-            }
-
 /*
 https://discord.com/channels/507548572338880513/747935665076830259/840054007091298364
 
@@ -151,35 +149,57 @@ generally, the way to move a kinematic character controller is with iterative sw
 the easiest solution is to project the remaining movement vector into the collision plane, although sometimes a different projection is useful (e.g. the cross-product I mentioned above)
 */
 
-            // adjust ApplyVelocityComponent
-            // vel to impact point
-            let m = result.toi/delta
-            if(apply_vel){ // we are moving, so alter our velocity to prevent collision
-                if(kine.slide){ // collide and slide
-                    //console.log("collide and slide!",result,body.collider(0),m)
-                    apply_vel.linear_velocity.x = 0 //v.x * m
-                    apply_vel.linear_velocity.y = 0 //v.y * m
-                    apply_vel.linear_velocity.z = 0 //v.z * m
-                }else{ // collide and stop
-                    //console.log("collide and stop!",result,body.collider(0),m)
-                    apply_vel.linear_velocity.x = 0 //v.x * m
-                    apply_vel.linear_velocity.y = 0 //v.y * m
-                    apply_vel.linear_velocity.z = 0 //v.z * m
+        // If we have a collision, we need to adjust our next position
+        if(result != null){
+            const body_quat = new THREE.Quaternion().copy(body.rotation())
+
+            // determine if we are on the ground
+            if(kine.max_slope != null){
+                const normal = new THREE.Vector3().copy(result.normal2).applyQuaternion(body_quat)
+                if(normal.dot(AXIS.Y) > kine.max_slope && !e.hasComponent(OnGroundComponent)){
+                    console.log("on ground!")
+                    e.addComponent(OnGroundComponent) 
                 }
-            }else{ // we are sitting still, so move our position to be not colliding
-                //console.log("Collision standing still!",result,body.collider(0))
-                //const p = body.translation()
-                //body.setTranslation(result.normal1.x + p.x) 
             }
-            // leftover_vel = v * (1- result.toi/delta) 
-            // TODO convert into movement perpendicular to result.normal2?
+
+            // Adjust translation to point of collision
+            let next_pos = null
+
+            next_pos = new RAPIER.Vector3(
+                cur_pos.x + (v.x * result.toi),
+                cur_pos.y + (v.y * result.toi),
+                cur_pos.z + (v.z * result.toi)
+            )
+
+            // I guess iterate a few times and cast shape?
+
+            console.log("colliding at ",result.toi/delta, " of delta")
+            // If we are sliding, then transmit remaining velocity into a slide as the cross
+            // of 
+            if(kine.slide){
+                const remaining = new RAPIER.Vector3(
+                    v.x * (delta-result.toi),
+                    v.y * (delta-result.toi),
+                    v.z * (delta-result.toi),
+                )
+                // slide remaining moment
+            }
+           
+            body.setNextKinematicTranslation(next_pos)
+        }else{
+            // If  we have no collision, just advance by our current velocity
+            let next_pos = new RAPIER.Vector3(
+                cur_pos.x + v.x * delta,
+                cur_pos.y + v.y * delta,
+                cur_pos.z + v.z * delta
+            )
+            body.setNextKinematicTranslation(next_pos)
         }
-        
+       
         if(apply_vel != null){
-            kine.velocity = apply_vel.linear_velocity
-            kine.angular_velocity = apply_vel.angular_velocity
+            e.removeComponent(ApplyVelocityComponent)
         }
-    }
+    }    
 
     execute(delta,time){
         if(!this.physics_world) return
@@ -197,31 +217,7 @@ the easiest solution is to project the remaining movement vector into the collis
             this.handle_kinematic_collider(e,delta)
         })
 
-        this.queries.updated_velocity.results.forEach( e => {
-            let body = e.getComponent(PhysicsComponent).body
-            let vel = e.getComponent(ApplyVelocityComponent)
-            if(vel.linear_velocity != null){
-                const lv = new RAPIER.Vector3(vel.linear_velocity.x,vel.linear_velocity.y,vel.linear_velocity.z)
-                if(body.isKinematic){
-                    const next_pos = new RAPIER.Vector3(
-                        body.translation().x + vel.linear_velocity.x * delta,
-                        body.translation().y + vel.linear_velocity.y * delta,
-                        body.translation().z + vel.linear_velocity.z * delta
-                    )
-                    body.setNextKinematicTranslation(next_pos)
-                }
-                body.setLinvel(lv,true)
-            }
-            if(vel.angular_velocity != null){
-                const av = new RAPIER.Vector3(vel.angular_velocity.x,vel.angular_velocity.y,vel.angular_velocity.z)
-                if(body.isKinematic){
-
-                }else{
-                    body.setAngvel(av,true)
-                }
-            }
-            e.removeComponent(ApplyVelocityComponent)
-        })
+    
 
         this.queries.set_rotation.results.forEach( e => {
             const rot = e.getComponent(SetRotationComponent)
