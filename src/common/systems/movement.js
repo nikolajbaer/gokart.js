@@ -1,6 +1,6 @@
 import { System } from "ecsy"
 import { ActionListenerComponent } from "../../core/components/controls"
-import { ApplyVelocityComponent, PhysicsComponent } from "../../core/components/physics"
+import { ApplyVelocityComponent, KinematicColliderComponent, PhysicsComponent } from "../../core/components/physics"
 import { OnGroundComponent, MoverComponent } from "../components/movement"
 import * as THREE from "three"
 import { Vector3 } from "three"
@@ -16,6 +16,7 @@ export class MovementSystem extends System {
             const actions =  e.getComponent(ActionListenerComponent).actions
             const body = e.getComponent(PhysicsComponent).body
             const mover = e.getMutableComponent(MoverComponent)
+            const kine = e.getComponent(KinematicColliderComponent)
 
             const av = new THREE.Vector3()
             const v = new THREE.Vector3()
@@ -62,7 +63,7 @@ export class MovementSystem extends System {
                     vel.y = mover.jump_speed
                     e.removeComponent(OnGroundComponent) 
                 }else{
-                    vel.y = body.linvel().y // maintain Y vel for gravity
+                    vel.y = kine.velocity.y + (mover.gravity * delta)
                 }
             }
 
@@ -79,6 +80,8 @@ export class MovementSystem extends System {
                             angular_velocity:new Vector3(av.x,av.y,av.z)
                         })
                     }
+                }else{
+                    // slow down if we have existing velocity in kine.linear_velocity
                 }
 
                 // Keep track of our movement state for animations

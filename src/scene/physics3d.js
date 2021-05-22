@@ -1,4 +1,4 @@
-import { ApplyVelocityComponent, BodyComponent, CollisionComponent, PhysicsComponent, SetRotationComponent  } from "../../src/core/components/physics"
+import { ApplyVelocityComponent, BodyComponent, KinematicColliderComponent, CollisionComponent, PhysicsComponent, SetRotationComponent  } from "../../src/core/components/physics"
 import { PhysicsMeshUpdateSystem, PhysicsSystem } from "../../src/core/systems/physics"
 import { HeightfieldDataComponent } from "../core/components/heightfield"
 import { BaseScene } from "./scene.js"
@@ -14,6 +14,7 @@ export class Physics3dScene extends BaseScene {
         this.world.registerComponent(CollisionComponent)
         this.world.registerComponent(ApplyVelocityComponent)
         this.world.registerComponent(SetRotationComponent)
+        this.world.registerComponent(KinematicColliderComponent)
     }
 
     register_systems(){

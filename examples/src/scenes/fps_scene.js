@@ -1,5 +1,5 @@
 import { CameraComponent,  ModelComponent, LightComponent  } from "../../../src/core/components/render"
-import { BodyComponent } from "../../../src/core/components/physics"
+import { BodyComponent, KinematicColliderComponent } from "../../../src/core/components/physics"
 import { LocRotComponent } from "../../../src/core/components/position"
 import { Vector3 } from "../../../src/core/ecs_types"
 import { ActionListenerComponent } from "../../../src/core/components/controls"
@@ -57,6 +57,7 @@ export class FPSScene extends Physics3dScene {
             bounds_type: BodyComponent.BOX_TYPE,
             body_type: BodyComponent.STATIC,
             bounds: new Vector3(1000,1,1000),
+            collision_groups: 0xffff0002,
         })
         g.addComponent( ModelComponent, {geometry:"box",material:"ground",scale: new Vector3(1000,1,1000)})
         g.addComponent( LocRotComponent, { rotation: new Vector3(0,0,0), location: new Vector3(0,-0.5,0) } )
@@ -79,15 +80,16 @@ export class FPSScene extends Physics3dScene {
         // add a player
         const e = this.world.createEntity()
         e.addComponent(ModelComponent,{geometry:"none",scale: new Vector3(1,1,1)})
-        e.addComponent(LocRotComponent,{location: new Vector3(0,0.5,0)})
+        e.addComponent(LocRotComponent,{location: new Vector3(0,13,0)})
         e.addComponent(ActionListenerComponent)
         e.addComponent(BodyComponent,{
             body_type: BodyComponent.KINEMATIC,
             bounds_type: BodyComponent.CYLINDER_TYPE,
             track_collisions:true,
-            bounds: new Vector3(1,1,1),
+            bounds: new Vector3(1,2,1),
             material: "player",
             mass: 100,
+            collision_groups: 0xffff0004,
         })
         e.addComponent(HitComponent)
         e.addComponent(MoverComponent,{
@@ -96,17 +98,11 @@ export class FPSScene extends Physics3dScene {
             turner:false,
             local:true,
             jump_speed: 10,
-            fly_mode: true,
+            gravity: -10,
         })
         e.addComponent(MouseLookComponent,{offset:new Vector3(0,2,0),invert_y:true})
+        e.addComponent(KinematicColliderComponent,{collision_groups: 0x00020002})
         e.name = "player"
-
-        // add something to bump into
-        const e1 = this.world.createEntity()
-        e1.addComponent(ModelComponent,{geometry:"sphere"})
-        e1.addComponent(LocRotComponent,{location: new Vector3(10,1,10)})
-        e1.addComponent(BodyComponent,{mass:100,bounds_type:BodyComponent.SPHERE_TYPE})
-        e1.addComponent(HitComponent)
 
         // and some walls
         const W = 100
@@ -118,6 +114,7 @@ export class FPSScene extends Physics3dScene {
                 body_type:BodyComponent.STATIC,
                 bounds: new Vector3(W,10,5),
                 mass: 0,
+                collision_groups: 0xffff0002,
             })
             w.addComponent(LocRotComponent,{
                 location: [

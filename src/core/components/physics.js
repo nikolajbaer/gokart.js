@@ -15,7 +15,7 @@ BodyComponent.schema = {
   destroy_on_collision: { type: Types.Boolean, default: false },
   track_collisions: { type: Types.Boolean, default: false }, // CONSIDER this drives  
   fixed_rotation: { type: Types.Boolean, default: false },
-  collision_group: { type: Types.Number, default: 1 },
+  collision_groups: { type: Types.Number, default: 0xFFFF0001 },
 }
 
 // Bounds Types
@@ -54,4 +54,14 @@ SetRotationComponent.schema = {
   x: { type: Types.Number, default: null }, // unroll since we may only want to set a specific rotation for a specific axis
   y: { type: Types.Number, default: null },
   z: { type: Types.Number, default: null },
+}
+
+export class KinematicColliderComponent extends Component {}
+KinematicColliderComponent.schema = {
+  collision_groups: { type:Types.Number, default: 0x00010001 },
+  slide: { type: Types.Boolean, default: true },
+  max_slope: { type: Types.Number, default: 0.5 }, // CONSIDER maybe track max slope?
+  // Rapier doesn't hang on to velocity of kinematic bodies, so we need to preserve it here
+  velocity: { type: Vector3Type, default: new Vector3(0,0,0) },
+  angular_velocity: { type: Vector3Type, default: new Vector3(0,0,0) },
 }

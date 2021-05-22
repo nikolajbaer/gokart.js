@@ -13,6 +13,7 @@ import { MusicLoopComponent, SoundEffectComponent } from "../../src/core/compone
 import { DefaultMeshCreator } from "../core/asset_creator/mesh_creator"
 import { SoundLoader } from "../core/asset_creator/sound_loader"
 import { runInAction } from "mobx"
+import { Clock } from "three"
 
 export class BaseScene {
     constructor(){
@@ -23,6 +24,7 @@ export class BaseScene {
         this.init_sound_loader()
         this.fps = null 
         this.hud_state = this.init_hud_state()
+        this.clock = new Clock()
     }
 
     init_hud_state(){
@@ -118,10 +120,9 @@ export class BaseScene {
         requestAnimationFrame( () => this.loop() );            
         if(this.paused){ return }
 
-        let time = performance.now() / 1000
-        let delta = time - this.lastTime
+        let delta = this.clock.getDelta()
+        let time = this.clock.getElapsedTime()
         this.world.execute(delta,time) 
-        this.lastTime = time
 
         runInAction( () => {
             this.hud_state.fps = 1/delta
