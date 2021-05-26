@@ -99,7 +99,7 @@ export class FPSScene extends Physics3dScene {
             local:true,
             jump_speed: 10,
             gravity: -10,
-            fly_mode: true,
+            //fly_mode: true,
         })
         e.addComponent(MouseLookComponent,{offset:new Vector3(0,2,0),invert_y:true})
         e.addComponent(KinematicColliderComponent,{collision_groups: 0x00020002})

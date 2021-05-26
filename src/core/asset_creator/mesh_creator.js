@@ -2,6 +2,7 @@ import * as THREE from "three";
 import { SkeletonUtils } from 'three/examples/jsm/utils/SkeletonUtils';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { HeightfieldDataComponent } from "../components/heightfield.js";
+import { Sky } from 'three/examples/jsm/objects/Sky.js';
 
 export class BaseMeshCreator {
     create_mesh(geometry,material){
@@ -71,6 +72,26 @@ export class DefaultMeshCreator extends BaseMeshCreator {
     create_mesh(geometry,material,receiveShadow,castShadow,entity){
         if(this.PREFABS[geometry]){
             return this.create_prefab(geometry,receiveShadow,castShadow)  
+        }
+
+        // TODO make non-geom mesh objects more configurable?
+        if(geometry == "sky"){
+            // https://threejs.org/examples/webgl_shaders_sky.html
+            const sky = new Sky()
+            sky.scale.setScalar(450000) 
+            const sun = new THREE.Vector3()
+            const uniforms = sky.material.uniforms
+			uniforms[ 'turbidity' ].value = 10
+			uniforms[ 'rayleigh' ].value = 3
+			uniforms[ 'mieCoefficient' ].value = 0.005
+			uniforms[ 'mieDirectionalG' ].value = 0.7
+            const phi = THREE.MathUtils.degToRad( 90 - 2 )
+			const theta = THREE.MathUtils.degToRad( 180 )
+			sun.setFromSphericalCoords( 1, phi, theta )
+			uniforms[ 'sunPosition' ].value.copy( sun )
+            // hmmm
+			//renderer.toneMappingExposure = effectController.exposure;
+            return sky
         }
 
         const m =new THREE.Mesh(

@@ -98,19 +98,19 @@ export class PhysicsSystem extends System {
         e.addComponent(PhysicsComponent, { body: rigidBody })
     }
 
-    handle_kinematic_collider(e,delta){
+    move_and_slide(e,delta){
         const body = e.getComponent(PhysicsComponent).body
         const body_def = e.getComponent(BodyComponent)
 
         if(!body.isKinematic){
-            console.error("Warning: body needs to be kinematic to do collide and slide. Removing kinematic collide component")
+            console.error("Warning: body needs to be kinematic to do move and slide. Removing kinematic collide component")
             e.removeComponent(KinematicColliderComponent)
             return
         }
 
         const kine = e.getMutableComponent(KinematicColliderComponent)
 
-        const v = new RAPIER.Vector3(0,0,0)
+        let v = new THREE.Vector3(0,0,0)
         let apply_vel = null
         // If we have a velocity we want to change to
         if(e.hasComponent(ApplyVelocityComponent)){
@@ -129,73 +129,89 @@ export class PhysicsSystem extends System {
         // Now check for collisions
         const cur_pos = body.translation()
         const cur_quat = body.rotation()
-        const result = this.physics_world.castShape(
-            this.physics_world.colliders, // can we narrow this?
-            cur_pos,
-            cur_quat,
-            v,
-            new RAPIER.Capsule(body_def.bounds.y/2,body_def.bounds.z/2),
-            delta,
-            kine.collision_groups,
-        )
-/*
-https://discord.com/channels/507548572338880513/747935665076830259/840054007091298364
+        let n_slides = 3;
 
-if the angle of the contact normal is at most 45 degrees from your up-axis, then you can say that the ground is a floor, and treat it as such
-in my character controller, floors are handled pretty simply; the character's movement vector is computed to be in the plane defined by the normal of the floor
-if the character collides with a non-floor while walking on a floor, then their remaining movement is projected onto the "seam" between the two planes; i.e., the line formed by the cross product of the floor normal and the non-floor's normal
-that will allow you to slide along walls while walking on floors
-generally, the way to move a kinematic character controller is with iterative sweeps; you take your movement vector for the current frame, cast your shape forward, and if there's a collision, move the character to the point of collision and project the remaining movement into some new direction and continue until your movement is resolved or some iteration limit is reached
-the easiest solution is to project the remaining movement vector into the collision plane, although sometimes a different projection is useful (e.g. the cross-product I mentioned above)
-*/
+        /* References
+        https://discord.com/channels/507548572338880513/747935665076830259/840054007091298364
+        https://github.com/godotengine/godot/blob/master/scene/3d/physics_body_3d.cpp#L849
+        */        
+        let t = delta
+        let next_pos = new THREE.Vector3().copy(cur_pos)
 
-        // If we have a collision, we need to adjust our next position
-        if(result != null){
-            const body_quat = new THREE.Quaternion().copy(body.rotation())
+        for(let slide = 0; slide < n_slides; slide++){
+            // cast from cur_pos along v
+            const result = this.physics_world.castShape(
+                this.physics_world.colliders, // can we narrow this?
+                cur_pos,
+                cur_quat,
+                v,
+                new RAPIER.Capsule(body_def.bounds.y/2,body_def.bounds.z/2),
+                t,
+                kine.collision_groups,
+            )
 
-            // determine if we are on the ground
-            if(kine.max_slope != null){
-                const normal = new THREE.Vector3().copy(result.normal2).applyQuaternion(body_quat)
-                if(normal.dot(AXIS.Y) > kine.max_slope && !e.hasComponent(OnGroundComponent)){
-                    console.log("on ground!")
-                    e.addComponent(OnGroundComponent) 
+            // If we have a collision, we need to adjust our next position
+            if(result != null){
+                const hit_body = this.physics_world.bodies.get(this.physics_world.colliders.get(result.colliderHandle).parent()) // who we hit.
+                const hit_body_quat = new THREE.Quaternion().copy(hit_body.rotation())
+                // normal2 is local to hit body, so we want to rotate it to world 
+                const normal = new THREE.Vector3().copy(result.normal2).applyQuaternion(hit_body_quat)
+
+                // determine if we are on the ground
+                if(kine.max_slope != null){
+                    // TODO get floor_velocity and set it on the OnGroundComponent here.
+                    if(normal.dot(AXIS.Y) > kine.max_slope && !e.hasComponent(OnGroundComponent)){
+                        console.log("on ground!")
+                        e.addComponent(OnGroundComponent) 
+                    }
                 }
+
+                // Collide
+                if(result.toi > 0){
+                    // Adjust translation to point of collision
+                    next_pos = new THREE.Vector3(
+                        next_pos.x + (v.x * result.toi),
+                        next_pos.y + (v.y * result.toi),
+                        next_pos.z + (v.z * result.toi)
+                    )
+                    // and slide
+                    if(kine.slide){
+                        const remaining = new THREE.Vector3(
+                            v.x * (t-result.toi),
+                            v.y * (t-result.toi),
+                            v.z * (t-result.toi),
+                        )                                                
+                        // New pos and velocity
+                        v = remaining.sub(normal).multiplyScalar(remaining.dot(normal))
+                        // and new timescale to test against
+                        t = t - result.toi
+                    }else{
+                        // no slide? then break, we have collided and stop here
+                        console.log("collide and stop",slide)
+                        break
+                    }
+                 }else{
+                    // we are already colliding, need to go back?
+                    console.log("toi=0 on ",slide)
+                }
+            }else{
+                // If  we have no collision, just advance by our current velocity
+                next_pos = new THREE.Vector3(
+                    cur_pos.x + v.x * t,
+                    cur_pos.y + v.y * t,
+                    cur_pos.z + v.z * t)
+                break
             }
+        } 
 
-            // Adjust translation to point of collision
-            let next_pos = null
+        // update new position
+        const nxt = new RAPIER.Vector3(next_pos.x,next_pos.y,next_pos.z)
+        body.setNextKinematicTranslation(nxt)
+        // preserve last velocity
+        kine.velocity.x = v.x
+        kine.velocity.y = v.y
+        kine.velocity.z = v.z
 
-            next_pos = new RAPIER.Vector3(
-                cur_pos.x + (v.x * result.toi),
-                cur_pos.y + (v.y * result.toi),
-                cur_pos.z + (v.z * result.toi)
-            )
-
-            // I guess iterate a few times and cast shape?
-
-            console.log("colliding at ",result.toi/delta, " of delta")
-            // If we are sliding, then transmit remaining velocity into a slide as the cross
-            // of 
-            if(kine.slide){
-                const remaining = new RAPIER.Vector3(
-                    v.x * (delta-result.toi),
-                    v.y * (delta-result.toi),
-                    v.z * (delta-result.toi),
-                )
-                // slide remaining moment
-            }
-           
-            body.setNextKinematicTranslation(next_pos)
-        }else{
-            // If  we have no collision, just advance by our current velocity
-            let next_pos = new RAPIER.Vector3(
-                cur_pos.x + v.x * delta,
-                cur_pos.y + v.y * delta,
-                cur_pos.z + v.z * delta
-            )
-            body.setNextKinematicTranslation(next_pos)
-        }
-       
         if(apply_vel != null){
             e.removeComponent(ApplyVelocityComponent)
         }
@@ -214,7 +230,7 @@ the easiest solution is to project the remaining movement vector into the collis
             // CONSIDER would be nice to have this housed elsewhere
             // MAybe process shapecast component after physics tick
             // and create component update on that to be processed later?
-            this.handle_kinematic_collider(e,delta)
+            this.move_and_slide(e,delta)
         })
 
     

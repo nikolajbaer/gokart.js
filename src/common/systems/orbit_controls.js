@@ -19,8 +19,6 @@ export class OrbitControlsSystem extends System {
         this.my = 0
         this.euler = new THREE.Euler(0,0,0,'YXZ')
         this.locked = false
-        this.minPolarAngle = 0
-        this.maxPolarAngle = Math.PI
 
         // use these functions to add/remove with "this" scope
         const self = this
@@ -82,7 +80,7 @@ export class OrbitControlsSystem extends System {
         this.euler.setFromQuaternion(camera_holder.quaternion)
         this.euler.y -= this.mx * orbit.sensitivity
         this.euler.x -= this.my * orbit.sensitivity * (orbit.invert_y?-1:1)
-        this.euler.x = Math.max( _PI_2 - this.maxPolarAngle, Math.min( _PI_2 - this.minPolarAngle, this.euler.x) )
+        this.euler.x = Math.max( _PI_2 - orbit.max_polar_angle, Math.min( _PI_2 - orbit.min_polar_angle, this.euler.x) )
 
         camera_holder.quaternion.setFromEuler(this.euler)
 
