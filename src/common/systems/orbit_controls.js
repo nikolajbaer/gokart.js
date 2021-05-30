@@ -19,6 +19,8 @@ export class OrbitControlsSystem extends System {
         this.my = 0
         this.euler = new THREE.Euler(0,0,0,'YXZ')
         this.locked = false
+        this.scale = 1.0
+        this.zoom_sensitivity = 0.001 // overwritten by current orbit control
 
         // use these functions to add/remove with "this" scope
         const self = this
@@ -28,12 +30,16 @@ export class OrbitControlsSystem extends System {
         this.pointerlockchange = function(event){
             self.handle_pointer_lock_change(event)
         }
+        this.wheelchange = function(event){
+            self.handle_wheel_change(event)
+        }
     }
 
     lock(){
         this.listen_element.requestPointerLock()
         this.listen_element.ownerDocument.addEventListener('pointerlockchange', this.pointerlockchange)
         this.listen_element.ownerDocument.addEventListener('mousemove', this.mousemove)
+        this.listen_element.ownerDocument.addEventListener('wheel', this.wheelchange)
     } 
 
     handle_pointer_lock_change(){
@@ -47,6 +53,10 @@ export class OrbitControlsSystem extends System {
     handle_mouse_move(event){
         this.mx += event.movementX || event.mozMovementX || event.webkitMovementX || 0;
 		this.my += event.movementY || event.mozMovementY || event.webkitMovementY || 0;
+    }
+
+    handle_wheel_change(event){
+        this.scale += event.deltaY * this.zoom_sensitivity
     }
 
     unlock(){
@@ -71,10 +81,14 @@ export class OrbitControlsSystem extends System {
 
         const e = this.queries.orbitcontrol.results[0] // only can orbit one thing at a time
         const orbit = e.getComponent(OrbitControlComponent)
+        this.zoom_sensitivity = orbit.zoom_sensitivity
 
         const location = e.getComponent(LocRotComponent).location
         camera_holder.position.set(location.x,location.y,location.z)
-        camera.position.set(orbit.offset.x,orbit.offset.y,orbit.offset.z)
+
+        this.scale = Math.min(orbit.max_zoom,Math.max(this.scale,orbit.min_zoom))
+        const offset = new THREE.Vector3().copy(orbit.offset).multiplyScalar(this.scale)
+        camera.position.set(offset.x,offset.y,offset.z)
         camera.lookAt(new THREE.Vector3(location.x,location.y,location.z))
 
         this.euler.setFromQuaternion(camera_holder.quaternion)

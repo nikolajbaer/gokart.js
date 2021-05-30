@@ -96,7 +96,7 @@ export class DefaultMeshCreator extends BaseMeshCreator {
 
         const m =new THREE.Mesh(
             this.BASE_GEOMETRIES[geometry],
-            this.BASE_MATERIALS[material]?this.BASE_MATERIALS[material]:new THREE.MeshLambertMaterial({ color: material })
+            this.BASE_MATERIALS[material]?this.BASE_MATERIALS[material]:new THREE.MeshBasicMaterial({ color: material })
         )
         m.receiveShadow = receiveShadow
         m.castShadow = castShadow

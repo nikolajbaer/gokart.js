@@ -6,6 +6,8 @@ import { Obj3dComponent } from "../components/render.js"
 import * as THREE from "three"
 import * as RAPIER from  '@dimforge/rapier3d-compat'
 import { OnGroundComponent } from "../../common/components/movement.js";
+import { DebugNormalComponent } from "../../common/components/debug.js";
+import { Vector3 } from "three";
 
 const BODYMAP = {}
 
@@ -17,6 +19,8 @@ const AXIS = {
 
 export class PhysicsSystem extends System {
     init(attributes) {
+        this.body_entity_map = {}
+
         RAPIER.init().then( () => {
             RAPIER = RAPIER
             let gravity = new RAPIER.Vector3(0,-10,0)
@@ -96,6 +100,7 @@ export class PhysicsSystem extends System {
 
         // consider do i need to clean up colliders?
         e.addComponent(PhysicsComponent, { body: rigidBody })
+        this.body_entity_map[rigidBody.handle] = e
     }
 
     move_and_slide(e,delta){
@@ -110,34 +115,41 @@ export class PhysicsSystem extends System {
 
         const kine = e.getMutableComponent(KinematicColliderComponent)
 
-        let v = new THREE.Vector3(0,0,0)
+        let cur_vel = new THREE.Vector3(0,0,0)
         let apply_vel = null
         // If we have a velocity we want to change to
         if(e.hasComponent(ApplyVelocityComponent)){
             apply_vel = e.getMutableComponent(ApplyVelocityComponent)
             const vel = apply_vel.linear_velocity
-            v.x = vel.x
-            v.y = vel.y
-            v.z = vel.z
+            cur_vel.x = vel.x
+            cur_vel.y = vel.y
+            cur_vel.z = vel.z
         }else{
             // otherwise maintain our current velocity
-            v.x = kine.velocity.x
-            v.y = kine.velocity.y
-            v.z = kine.velocity.z
+            /*cur_vel.x = kine.velocity.x
+            cur_vel.y = kine.velocity.y
+            cur_vel.z = kine.velocity.z
+            */
         }
 
         // Now check for collisions
         const cur_pos = body.translation()
         const cur_quat = body.rotation()
         let n_slides = 3;
+        const speed = cur_vel.length()
 
         /* References
         https://discord.com/channels/507548572338880513/747935665076830259/840054007091298364
         https://github.com/godotengine/godot/blob/master/scene/3d/physics_body_3d.cpp#L849
         */        
-        let t = delta
         let next_pos = new THREE.Vector3().copy(cur_pos)
+        let new_vel = new THREE.Vector3().copy(cur_vel)
 
+        // start with current velocity and delta for next step
+        let v = new THREE.Vector3().copy(cur_vel)
+        let t = delta
+        const shape = new RAPIER.Capsule(body_def.bounds.y/2,body_def.bounds.z/2)
+    
         for(let slide = 0; slide < n_slides; slide++){
             // cast from cur_pos along v
             const result = this.physics_world.castShape(
@@ -145,17 +157,26 @@ export class PhysicsSystem extends System {
                 cur_pos,
                 cur_quat,
                 v,
-                new RAPIER.Capsule(body_def.bounds.y/2,body_def.bounds.z/2),
+                shape,
                 t,
                 kine.collision_groups,
             )
 
             // If we have a collision, we need to adjust our next position
             if(result != null){
+                const body_quat = new THREE.Quaternion().copy(body.rotation())
                 const hit_body = this.physics_world.bodies.get(this.physics_world.colliders.get(result.colliderHandle).parent()) // who we hit.
+                const hit_entity = this.body_entity_map[hit_body.handle]
+                console.log("Hit",hit_entity.name)
                 const hit_body_quat = new THREE.Quaternion().copy(hit_body.rotation())
                 // normal2 is local to hit body, so we want to rotate it to world 
-                const normal = new THREE.Vector3().copy(result.normal2).applyQuaternion(hit_body_quat)
+                const normal = new THREE.Vector3().copy(result.normal2).applyQuaternion(hit_body_quat).normalize()
+
+                if(e.hasComponent(DebugNormalComponent)){
+                    const debug = e.getMutableComponent(DebugNormalComponent)
+                    debug.normal = new Vector3(normal.x,normal.y,normal.z)
+                    debug.local_offset = new Vector3(result.witness1.x,result.witness1.y,result.witness1.z)
+                }
 
                 // determine if we are on the ground
                 if(kine.max_slope != null){
@@ -167,39 +188,70 @@ export class PhysicsSystem extends System {
                 }
 
                 // Collide
-                if(result.toi > 0){
-                    // Adjust translation to point of collision
-                    next_pos = new THREE.Vector3(
-                        next_pos.x + (v.x * result.toi),
-                        next_pos.y + (v.y * result.toi),
-                        next_pos.z + (v.z * result.toi)
-                    )
-                    // and slide
-                    if(kine.slide){
-                        const remaining = new THREE.Vector3(
-                            v.x * (t-result.toi),
-                            v.y * (t-result.toi),
-                            v.z * (t-result.toi),
-                        )                                                
-                        // New pos and velocity
-                        v = remaining.sub(normal).multiplyScalar(remaining.dot(normal))
-                        // and new timescale to test against
-                        t = t - result.toi
-                    }else{
-                        // no slide? then break, we have collided and stop here
-                        console.log("collide and stop",slide)
-                        break
-                    }
-                 }else{
-                    // we are already colliding, need to go back?
-                    console.log("toi=0 on ",slide)
+                // Adjust translation to point of collision
+                next_pos.x += v.x * result.toi
+                next_pos.y += v.y * result.toi
+                next_pos.z += v.z * result.toi
+
+                // and slide
+                if(kine.slide){
+                    /*
+                    // Simplified example on jsfiddle
+                    v0 = new THREE.Vector3(0,-4,0)
+                    console.log(v0)
+                    n = new THREE.Vector3(1,-1,0).normalize()
+                    t = 1
+                    t0 = 0.25
+                    t1 = t - t0
+                    vr = v0.multiplyScalar(t1/t)
+                    console.log(vr)
+                    n1 = n.multiplyScalar(vr.dot(n))
+                    vs = vr.sub(n1)
+                    console.log(vs)
+                    vf = vs.multiplyScalar(1/t1)
+                    console.log(vf)
+                    */
+
+                                        
+                    const v0 = new THREE.Vector3().copy(v) // start with our current velocity
+                    const n = new THREE.Vector3().copy(normal).normalize() // and normal of collision
+                    const t0 = result.toi  
+                    const t1 = t - t0 // the remaining time in this step
+                    const vr = v0.multiplyScalar(t1) // our remaining movement is the portion after our hit
+                    const n1 = n.multiplyScalar(vr.dot(n)) 
+                    const vs = vr.sub(n1) // we slide perpendicular to the normal, and have our new "position" given the remaining time 
+                    const vf = vs.multiplyScalar(1/t1) // but our collision shapecast expects velocity and time, so we turn this back into a velocity
+                    t = t1  // set the time remaining for our next iteration
+                    v = vf // and the new slide velocity for the next iteration
+
+                    console.log(slide,"normal",normal,"vs",vs,"next-pos",next_pos,"v",v,t)
+                    /*
+                    const remaining = new THREE.Vector3().copy(v).multiplyScalar((t-result.toi))
+                    const t1 = t-result.toi
+
+                    // New position 
+                    let remaining_pos = remaining.sub(normal.multiplyScalar(remaining.dot(normal)))
+
+                    // TODO remaining_pos to velocity
+                    v = remaining_pos.multiplyScalar(1/t1)
+                    
+                    // and new timescale to test against
+                    t = t1 
+                    //console.log(slide,cur_vel,"Sliding to ",v,t,result.normal2,hit_body.handle,body.handle)
+                    */
+                }else{
+                    // no slide? then break, we have collided and stop here
+                    console.log("collide and stop",slide)
+                    break
                 }
             }else{
+
                 // If  we have no collision, just advance by our current velocity
                 next_pos = new THREE.Vector3(
                     cur_pos.x + v.x * t,
                     cur_pos.y + v.y * t,
-                    cur_pos.z + v.z * t)
+                    cur_pos.z + v.z * t
+                )
                 break
             }
         } 
@@ -207,7 +259,7 @@ export class PhysicsSystem extends System {
         // update new position
         const nxt = new RAPIER.Vector3(next_pos.x,next_pos.y,next_pos.z)
         body.setNextKinematicTranslation(nxt)
-        // preserve last velocity
+        // preserve last velocity in case we have no new apply_vel component
         kine.velocity.x = v.x
         kine.velocity.y = v.y
         kine.velocity.z = v.z
@@ -260,8 +312,7 @@ export class PhysicsSystem extends System {
         // todo then remove any removed bodies
         this.queries.remove.results.forEach( e => {
             const body = e.getComponent(PhysicsComponent).body
-            body.ecsy_entity = null // clear back reference
-            //this.physics_world.removeBody(body)
+            delete this.body_entity_map[body.handle]
             e.removeComponent(PhysicsComponent)
         })
 

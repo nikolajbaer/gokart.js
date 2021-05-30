@@ -16,6 +16,8 @@ import { TerrainSystem } from "../../../src/common/systems/terrain"
 import { TerrainTileComponent } from "../../../src/common/components/terrain"
 import { OrbitControlComponent } from "../../../src/common/components/orbit_controls"
 import { OrbitControlsSystem } from "../../../src/common/systems/orbit_controls"
+import { DebugNormalComponent } from "../../../src/common/components/debug"
+import { Debug3dSystem } from "../../../src/common/systems/debug"
 
 export class KinematicTestScene extends Physics3dScene {
 
@@ -24,12 +26,14 @@ export class KinematicTestScene extends Physics3dScene {
         this.world.registerComponent(MoverComponent)
         this.world.registerComponent(OnGroundComponent)
         this.world.registerComponent(OrbitControlComponent)
+        this.world.registerComponent(DebugNormalComponent)
     }
 
     register_systems(){
         super.register_systems()
         this.world.registerSystem(MovementSystem)
         this.world.registerSystem(OrbitControlsSystem,{listen_element_id:this.render_element_id})
+        this.world.registerSystem(Debug3dSystem)
     }
 
     init_entities(){
@@ -88,16 +92,17 @@ export class KinematicTestScene extends Physics3dScene {
         })
         e.addComponent(OrbitControlComponent,{offset:new Vector3(0,0,-40),min_polar_angle:0,max_polar_angle:Math.PI/2})
         e.addComponent(KinematicColliderComponent,{collision_groups: 0x00020002})
+        e.addComponent(DebugNormalComponent)
         e.name = "player"
 
         // create some ramps and platforms to test character controller on
         for(var i=0;i<5;i++){
             for(var j=0;j<5;j++){
                 const box = this.world.createEntity()
-                box.addComponent(ModelComponent,{geometry:"box",material:"ground",scale: new Vector3(10,2,10)})
+                box.addComponent(ModelComponent,{geometry:"box",material:"ground",scale: new Vector3(10,10,10)})
                 box.addComponent(BodyComponent,{
                     mass:0,
-                    bounds:new Vector3(10,2,10),
+                    bounds:new Vector3(10,10,10),
                     body_type:BodyComponent.STATIC,
                     bounds_type:BodyComponent.BOX_TYPE,
                     collision_groups: 0xffff0002,

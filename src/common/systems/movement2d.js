@@ -34,6 +34,7 @@ export class Movement2dSystem extends System {
                 const a = body.getAngle()
                 v.x = Math.cos(a) * v.x - Math.sin(a) * v.y
                 v.y = Math.sin(a) * v.x + Math.cos(a) * v.y
+                console.log(180/Math.PI*a,v)
             }
 
             if( mover.kinematic ){

@@ -8,4 +8,7 @@ OrbitControlComponent.schema = {
     invert_y: { type: Types.Boolean, default: true },
     max_polar_angle: { type: Types.Number, default: Math.PI },
     min_polar_angle: { type: Types.Number, default: 0 },
+    max_zoom: { type: Types.Number, default: 2 },
+    min_zoom: { type: Types.Number, default: 0.25 },
+    zoom_sensitivity: { type: Types.Number, default: 0.001 },
 }

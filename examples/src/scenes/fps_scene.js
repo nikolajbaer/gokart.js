@@ -146,7 +146,8 @@ export class FPSScene extends Physics3dScene {
                 mass:0,
                 bounds_type:BodyComponent.BOX_TYPE,
                 bounds: new Vector3(10,2,4),
-                body_type:BodyComponent.STATIC
+                body_type:BodyComponent.STATIC,
+                collision_groups: 0xffff0002,
             })
 
         }
