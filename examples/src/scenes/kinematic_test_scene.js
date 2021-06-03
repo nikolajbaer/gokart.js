@@ -91,7 +91,7 @@ export class KinematicTestScene extends Physics3dScene {
             gravity: -10,
         })
         e.addComponent(OrbitControlComponent,{offset:new Vector3(0,0,-40),min_polar_angle:0,max_polar_angle:Math.PI/2})
-        e.addComponent(KinematicColliderComponent,{collision_groups: 0x00020002})
+        e.addComponent(KinematicColliderComponent,{collision_groups: 0x00020002,slide:true})
         e.addComponent(DebugNormalComponent)
         e.name = "player"
 

@@ -103,6 +103,7 @@ export class PhysicsSystem extends System {
         this.body_entity_map[rigidBody.handle] = e
     }
 
+    /* TODO move this to a stand alone class to isolate functionality and test better */
     move_and_slide(e,delta){
         const body = e.getComponent(PhysicsComponent).body
         const body_def = e.getComponent(BodyComponent)
@@ -126,16 +127,15 @@ export class PhysicsSystem extends System {
             cur_vel.z = vel.z
         }else{
             // otherwise maintain our current velocity
-            /*cur_vel.x = kine.velocity.x
+            cur_vel.x = kine.velocity.x
             cur_vel.y = kine.velocity.y
             cur_vel.z = kine.velocity.z
-            */
         }
 
         // Now check for collisions
         const cur_pos = body.translation()
         const cur_quat = body.rotation()
-        let n_slides = 3;
+        let n_slides = 1;
         const speed = cur_vel.length()
 
         /* References
@@ -167,12 +167,13 @@ export class PhysicsSystem extends System {
                 const body_quat = new THREE.Quaternion().copy(body.rotation())
                 const hit_body = this.physics_world.bodies.get(this.physics_world.colliders.get(result.colliderHandle).parent()) // who we hit.
                 const hit_entity = this.body_entity_map[hit_body.handle]
-                console.log("Hit",hit_entity.name)
+                //console.log("Hit",hit_entity.id,hit_entity.name)
                 const hit_body_quat = new THREE.Quaternion().copy(hit_body.rotation())
-                // normal2 is local to hit body, so we want to rotate it to world 
-                const normal = new THREE.Vector3().copy(result.normal2).applyQuaternion(hit_body_quat).normalize()
+                // normal2 is local to hit body, so we want to rotate it to world, this points out from where we hit 
+                const normal = new THREE.Vector3().copy(result.normal2) //.applyQuaternion(hit_body_quat).normalize()
 
-                if(e.hasComponent(DebugNormalComponent)){
+                // track this for now since not working >_<
+                if(e.hasComponent(DebugNormalComponent) && slide == 0){
                     const debug = e.getMutableComponent(DebugNormalComponent)
                     debug.normal = new Vector3(normal.x,normal.y,normal.z)
                     debug.local_offset = new Vector3(result.witness1.x,result.witness1.y,result.witness1.z)
@@ -241,7 +242,6 @@ export class PhysicsSystem extends System {
                     */
                 }else{
                     // no slide? then break, we have collided and stop here
-                    console.log("collide and stop",slide)
                     break
                 }
             }else{
@@ -264,6 +264,7 @@ export class PhysicsSystem extends System {
         kine.velocity.y = v.y
         kine.velocity.z = v.z
 
+        // Clean up our apply velocity component
         if(apply_vel != null){
             e.removeComponent(ApplyVelocityComponent)
         }

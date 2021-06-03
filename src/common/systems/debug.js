@@ -27,6 +27,7 @@ export class Debug3dSystem extends System {
                                 .add(new THREE.Vector3().copy(debug.normal))
                                 .normalize()
                                 .multiplyScalar(1000)
+                obj.debug_normal.position.set(debug.local_offset.x,debug.local_offset.y,debug.local_offset.z)
                 obj.debug_normal.visible = true
                 //console.log("pointing ",obj.debug_normal,"at",p)
                 obj.debug_normal.lookAt(p)
