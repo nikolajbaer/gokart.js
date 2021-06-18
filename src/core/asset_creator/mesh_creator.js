@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { SkeletonUtils } from 'three/examples/jsm/utils/SkeletonUtils';
+import { SkeletonUtils } from 'three/examples/jsm/utils/SkeletonUtils.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { HeightfieldDataComponent } from "../components/heightfield.js";
 import { Sky } from 'three/examples/jsm/objects/Sky.js';

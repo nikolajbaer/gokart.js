@@ -71,7 +71,7 @@ export class KinematicTestScene extends Physics3dScene {
         // add a player
         const e = this.world.createEntity()
         e.addComponent(ModelComponent,{geometry:"box",scale: new Vector3(1,2,1)})
-        e.addComponent(LocRotComponent,{location: new Vector3(0,8,0)})
+        e.addComponent(LocRotComponent,{location: new Vector3(0,3,0)})
         e.addComponent(ActionListenerComponent)
         e.addComponent(BodyComponent,{
             body_type: BodyComponent.KINEMATIC,
@@ -89,6 +89,7 @@ export class KinematicTestScene extends Physics3dScene {
             local:true,
             jump_speed: 10,
             gravity: -10,
+            fly_mode: true,
         })
         e.addComponent(OrbitControlComponent,{offset:new Vector3(0,0,-40),min_polar_angle:0,max_polar_angle:Math.PI/2})
         e.addComponent(KinematicColliderComponent,{collision_groups: 0x00020002,slide:true})

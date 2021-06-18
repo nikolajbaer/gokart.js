@@ -35,7 +35,6 @@ export class PhysicsSystem extends System {
             BODYMAP[BodyComponent.DYNAMIC] = RAPIER.BodyStatus.Dynamic
             BODYMAP[BodyComponent.STATIC] = RAPIER.BodyStatus.Static
             BODYMAP[BodyComponent.KINEMATIC] = RAPIER.BodyStatus.Kinematic
-
         })
 
         if(attributes && attributes.collision_handler){
@@ -225,7 +224,7 @@ export class PhysicsSystem extends System {
                     t = t1  // set the time remaining for our next iteration
                     v = vf // and the new slide velocity for the next iteration
 
-                    console.log(slide,"normal",normal,"vs",vs,"next-pos",next_pos,"v",v,t)
+                    //console.log(slide,"normal",normal,"vs",vs,"next-pos",next_pos,"v",v,t)
                     /*
                     const remaining = new THREE.Vector3().copy(v).multiplyScalar((t-result.toi))
                     const t1 = t-result.toi
@@ -326,6 +325,7 @@ export class PhysicsSystem extends System {
             e.removeComponent(CollisionComponent)
         })
 
+        this.physics_world.timestep = delta
         this.physics_world.step()
     }
  }

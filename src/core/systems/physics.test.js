@@ -9,10 +9,10 @@ test('hello test world', () => {
     var x = 1+2
 })
 
-/* NOTE does not work due to issue in jest with rapier.. */
+/* NOTE can't seem to import node_modules ems modules. */
 test('physics body entity map removes on entity removal', () => {
     const world = initialize_test_world(
-        [RenderSystem],
+        [],
         [LocRotComponent,ModelComponent]
     )
 

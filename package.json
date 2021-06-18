@@ -50,7 +50,9 @@
   },
   "babel": {
     "presets": [
-      ["@babel/preset-env",{"targets": {"node":"current"}}],
+      [
+        "@babel/preset-env"
+      ],
       "@babel/preset-react"
     ],
     "plugins": [
@@ -61,5 +63,10 @@
         }
       ]
     ]
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.[t|j]sx?$": "babel-jest"
+    }
   }
 }
