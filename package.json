@@ -16,6 +16,7 @@
   "author": "Nikolaj Baer",
   "license": "MIT",
   "dependencies": {
+    "@dimforge/rapier3d": "^0.6.0",
     "@dimforge/rapier3d-compat": "^0.5.3",
     "@tweenjs/tween.js": "^18.6.4",
     "cannon-es": "^0.16.0",
@@ -52,7 +53,9 @@
     "presets": [
       [
         "@babel/preset-env",
-        {"targets":"defaults"}
+        {
+          "targets": "defaults"
+        }
       ],
       "@babel/preset-react"
     ],

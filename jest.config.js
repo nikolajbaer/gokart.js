@@ -1,8 +1,10 @@
 module.exports = {
   verbose: true,
-  moduleFileExtensions: ["js", "jsx"],
-  moduleDirectories: ["node_modules", "src"],
+  moduleFileExtensions: ["js", "jsx","ts","tsx"],
   transform: {
-    "^.+\\.(js|jsx)$": "babel-jest",
-  }
+    "^.+\\.(js|jsx|ts|tsx)$": "babel-jest",
+  },
+  transformIgnorePatterns: [
+    "/node_modules/(^three/examples/jsm|@dimforge).*"
+  ]
 };
