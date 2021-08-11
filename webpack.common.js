@@ -46,4 +46,10 @@ module.exports = {
       inject: true,
     }),
   ],
+  resolve: {
+      fallback: {
+          fs: false,
+          path: false
+      },
+  }
 }

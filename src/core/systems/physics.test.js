@@ -5,12 +5,14 @@ import { RenderSystem } from "./render"
 import { initialize_test_world } from "../testing/game_helpers"
 //import { PhysicsSystem } from "./physics"
 
+/*
 test('rapier loads', () => {
     import('@dimforge/rapier3d').then(RAPIER => {
       // Use the RAPIER module here.       
       assertTrue(RAPIER != null)     
     })
 })
+*/
 
 /* NOTE can't seem to import node_modules ems modules. */
 test('physics body entity map removes on entity removal', () => {

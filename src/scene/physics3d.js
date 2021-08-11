@@ -2,7 +2,6 @@ import { ApplyVelocityComponent, BodyComponent, KinematicColliderComponent, Coll
 import { PhysicsMeshUpdateSystem, PhysicsSystem } from "../../src/core/systems/physics"
 import { HeightfieldDataComponent } from "../core/components/heightfield"
 import { BaseScene } from "./scene.js"
-import * as CANNON from "cannon-es"
 import { Vector3 } from "../core/ecs_types"
 
 export class Physics3dScene extends BaseScene {
@@ -31,8 +30,8 @@ export class Physics3dScene extends BaseScene {
         const bodyc_a = entity_a.getComponent(BodyComponent)
         const bodyc_b = entity_b.getComponent(BodyComponent)
 
-        let contactNormal = new CANNON.Vec3()
-        let contactPoint = new CANNON.Vec3()
+        let contactNormal = new THREE.Vector3()
+        let contactPoint = new THREE.Vector3()
         let collider = null
         let collided = null
 
