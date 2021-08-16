@@ -31,8 +31,9 @@ export class PhysicsSystem extends System {
             const solver = new Ammo.btSequentialImpulseConstraintSolver()
             this.physics_world = new Ammo.btDiscreteDynamicsWorld(dispatcher, overlappingPairCache, solver, collisionConfiguration)
             this.physics_world.setGravity(new Ammo.btVector3(0, -10, 0));
+
             // Per https://discourse.threejs.org/t/ammo-js-with-three-js/12530/45 for Kinematic Controllers
-            //this.physicsWorld.getBroadphase().getOverlappingPairCache().setInternalGhostPairCallback(new Ammo.btGhostPairCallback())
+            this.physicsWorld.getBroadphase().getOverlappingPairCache().setInternalGhostPairCallback(new Ammo.btGhostPairCallback())
         })
 
         if(attributes && attributes.collision_handler){
@@ -147,24 +148,37 @@ export class PhysicsSystem extends System {
         // Refernece:
         // https://discourse.threejs.org/t/ammo-js-with-three-js/12530/36
 
-        const mass = (body.body_type == BodyComponent.STATIC)?0:body.mass
-        const isDynamic = mass != 0
-        const localInertia  = new Ammo.btVector3(0, 0, 0);
+        if(body.body_type == BodyComponent.KINEMATIC && e.hasComponent(KinematicColliderComponent)){
+            // https://github.com/kripken/ammo.js/issues/254
+            const ghost = new Ammo.btPairCachingGhostObject();
+            ghost.setWorldTransform(transform);
+            //this.overlappingPairCache.getOverlappingPairCache().setInternalGhostPairCallback(new Ammo.btGhostPairCallback());
+            ghost.setCollisionShape(shape);
+            ghost.setCollisionFlags(Ammo.CF_CHARACTER_OBJECT);
 
-        if(isDynamic){
-            shape.calculateLocalInertia(mass, localInertia);
+            const stepHeight = 0.35;
+            const character = new Ammo.btKinematicCharacterController(ghost, shape, stepHeight);
+            // What now? 
+        }else{
+            const mass = (body.body_type == BodyComponent.STATIC)?0:body.mass
+            const isDynamic = mass != 0
+            const localInertia  = new Ammo.btVector3(0, 0, 0);
+
+            if(isDynamic){
+                shape.calculateLocalInertia(mass, localInertia);
+            }
+
+            const myMotionState = new Ammo.btDefaultMotionState(transform)
+            const rbInfo = new Ammo.btRigidBodyConstructionInfo(mass, myMotionState, shape, localInertia)
+            const btBody = new Ammo.btRigidBody(rbInfo)
+            this.physics_world.addRigidBody(btBody)
+
+            // consider do i need to clean up colliders?
+            e.addComponent(PhysicsComponent, { body: btBody })
+
+            // TODO figure out how to link up entity to body in Ammo.js
+            //this.body_entity_map[body.debugBodyId] = e 
         }
-
-        const myMotionState = new Ammo.btDefaultMotionState(transform)
-        const rbInfo = new Ammo.btRigidBodyConstructionInfo(mass, myMotionState, shape, localInertia)
-        const btBody = new Ammo.btRigidBody(rbInfo)
-        this.physics_world.addRigidBody(btBody)
-
-        // consider do i need to clean up colliders?
-        e.addComponent(PhysicsComponent, { body: btBody })
-
-        // TODO figure out how to link up entity to body in Ammo.js
-        //this.body_entity_map[body.debugBodyId] = e 
 
     }
 
