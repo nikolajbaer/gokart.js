@@ -1,7 +1,6 @@
 import * as THREE from "three";
 import { SkeletonUtils } from 'three/examples/jsm/utils/SkeletonUtils.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { HeightfieldDataComponent } from "../components/heightfield.js";
 import { Sky } from 'three/examples/jsm/objects/Sky.js';
 
 export class BaseMeshCreator {
@@ -28,7 +27,7 @@ export class DefaultMeshCreator extends BaseMeshCreator {
     }
 
     BASE_MATERIALS = {
-        "ground": new THREE.MeshLambertMaterial( { color: 0x333332 } ),
+        "ground": new THREE.MeshLambertMaterial( { color: 0x333332, side: THREE.DoubleSide} ),
         "default": new THREE.MeshLambertMaterial( { color: 0x9999fe } ),
         // useful for FPS character, from https://stackoverflow.com/a/50163740
         "invisible": new THREE.MeshBasicMaterial({color:0xff00ff,colorWrite:false,depthWrite:false}), 
@@ -94,7 +93,7 @@ export class DefaultMeshCreator extends BaseMeshCreator {
             return sky
         }
 
-        const m =new THREE.Mesh(
+        const m = new THREE.Mesh(
             this.BASE_GEOMETRIES[geometry],
             this.BASE_MATERIALS[material]?this.BASE_MATERIALS[material]:new THREE.MeshBasicMaterial({ color: material })
         )

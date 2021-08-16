@@ -1,9 +1,10 @@
 import { System } from "ecsy"
 import { ActionListenerComponent } from "../../core/components/controls"
-import { ApplyVelocityComponent, KinematicColliderComponent, PhysicsComponent } from "../../core/components/physics"
+import { ApplyVelocityComponent, BodyComponent, KinematicColliderComponent, PhysicsComponent } from "../../core/components/physics"
 import { OnGroundComponent, MoverComponent } from "../components/movement"
 import * as THREE from "three"
 import { Vector3 } from "three"
+import { LocRotComponent } from "../../core/components/position"
 
 // TODO break out into different movement types/systems (e.g. turner, strafer, jumper, globalmover )
 // TODO https://github.com/pmndrs/cannon-es/blob/master/examples/threejs_fps.html
@@ -14,9 +15,10 @@ export class MovementSystem extends System {
     execute(delta,time){
         this.queries.movers.results.forEach( e => {
             const actions =  e.getComponent(ActionListenerComponent).actions
-            const body = e.getComponent(PhysicsComponent).body
+            const brot = e.getComponent(LocRotComponent)
             const mover = e.getMutableComponent(MoverComponent)
             const kine = e.getComponent(KinematicColliderComponent)
+            const body_type = e.getComponent(BodyComponent).body_type
 
             const av = new THREE.Vector3()
             const v = new THREE.Vector3()
@@ -39,11 +41,8 @@ export class MovementSystem extends System {
 
             if( mover.local ){
                 // we only move in X/Z, not Y
-                const bquat = body.rotation()
-                const beul = new THREE.Euler() 
-                beul.setFromQuaternion(new THREE.Quaternion(bquat.x,bquat.y,bquat.z,bquat.w),'YZX')
                 const v = new THREE.Vector3(vel.x,vel.y,vel.z)
-                v.applyAxisAngle(new THREE.Vector3(0,1,0),beul.y)
+                v.applyAxisAngle(new THREE.Vector3(0,1,0),brot.y)
                 vel.x = v.x
                 vel.y = v.y
                 vel.z = v.z
@@ -70,9 +69,9 @@ export class MovementSystem extends System {
             if( mover.kinematic ){
                 // only apply 0 vel to a kinematic body
                 // allow dynamic body to come to a rest by itself
-                if(vel.length() > 0 || body.isKinematic()){
+                if(vel.length() > 0 || body_type == BodyComponent.KINEMATIC){
                     if(e.hasComponent(ApplyVelocityComponent)){
-                        let appv = e.getComponent(ApplyVelocityComponent)
+                        let appv = e.getMutableComponent(ApplyVelocityComponent)
                         appv.linear_velocity = new Vector3(vel.x,vel.y,vel.z)
                     }else{
                         e.addComponent(ApplyVelocityComponent,{
@@ -92,7 +91,7 @@ export class MovementSystem extends System {
                     mover.current = "rest"
                 }
             }else{
-                //body.applyForce(vel,body.position)
+                // TODO ApplyForceComponent
             }
 
         })

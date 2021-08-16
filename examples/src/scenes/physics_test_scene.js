@@ -23,15 +23,55 @@ export class PhysicsTestScene extends Physics3dScene {
         this.world.registerSystem(TerrainSystem)
     }
 
+    generateHeight( width, depth, minHeight, maxHeight ) {
+
+        // Generates the height data (a sinus wave)
+
+        var size = width * depth;
+        var data = new Float32Array( size );
+
+        var hRange = maxHeight - minHeight;
+        var w2 = width / 2;
+        var d2 = depth / 2;
+        var phaseMult = 12;
+
+        var p = 0;
+        for ( var j = 0; j < depth; j ++ ) {
+            for ( var i = 0; i < width; i ++ ) {
+
+                var radius = Math.sqrt(
+                    Math.pow( ( i - w2 ) / w2, 2.0 ) +
+                    Math.pow( ( j - d2 ) / d2, 2.0 ) );
+
+                var height = ( Math.sin( radius * phaseMult ) + 1 ) * 0.5  * hRange + minHeight;
+
+                data[ p ] = height;
+
+                p++;
+            }
+        }
+
+        return data;
+
+    }
+
+
     init_entities(){
 
-        let height_data = []
+        //let height_data = this.generateHeight(100,100,-2,8)
+
+        //let height_data = new Float32Array([0,0,0,0,-5,0,0,0,0])
+
+        let height_data = new Float32Array(32*32)
+        let i = 0
         for(let y=-16;y<16;y++){
             for(let x=-16;x<16;x++){
-                height_data.push( 0.01 * ((x*x) + (y*y)))
+                height_data[i] = 0.1 * ((x*x) + (y*y))
+                i++
             }
         }
         const g = this.world.createEntity()
+
         /*
         g.addComponent( BodyComponent, {
             mass: 0,
@@ -43,6 +83,7 @@ export class PhysicsTestScene extends Physics3dScene {
         g.addComponent( LocRotComponent, { location: new Vector3(0,-0.5,0) } )
         g.name = "ground_plane"
         */
+
         g.addComponent( BodyComponent, {
             mass: 0,
             bounds_type: BodyComponent.HEIGHTFIELD_TYPE,
@@ -50,13 +91,13 @@ export class PhysicsTestScene extends Physics3dScene {
         })
         g.addComponent( HeightfieldDataComponent, {
             data: height_data,
-            width: 32, 
-            height: 32,
-            scale: new Vector3(150,5,150),
+            width: Math.sqrt(height_data.length),
+            height: Math.sqrt(height_data.length),
+            scale: new Vector3(150,1,150),
         })
-        g.addComponent( ModelComponent, {geometry:"terrain",material:"ground"})
+        g.addComponent( ModelComponent, {geometryx:"terrain",material:"ground"})
         g.addComponent( TerrainTileComponent )
-        g.addComponent( LocRotComponent,{location: new Vector3(0,-10,0)})
+        g.addComponent( LocRotComponent,{location: new Vector3(0,0,0)})
 
         const l1 = this.world.createEntity()
         l1.addComponent(LocRotComponent,{location: new Vector3(0,0,0)})
@@ -77,7 +118,7 @@ export class PhysicsTestScene extends Physics3dScene {
         e.addComponent(HUDDataComponent,{fps:0})
 
         const density = 1
-        const n = 8  // enough to really hurt, 14*14*14= 2744 spheres,cubes and cylinders..
+        const n = 5  // enough to really hurt, 14*14*14= 2744 spheres,cubes and cylinders..
         const sp = 4
         const variations = [
             {g:"box",b:BodyComponent.BOX_TYPE},
