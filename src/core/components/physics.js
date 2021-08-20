@@ -29,10 +29,16 @@ BodyComponent.HEIGHTFIELD_TYPE = 4
 BodyComponent.DYNAMIC = 0 
 BodyComponent.KINEMATIC = 1
 BodyComponent.STATIC = 2
+BodyComponent.KINEMATIC_CHARACTER = 3
 
 export class PhysicsComponent extends SystemStateComponent {}
 PhysicsComponent.schema = {
   body: { type: Types.Ref }
+}
+
+export class PhysicsControllerComponent extends SystemStateComponent {}
+PhysicsControllerComponent.schema = {
+  ctrl: { type: Types.Ref }
 }
 
 export class CollisionComponent extends Component {}
@@ -56,12 +62,11 @@ SetRotationComponent.schema = {
   z: { type: Types.Number, default: null },
 }
 
-export class KinematicColliderComponent extends Component {}
-KinematicColliderComponent.schema = {
-  collision_groups: { type:Types.Number, default: 0x00010001 },
-  slide: { type: Types.Boolean, default: true },
-  max_slope: { type: Types.Number, default: 0.5 }, // CONSIDER maybe track max slope?
-  // Rapier doesn't hang on to velocity of kinematic bodies, so we need to preserve it here
-  velocity: { type: Vector3Type, default: new Vector3(0,0,0) },
-  angular_velocity: { type: Vector3Type, default: new Vector3(0,0,0) },
+export class KinematicCharacterComponent extends Component {}
+KinematicCharacterComponent.schema = {
+  gravity: { type: Types.Number, default: -10 },
+  max_slope: { type: Types.Number, default: Math.PI / 4 },
+  walk_speed: { type: Types.Number, default: 1.0 },
+  jump_speeed: { type: Types.Number, default: 1.0 },
+  step_height: { type: Types.Number, default: 0.25 },
 }

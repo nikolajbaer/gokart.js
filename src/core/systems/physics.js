@@ -1,5 +1,5 @@
 import { System, Not } from "ecsy";
-import { PhysicsComponent, BodyComponent, CollisionComponent, ApplyVelocityComponent, SetRotationComponent, KinematicColliderComponent } from "../components/physics.js"
+import { PhysicsComponent, BodyComponent, CollisionComponent, ApplyVelocityComponent, SetRotationComponent, KinematicCharacterComponent, PhysicsControllerComponent } from "../components/physics.js"
 import { HeightfieldDataComponent } from "../components/heightfield.js"
 import { LocRotComponent } from "../components/position.js"
 import { Obj3dComponent } from "../components/render.js"
@@ -148,17 +148,10 @@ export class PhysicsSystem extends System {
         // Refernece:
         // https://discourse.threejs.org/t/ammo-js-with-three-js/12530/36
 
-        if(body.body_type == BodyComponent.KINEMATIC && e.hasComponent(KinematicColliderComponent)){
-            // https://github.com/kripken/ammo.js/issues/254
-            const ghost = new Ammo.btPairCachingGhostObject();
-            ghost.setWorldTransform(transform);
-            //this.overlappingPairCache.getOverlappingPairCache().setInternalGhostPairCallback(new Ammo.btGhostPairCallback());
-            ghost.setCollisionShape(shape);
-            ghost.setCollisionFlags(Ammo.CF_CHARACTER_OBJECT);
-
-            const stepHeight = 0.35;
-            const character = new Ammo.btKinematicCharacterController(ghost, shape, stepHeight);
-            // What now? 
+        if( e.hasComponent(KinematicCharacterComponent) && 
+            !e.hasComponent(PhysicsControllerComponent) && 
+            body.body_type == BodyComponent.KINEMATIC_CHARACTER ){
+            this.create_kinematic_character_controller(shape,e,transform)
         }else{
             const mass = (body.body_type == BodyComponent.STATIC)?0:body.mass
             const isDynamic = mass != 0
@@ -178,8 +171,34 @@ export class PhysicsSystem extends System {
 
             // TODO figure out how to link up entity to body in Ammo.js
             //this.body_entity_map[body.debugBodyId] = e 
-        }
 
+        }
+    }
+
+    create_kinematic_character_controller(shape,e,transform){
+        const body = e.getComponent(BodyComponent)
+
+         // https://github.com/enable3d/enable3d/blob/kinematicCharacterController/packages/enable3d/src/ammoWrapper/kinematicCharacterController.ts#L32
+
+        // https://github.com/kripken/ammo.js/issues/254
+        const kchar = e.getComponent(KinematicCharacterComponent)
+        const ghost = new Ammo.btPairCachingGhostObject();
+        ghost.setWorldTransform(transform);
+        ghost.setCollisionShape(shape);
+        ghost.setCollisionFlags(ghost.getCollisionFlags() | 15 ); // CF_CHARACTER_OBJECT
+        //this.overlappingPairCache.getOverlappingPairCache().setInternalGhostPairCallback(new Ammo.btGhostPairCallback());
+
+        const controller = new Ammo.btKinematicCharacterController(ghost, shape, kchar.step_height, 1);
+        controller.setUseGhostSweepTest(true)
+        controller.setGravity(kchar.gravity) // default 9.8*3
+        controller.setMaxSlope(kchar.max_slope) // default Math.PI / 4
+        controller.setJumpSpeed(kchar.jump_speed)
+        this.physics_world.addCollisionObject(ghost, 32, -1)
+        this.physics_world.addAction(controller)
+
+        // consider do i need to clean up colliders?
+        // TODO where do I store this kinematic controller action? 
+        e.addComponent(PhysicsControllerComponent, { ctrl: controller })
     }
 
     execute(delta,time){
@@ -188,10 +207,6 @@ export class PhysicsSystem extends System {
         // first intialize any uninitialized bodies
         this.queries.uninitialized.results.forEach( e => {
             this.create_physics_body(e)
-        })
-
-        this.queries.kinematic_colliders.results.forEach( e => {
-            // TODO step any kinematic character controllers?
         })
 
         this.queries.set_rotation.results.forEach( e => {
@@ -215,9 +230,10 @@ export class PhysicsSystem extends System {
             e.removeComponent(SetRotationComponent)
         })
 
-        // todo then remove any removed bodies
+        // TODO also remove controllers
         this.queries.remove.results.forEach( e => {
             const body = e.getComponent(PhysicsComponent).body
+            Ammo.destroy(body)
             //delete this.body_entity_map[body.handle]
             e.removeComponent(PhysicsComponent)
         })
@@ -229,6 +245,10 @@ export class PhysicsSystem extends System {
         // CONSIDER what about multiple collisions? How do we handle that?
         this.queries.colliders.results.forEach( e => {
             e.removeComponent(CollisionComponent)
+        })
+
+        this.queries.kinematic_characters.results.forEach( e => {
+            // TODO step any kinematic character controllers?
         })
 
         this.physics_world.stepSimulation(delta , 2)
@@ -249,8 +269,8 @@ PhysicsSystem.queries = {
     set_rotation: {
         components: [SetRotationComponent,PhysicsComponent],
     },
-    kinematic_colliders: {
-        components: [PhysicsComponent,KinematicColliderComponent]
+    kinematic_characters: {
+        components: [PhysicsComponent,KinematicCharacterComponent]
     },
     colliders: {
         components: [CollisionComponent,PhysicsComponent],

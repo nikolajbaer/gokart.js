@@ -1,10 +1,9 @@
-//import { BodyComponent, KinematicColliderComponent, LocRotComponent, PhysicsComponent } from "../components/physics"
 import { LocRotComponent } from "../components/position"
 import { ModelComponent } from "../components/render"
 import { RenderSystem } from "./render"
 import { initialize_test_world } from "../testing/game_helpers"
 import { PhysicsSystem } from "./physics"
-import { ApplyVelocityComponent, BodyComponent, CollisionComponent, KinematicColliderComponent, PhysicsComponent, SetRotationComponent } from "../components/physics"
+import { ApplyVelocityComponent, BodyComponent, CollisionComponent, KinematicCharacterComponent, PhysicsComponent, SetRotationComponent } from "../components/physics"
 
 /*
 test('rapier loads', () => {
@@ -30,7 +29,7 @@ test('physics body entity map removes on entity removal', () => {
             PhysicsComponent,
             SetRotationComponent,
             CollisionComponent,
-            KinematicColliderComponent,
+            KinematicCharacterComponent,
             ApplyVelocityComponent,
         ]
     )
@@ -48,7 +47,7 @@ test('physics body entity map removes on entity removal', () => {
         collision_groups: 0xffff0002,
     }) 
     g.addComponent(ModelComponent)
-    //g.addComponent(KinematicColliderComponent)
+    g.addComponent(KinematicCharacterComponent)
     
     psys = world.getSystem(PhysicsSystem)
     // TODO add then remove entity to see it get cleaned up    

@@ -1,5 +1,5 @@
 import { CameraComponent,  ModelComponent, LightComponent  } from "../../../src/core/components/render"
-import { BodyComponent, KinematicColliderComponent } from "../../../src/core/components/physics"
+import { BodyComponent, KinematicCharacterComponent } from "../../../src/core/components/physics"
 import { LocRotComponent } from "../../../src/core/components/position"
 import { Vector3 } from "../../../src/core/ecs_types"
 import { ActionListenerComponent } from "../../../src/core/components/controls"
@@ -114,7 +114,7 @@ export class ThirdPersonScene extends Physics3dScene {
             gravity: -10,
         })
         e.addComponent(OrbitControlComponent,{offset:new Vector3(0,0,-40)})
-        e.addComponent(KinematicColliderComponent,{collision_groups: 0x00020002})
+        e.addComponent(KinematicCharacterComponent,{})
         e.name = "player"
 
         // create some ramps and platforms to test character controller on

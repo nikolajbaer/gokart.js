@@ -1,5 +1,5 @@
 import { CameraComponent,  ModelComponent, LightComponent  } from "../../../src/core/components/render"
-import { BodyComponent, KinematicColliderComponent } from "../../../src/core/components/physics"
+import { BodyComponent, KinematicCharacterComponent } from "../../../src/core/components/physics"
 import { LocRotComponent } from "../../../src/core/components/position"
 import { Vector3 } from "../../../src/core/ecs_types"
 import { ActionListenerComponent } from "../../../src/core/components/controls"
@@ -74,7 +74,7 @@ export class KinematicTestScene extends Physics3dScene {
         e.addComponent(LocRotComponent,{location: new Vector3(0,3,0)})
         e.addComponent(ActionListenerComponent)
         e.addComponent(BodyComponent,{
-            body_type: BodyComponent.KINEMATIC,
+            body_type: BodyComponent.KINEMATIC_CHARACTER,
             bounds_type:BodyComponent.CAPSULE_TYPE,
             track_collisions:true,
             bounds: new Vector3(1,2,1),
@@ -92,7 +92,7 @@ export class KinematicTestScene extends Physics3dScene {
             fly_mode: true,
         })
         e.addComponent(OrbitControlComponent,{offset:new Vector3(0,0,-40),min_polar_angle:0,max_polar_angle:Math.PI/2})
-        e.addComponent(KinematicColliderComponent,{collision_groups: 0x00020002,slide:true})
+        e.addComponent(KinematicCharacterComponent,{})
         e.addComponent(DebugNormalComponent)
         e.name = "player"
 

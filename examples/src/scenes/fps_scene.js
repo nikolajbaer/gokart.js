@@ -1,5 +1,5 @@
 import { CameraComponent,  ModelComponent, LightComponent  } from "../../../src/core/components/render"
-import { BodyComponent, KinematicColliderComponent } from "../../../src/core/components/physics"
+import { BodyComponent, KinematicCharacterComponent } from "../../../src/core/components/physics"
 import { LocRotComponent } from "../../../src/core/components/position"
 import { Vector3 } from "../../../src/core/ecs_types"
 import { ActionListenerComponent } from "../../../src/core/components/controls"
@@ -83,7 +83,7 @@ export class FPSScene extends Physics3dScene {
         e.addComponent(LocRotComponent,{location: new Vector3(0,13,0)})
         e.addComponent(ActionListenerComponent)
         e.addComponent(BodyComponent,{
-            body_type: BodyComponent.KINEMATIC,
+            body_type: BodyComponent.KINEMATIC_CHARACTER,
             bounds_type: BodyComponent.CYLINDER_TYPE,
             track_collisions:true,
             bounds: new Vector3(1,2,1),
@@ -102,7 +102,7 @@ export class FPSScene extends Physics3dScene {
             //fly_mode: true,
         })
         e.addComponent(MouseLookComponent,{offset:new Vector3(0,2,0),invert_y:true})
-        e.addComponent(KinematicColliderComponent,{collision_groups: 0x00020002})
+        e.addComponent(KinematicCharacterComponent,{})
         e.name = "player"
 
         // and some walls

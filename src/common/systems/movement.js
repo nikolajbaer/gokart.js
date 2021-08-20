@@ -1,6 +1,6 @@
 import { System } from "ecsy"
 import { ActionListenerComponent } from "../../core/components/controls"
-import { ApplyVelocityComponent, BodyComponent, KinematicColliderComponent, PhysicsComponent } from "../../core/components/physics"
+import { ApplyVelocityComponent, BodyComponent, KinematicCharacterComponent, PhysicsComponent } from "../../core/components/physics"
 import { OnGroundComponent, MoverComponent } from "../components/movement"
 import * as THREE from "three"
 import { Vector3 } from "three"
@@ -17,7 +17,7 @@ export class MovementSystem extends System {
             const actions =  e.getComponent(ActionListenerComponent).actions
             const brot = e.getComponent(LocRotComponent)
             const mover = e.getMutableComponent(MoverComponent)
-            const kine = e.getComponent(KinematicColliderComponent)
+            const kine = e.getComponent(KinematicCharacterComponent)
             const body_type = e.getComponent(BodyComponent).body_type
 
             const av = new THREE.Vector3()

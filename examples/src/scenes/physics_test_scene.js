@@ -60,13 +60,14 @@ export class PhysicsTestScene extends Physics3dScene {
 
         //let height_data = this.generateHeight(100,100,-2,8)
 
-        //let height_data = new Float32Array([0,0,0,0,-5,0,0,0,0])
+        /*let height_data = new Float32Array([0,-1,0,0,-5,0,0,-1,0])*/
 
-        let height_data = new Float32Array(32*32)
+        const terrain_n =4
+        let height_data = new Float32Array(Math.pow(terrain_n*2,2))
         let i = 0
-        for(let y=-16;y<16;y++){
-            for(let x=-16;x<16;x++){
-                height_data[i] = 0.1 * ((x*x) + (y*y))
+        for(let y=-terrain_n;y<terrain_n;y++){
+            for(let x=-terrain_n;x<terrain_n;x++){
+                height_data[i] = 0.5 * ((x*x) + (y*y))
                 i++
             }
         }
