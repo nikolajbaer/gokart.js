@@ -84,7 +84,7 @@ export class ThirdPersonScene extends Physics3dScene {
 
         const l2 = this.world.createEntity()
         l2.addComponent(LocRotComponent,{location: new Vector3(0,30,0),rotation: new Vector3(-Math.PI/4,0,0)})
-        l2.addComponent(LightComponent,{type:"point",cast_shadow:true,intensity:0.6})
+        l2.addComponent(LightComponent,{type:"directional",cast_shadow:true,intensity:0.6})
 
         const c = this.world.createEntity()
         c.addComponent(CameraComponent,{lookAt: new Vector3(0,0,1),current: true, fov:60})
@@ -96,7 +96,7 @@ export class ThirdPersonScene extends Physics3dScene {
         e.addComponent(LocRotComponent,{location: new Vector3(0,8,0)})
         e.addComponent(ActionListenerComponent)
         e.addComponent(BodyComponent,{
-            body_type: BodyComponent.KINEMATIC,
+            body_type: BodyComponent.KINEMATIC_CHARACTER,
             bounds_type:BodyComponent.CAPSULE_TYPE,
             track_collisions:true,
             bounds: new Vector3(1,2,1),

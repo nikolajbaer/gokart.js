@@ -5,7 +5,7 @@ import { Sky } from 'three/examples/jsm/objects/Sky.js';
 
 export class BaseMeshCreator {
     create_mesh(geometry,material){
-        return new THREE.Mesh(new THREE.BoxGeometry(),new THREE.MeshLambertMaterial({color: 0x9999fe }))
+        return new THREE.Mesh(new THREE.BoxGeometry(),new THREE.MeshStandardMaterial({color: 0x9999fe }))
     }
 
     load(){
@@ -20,10 +20,10 @@ export class DefaultMeshCreator extends BaseMeshCreator {
     }
     FUNCTIONS = { // useful for procgen or compound geometry
         "player": function(entity,material,receiveShadow,castShadow){
-            const p = new THREE.Mesh(new THREE.CylinderGeometry(0.5,0.5,1,32),new THREE.MeshLambertMaterial({ color: 0x0000ee }))
+            const p = new THREE.Mesh(new THREE.CylinderGeometry(0.5,0.5,1,32),new THREE.MeshStandardMaterial({ color: 0x0000ee }))
             p.receiveShadow = receiveShadow
             p.castShadow = castShadow
-            const s = new THREE.Mesh(new THREE.BoxGeometry(0.2,0.2,0.8),new THREE.MeshLambertMaterial({ color: 0x999999 })) 
+            const s = new THREE.Mesh(new THREE.BoxGeometry(0.2,0.2,0.8),new THREE.MeshStandardMaterial({ color: 0x999999 })) 
             s.position.z = 0.4 // Proto sword to show use where we are pointing
             s.position.x = -0.7
             s.rotation.x = -Math.PI/4
@@ -43,8 +43,8 @@ export class DefaultMeshCreator extends BaseMeshCreator {
     }
 
     BASE_MATERIALS = {
-        "ground": new THREE.MeshLambertMaterial( { color: 0x333332, side: THREE.DoubleSide} ),
-        "default": new THREE.MeshLambertMaterial( { color: 0x9999fe } ),
+        "ground": new THREE.MeshStandardMaterial( { color: 0x333332, side: THREE.DoubleSide} ),
+        "default": new THREE.MeshStandardMaterial( { color: 0x9999fe } ),
         // useful for FPS character, from https://stackoverflow.com/a/50163740
         "invisible": new THREE.MeshBasicMaterial({color:0xff00ff,colorWrite:false,depthWrite:false}), 
     }
@@ -115,7 +115,7 @@ export class DefaultMeshCreator extends BaseMeshCreator {
 
         const m = new THREE.Mesh(
             this.BASE_GEOMETRIES[geometry],
-            this.BASE_MATERIALS[material]?this.BASE_MATERIALS[material]:new THREE.MeshBasicMaterial({ color: material })
+            this.BASE_MATERIALS[material]?this.BASE_MATERIALS[material]:new THREE.MeshStandardMaterial({ color: material })
         )
         m.receiveShadow = receiveShadow
         m.castShadow = castShadow

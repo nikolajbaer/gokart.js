@@ -3,7 +3,11 @@ import { LocRotComponent } from "../components/position"
 import { Obj3dComponent, ModelComponent, CameraComponent, LightComponent, Project2dComponent } from "../components/render"
 import * as THREE from "three"
 import { DefaultMeshCreator } from "../asset_creator/mesh_creator"
-        
+
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
+import { FilmPass } from 'three/examples/jsm/postprocessing/FilmPass.js';
+
 export class RenderSystem extends System {
     init(attributes) {
         const scene = this.init_three_scene()
@@ -29,6 +33,18 @@ export class RenderSystem extends System {
         }
 
         this.renderer = renderer
+
+        // TODO make this configurable..
+        this.composer = new EffectComposer( renderer )
+        this.default_camera = new THREE.PerspectiveCamera()
+        this.renderPass = new RenderPass( scene, this.default_camera )
+        this.composer.addPass( this.renderPass )
+
+        /*
+        const filmPass = new FilmPass( ) 
+        this.composer.addPass( filmPass )
+        */
+
         this.scene = scene
         window.scene = scene
     }
@@ -78,24 +94,35 @@ export class RenderSystem extends System {
                 const dir = new THREE.DirectionalLight( light.color, light.intensity )
                 holder.add(dir)
                 dir.castShadow = light.cast_shadow
+
+                // TODO figure out how to make this configurable?
+                dir.shadow.mapSize.width = 2048
+                dir.shadow.mapSize.height = 2048
+                //dir.shadow.camera.near = 0.5
+                //dir.shadow.camera.far = 1000
+                const shadowSize = 50
+                dir.shadow.camera.top = shadowSize
+                dir.shadow.camera.bottom = -shadowSize
+                dir.shadow.camera.left = shadowSize
+                dir.shadow.camera.right = -shadowSize
+                dir.shadow.bias = -0.005
+
                 if( e.hasComponent(LocRotComponent)){
                     const location = e.getComponent(LocRotComponent).location
                     dir.position.set( location.x,location.y, location.z );
-                    const rotation = e.getComponent(LocRotComponent).rotation
-                    const target = new THREE.Vector3(0,0,1)
-                    const tpos = target.applyEuler( new THREE.Euler(rotation.x,rotation.y, rotation.z ,'YZX'))
-                    const t = new THREE.Object3D()
-                    t.position.set(tpos.x,tpos.y,tpos.z)
-                    holder.add(t)
-                    dir.target = t
+                    //const rotation = e.getComponent(LocRotComponent).rotation
+                    //const target = new THREE.Vector3(0,0,100) // TODO make this map to target setup
+                    //const tpos = target.applyEuler( new THREE.Euler(rotation.x,rotation.y, rotation.z ,'YZX'))
+                    //dir.target.position.set(location.x + tpos.x,location.y + tpos.y,location.z + tpos.z)
                     // TODO create obj3d target 
+                    dir.target.position.set(-location.x,-location.y,-location.z)
                 }
                 if(light.cast_shadow){
                     // todo make htis customizeable
                     dir.shadow.mapSize.width = 1024; // default
                     dir.shadow.mapSize.height = 1024; // default
                     dir.shadow.camera.near = 0.5; // default
-                    dir.shadow.camera.far = 1000; // default
+                    dir.shadow.camera.far = shadowSize*2; // default
                 }
                 const helper = new THREE.DirectionalLightHelper( dir, 5 );
                 holder.add( helper );
@@ -161,6 +188,7 @@ export class RenderSystem extends System {
         if(this.queries.camera.results.length > 0) {
             const e = this.queries.camera.results[0]
             const camera = e.getComponent(Obj3dComponent).obj.camera
+            this.renderPass.camera = camera
 
             this.queries.projectors.results.forEach( e => {
                 const proj = e.getMutableComponent(Project2dComponent)
@@ -171,7 +199,8 @@ export class RenderSystem extends System {
                 proj.y = cpos.y
             })
 
-            this.renderer.render( this.scene, camera )
+            //this.renderer.render( this.scene, camera )
+            this.composer.render()
         }
     }
 }

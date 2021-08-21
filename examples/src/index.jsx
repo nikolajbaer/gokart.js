@@ -68,7 +68,6 @@ export class Game extends React.Component {
                     <h1>Select Example Scene Type:</h1>
                     <button onClick={() => this.startLoading("fps")}>FPS</button>
                     <button onClick={() => this.startLoading("topdown")}>Top Down</button>
-                    <button onClick={() => this.startLoading("thirdperson")}>Third Person</button>
                     <button onClick={() => this.startLoading("physics_test")}>3D Physics Test</button>
                     <button onClick={() => this.startLoading("kinematic_test")}>Kinematic Character Test</button>
                 </div>
