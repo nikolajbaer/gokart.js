@@ -3,7 +3,7 @@ import { CameraComponent, Obj3dComponent } from "../../core/components/render";
 import * as THREE from "three"
 import { LocRotComponent } from "../../core/components/position";
 import { OrbitControlComponent } from "../components/orbit_controls";
-import { PhysicsComponent, SetRotationComponent } from "../../core/components/physics";
+import { PhysicsComponent, PhysicsControllerComponent, SetRotationComponent } from "../../core/components/physics";
         
 const _PI_2 = Math.PI / 2;
 
@@ -98,10 +98,11 @@ export class OrbitControlsSystem extends System {
 
         camera_holder.quaternion.setFromEuler(this.euler)
 
-        if(e.hasComponent(PhysicsComponent)){
+        if(e.hasComponent(PhysicsComponent) || e.hasComponent(PhysicsControllerComponent)){
             if(e.hasComponent(SetRotationComponent)){
                 e.getComponent(SetRotationComponent).y = this.euler.y
             }else{
+                console.log("Adding rotation component")
                 e.addComponent(SetRotationComponent,{y:this.euler.y})
             }
         } 

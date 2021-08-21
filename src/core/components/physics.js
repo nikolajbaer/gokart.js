@@ -38,7 +38,8 @@ PhysicsComponent.schema = {
 
 export class PhysicsControllerComponent extends SystemStateComponent {}
 PhysicsControllerComponent.schema = {
-  ctrl: { type: Types.Ref }
+  ctrl: { type: Types.Ref },
+  ghost: { type: Types.Ref },
 }
 
 export class CollisionComponent extends Component {}
@@ -64,7 +65,7 @@ SetRotationComponent.schema = {
 
 export class KinematicCharacterComponent extends Component {}
 KinematicCharacterComponent.schema = {
-  gravity: { type: Types.Number, default: -10 },
+  gravity: { type: Types.Number, default: 10 },
   max_slope: { type: Types.Number, default: Math.PI / 4 },
   walk_speed: { type: Types.Number, default: 1.0 },
   jump_speeed: { type: Types.Number, default: 1.0 },

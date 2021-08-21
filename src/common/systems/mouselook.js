@@ -2,7 +2,7 @@ import { System } from "ecsy"
 import { CameraComponent, Obj3dComponent } from "../../core/components/render";
 import { MouseLookComponent } from "../components/mouselook";
 import * as THREE from "three"
-import { PhysicsComponent, SetRotationComponent } from "../../core/components/physics";
+import { PhysicsComponent, PhysicsControllerComponent, SetRotationComponent } from "../../core/components/physics";
         
 const _PI_2 = Math.PI / 2;
 
@@ -15,6 +15,12 @@ export class MouseLookSystem extends System {
         }else{
             this.listen_element = document 
         }
+
+        // https://developer.mozilla.org/en-US/docs/Web/API/Pointer_Lock_API
+        this.listen_element.requestPointerLock = this.listen_element.requestPointerLock || this.listen_element.mozRequestPointerLock
+        this.listen_element.ownerDocument.addEventListener('pointerlockchange', this.pointerlockchange)
+        document.addEventListener('pointerlockerror', this.handle_lock_error, false)
+
         this.mx = 0
         this.my = 0
         this.euler = new THREE.Euler(0,0,0,'YXZ')
@@ -34,28 +40,33 @@ export class MouseLookSystem extends System {
 
     lock(){
         this.listen_element.requestPointerLock()
-        this.listen_element.ownerDocument.addEventListener('pointerlockchange', this.pointerlockchange)
-        this.listen_element.ownerDocument.addEventListener('mousemove', this.mousemove)
     } 
+
+    handle_lock_error(e){
+        console.error("pointer lock failed",e)
+    }
 
     handle_pointer_lock_change(){
         if(this.listen_element.ownerDocument.pointerLockElement === this.listen_element){
             this.locked = true
+            this.listen_element.ownerDocument.addEventListener('mousemove', this.mousemove)
         }else{
             this.locked = false
+            this.listen_element.ownerDocument.removeEventListener('mousemove', this.mousemove)
         }
     }
 
     handle_mouse_move(event){
-        this.mx += event.movementX || event.mozMovementX || event.webkitMovementX || 0;
-		this.my += event.movementY || event.mozMovementY || event.webkitMovementY || 0;
+        if(this.listen_element.ownerDocument.pointerLockElement === this.listen_element){
+            this.mx += event.movementX || event.mozMovementX || event.webkitMovementX || 0;
+    		this.my += event.movementY || event.mozMovementY || event.webkitMovementY || 0;
+        }
     }
 
     unlock(){
-        this.listen_element.ownerDocument.exitPointerLock()
-        this.listen_element.ownerDocument.removeEventListener('mousemove', this.mousemove)
-        this.listen_element.ownerDocument.removeEventListener('pointerlockchange', this.pointerlockchange)
-
+        if(this.listen_element === document.pointerLockElement){
+            this.listen_element.exitPointerLock()
+        }
     }
 
     execute(delta, time){
@@ -63,7 +74,7 @@ export class MouseLookSystem extends System {
         if(this.queries.mouselook.results.length == 0){ return }
        
         // Todo make this exit-able if we want to look at a menu
-        if(!this.locked){ 
+        if(!this.locked && !(this.listen_element === document.pointerLockElement)){ 
             this.lock()
             return
         }
@@ -83,7 +94,7 @@ export class MouseLookSystem extends System {
         // and make this compatible with physics2d/3d
 
         // rotate object as well on y only
-        if(e.hasComponent(PhysicsComponent)){
+        if(e.hasComponent(PhysicsComponent) || e.hasComponent(PhysicsControllerComponent)){
             if(e.hasComponent(SetRotationComponent)){
                 e.getComponent(SetRotationComponent).y = this.euler.y
             }else{

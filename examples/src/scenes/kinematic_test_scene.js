@@ -70,7 +70,7 @@ export class KinematicTestScene extends Physics3dScene {
 
         // add a player
         const e = this.world.createEntity()
-        e.addComponent(ModelComponent,{geometry:"box",scale: new Vector3(1,2,1)})
+        e.addComponent(ModelComponent,{geometry:"player",scale: new Vector3(1,2,1)})
         e.addComponent(LocRotComponent,{location: new Vector3(0,3,0)})
         e.addComponent(ActionListenerComponent)
         e.addComponent(BodyComponent,{
@@ -83,11 +83,11 @@ export class KinematicTestScene extends Physics3dScene {
             collision_groups: 0xffff0004,
         })
         e.addComponent(MoverComponent,{
-            speed:15.0,
+            speed:0.25,
             kinematic:true,
             turner:false,
             local:true,
-            jump_speed: 10,
+            jump_speed: 0.25,
             gravity: -10,
             fly_mode: true,
         })
@@ -115,7 +115,7 @@ export class KinematicTestScene extends Physics3dScene {
             }
         }
 
-        const density = 3
+        const density = 0.01
         for(var i=0; i<10; i++){
             const box = this.world.createEntity()
             const s = Math.random() * 2 + 1

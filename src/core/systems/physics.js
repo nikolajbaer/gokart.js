@@ -33,7 +33,7 @@ export class PhysicsSystem extends System {
             this.physics_world.setGravity(new Ammo.btVector3(0, -10, 0));
 
             // Per https://discourse.threejs.org/t/ammo-js-with-three-js/12530/45 for Kinematic Controllers
-            this.physicsWorld.getBroadphase().getOverlappingPairCache().setInternalGhostPairCallback(new Ammo.btGhostPairCallback())
+            
         })
 
         if(attributes && attributes.collision_handler){
@@ -148,10 +148,10 @@ export class PhysicsSystem extends System {
         // Refernece:
         // https://discourse.threejs.org/t/ammo-js-with-three-js/12530/36
 
-        if( e.hasComponent(KinematicCharacterComponent) && 
-            !e.hasComponent(PhysicsControllerComponent) && 
-            body.body_type == BodyComponent.KINEMATIC_CHARACTER ){
-            this.create_kinematic_character_controller(shape,e,transform)
+        if( e.hasComponent(KinematicCharacterComponent)){
+            if(!e.hasComponent(PhysicsControllerComponent) && body.body_type == BodyComponent.KINEMATIC_CHARACTER ){
+                this.create_kinematic_character_controller(shape,e,transform)
+            }
         }else{
             const mass = (body.body_type == BodyComponent.STATIC)?0:body.mass
             const isDynamic = mass != 0
@@ -164,7 +164,7 @@ export class PhysicsSystem extends System {
             const myMotionState = new Ammo.btDefaultMotionState(transform)
             const rbInfo = new Ammo.btRigidBodyConstructionInfo(mass, myMotionState, shape, localInertia)
             const btBody = new Ammo.btRigidBody(rbInfo)
-            this.physics_world.addRigidBody(btBody)
+            this.physics_world.addRigidBody(btBody, 1, -1)
 
             // consider do i need to clean up colliders?
             e.addComponent(PhysicsComponent, { body: btBody })
@@ -185,8 +185,13 @@ export class PhysicsSystem extends System {
         const ghost = new Ammo.btPairCachingGhostObject();
         ghost.setWorldTransform(transform);
         ghost.setCollisionShape(shape);
-        ghost.setCollisionFlags(ghost.getCollisionFlags() | 15 ); // CF_CHARACTER_OBJECT
+        // TODO refine
+        //ghost.setCcdMotionThreshold(0.01)
+        //ghost.setCcdSweepSphereRadius(1)
+
+        ghost.setCollisionFlags(ghost.getCollisionFlags() | 16 ); // CF_CHARACTER_OBJECT
         //this.overlappingPairCache.getOverlappingPairCache().setInternalGhostPairCallback(new Ammo.btGhostPairCallback());
+        this.physics_world.getBroadphase().getOverlappingPairCache().setInternalGhostPairCallback(new Ammo.btGhostPairCallback())
 
         const controller = new Ammo.btKinematicCharacterController(ghost, shape, kchar.step_height, 1);
         controller.setUseGhostSweepTest(true)
@@ -198,7 +203,7 @@ export class PhysicsSystem extends System {
 
         // consider do i need to clean up colliders?
         // TODO where do I store this kinematic controller action? 
-        e.addComponent(PhysicsControllerComponent, { ctrl: controller })
+        e.addComponent(PhysicsControllerComponent, { ctrl: controller,ghost: ghost })
     }
 
     execute(delta,time){
@@ -227,15 +232,22 @@ export class PhysicsSystem extends System {
             const btquat = new Ammo.btQuaternion(quat.x,quat.y,quat.z,quat.w)
             tr.setRotation(btquat)
             body.setCenterOfMassTransform(tr)
+
             e.removeComponent(SetRotationComponent)
         })
 
         // TODO also remove controllers
-        this.queries.remove.results.forEach( e => {
+        this.queries.remove_bodies.results.forEach( e => {
             const body = e.getComponent(PhysicsComponent).body
             Ammo.destroy(body)
             //delete this.body_entity_map[body.handle]
             e.removeComponent(PhysicsComponent)
+        })
+
+        this.queries.remove_controllers.results.forEach( e => {
+            const ctrl = e.getComponent(PhysicsControllerComponent).ctrl
+            Ammo.destroy(body)
+            e.removeComponent(PhysicsControllerComponent)
         })
 
         // clean up old collisions
@@ -249,6 +261,49 @@ export class PhysicsSystem extends System {
 
         this.queries.kinematic_characters.results.forEach( e => {
             // TODO step any kinematic character controllers?
+            console.log("Working kinematic character",e.hasComponent(ApplyVelocityComponent),e.hasComponent(SetRotationComponent))
+            const pctrl = e.getComponent(PhysicsControllerComponent)
+            const ctrl = pctrl.ctrl
+            const ghost = pctrl.ghost
+
+            if(e.hasComponent(ApplyVelocityComponent)){
+                const vel = e.getComponent(ApplyVelocityComponent)
+                const v = vel.linear_velocity
+                ctrl.setWalkDirection( new Ammo.btVector3(v.x,v.y,v.z) )
+                e.removeComponent(ApplyVelocityComponent)
+            }
+
+            // CONSIDER combine with phyics body setrotation?
+            if(e.hasComponent(SetRotationComponent)){
+                const rot = e.getComponent(SetRotationComponent)
+                console.log("Setting character rot",rot.y)
+
+                const quat = new THREE.Quaternion()
+                if(rot.x != null) {
+                    quat.setFromAxisAngle(AXIS.X,rot.x)
+                }
+                if(rot.y != null) {
+                    quat.setFromAxisAngle(AXIS.Y,rot.y)
+                }
+                if(rot.z != null) {
+                    quat.setFromAxisAngle(AXIS.Z,rot.z)
+                }
+
+
+                const tr = ghost.getWorldTransform()
+                const btquat = new Ammo.btQuaternion(quat.x,quat.y,quat.z,quat.w)
+                tr.setRotation(btquat)
+                ghost.setWorldTransform(tr)
+
+                e.removeComponent(SetRotationComponent) 
+            }
+
+            if(ctrl.onGround() && !e.hasComponent(OnGroundComponent)){
+                e.addComponent(OnGroundComponent) 
+            }else{
+                e.removeComponent(OnGroundComponent)
+            }
+
         })
 
         this.physics_world.stepSimulation(delta , 2)
@@ -270,42 +325,52 @@ PhysicsSystem.queries = {
         components: [SetRotationComponent,PhysicsComponent],
     },
     kinematic_characters: {
-        components: [PhysicsComponent,KinematicCharacterComponent]
+        components: [PhysicsControllerComponent,KinematicCharacterComponent]
     },
     colliders: {
         components: [CollisionComponent,PhysicsComponent],
     },
-    remove: {
+    remove_bodies: {
         components: [PhysicsComponent,Not(BodyComponent)]
+    },
+    remove_controllers: {
+        components: [PhysicsControllerComponent,Not(KinematicCharacterComponent)]
     },
 };
 
 
 export class PhysicsMeshUpdateSystem extends System {
+    update_entity(e,body){
+        const obj3d = e.getComponent(Obj3dComponent).obj
+        const loc = e.getMutableComponent(LocRotComponent) 
+
+        const btTransform = body.getWorldTransform() //.getCenterOfMassTransform()
+        const pos = btTransform.getOrigin()
+        obj3d.position.copy(new THREE.Vector3(pos.x(),pos.y(),pos.z()))
+        const btQuat = btTransform.getRotation()
+        obj3d.quaternion.copy(new THREE.Quaternion(btQuat.x(),btQuat.y(),btQuat.z(),btQuat.w()))
+
+        // update our locrot component
+        loc.location.x = pos.x()
+        loc.location.y = pos.y()
+        loc.location.z = pos.z()
+        loc.rotation.x = obj3d.rotation.x
+        loc.rotation.y = obj3d.rotation.y
+        loc.rotation.z = obj3d.rotation.z
+    }
+
     execute(delta){
-        let entities = this.queries.entities.results;
-        entities.forEach( e => {
-            const btBody = e.getComponent(PhysicsComponent).body
-            const obj3d = e.getComponent(Obj3dComponent).obj
-            const loc = e.getMutableComponent(LocRotComponent) 
+        this.queries.body_entities.results.forEach( e => {
+            this.update_entity(e,e.getComponent(PhysicsComponent).body)
+        })
 
-            const btTransform = btBody.getCenterOfMassTransform()
-            const pos = btTransform.getOrigin()
-            obj3d.position.copy(new THREE.Vector3(pos.x(),pos.y(),pos.z()))
-            const btQuat = btTransform.getRotation()
-            obj3d.quaternion.copy(new THREE.Quaternion(btQuat.x(),btQuat.y(),btQuat.z(),btQuat.w()))
-
-            // update our locrot component
-            loc.location.x = pos.x()
-            loc.location.y = pos.y()
-            loc.location.z = pos.z()
-            loc.rotation.x = obj3d.rotation.x
-            loc.rotation.y = obj3d.rotation.y
-            loc.rotation.z = obj3d.rotation.z
+        this.queries.ctrl_entities.results.forEach( e => {
+            this.update_entity(e,e.getComponent(PhysicsControllerComponent).ghost)
         })
     }
 }
 
 PhysicsMeshUpdateSystem.queries = {
-  entities: { components: [PhysicsComponent, Obj3dComponent] }
+  body_entities: { components: [PhysicsComponent, Obj3dComponent] },
+  ctrl_entities: { components: [PhysicsControllerComponent, Obj3dComponent] }
 };
