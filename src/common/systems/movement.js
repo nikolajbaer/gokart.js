@@ -1,6 +1,6 @@
 import { System } from "ecsy"
 import { ActionListenerComponent } from "../../core/components/controls"
-import { ApplyVelocityComponent, BodyComponent, KinematicCharacterComponent, PhysicsComponent } from "../../core/components/physics"
+import { ApplyVelocityComponent, BodyComponent, JumpComponent, KinematicCharacterComponent, PhysicsComponent } from "../../core/components/physics"
 import { OnGroundComponent, MoverComponent } from "../components/movement"
 import * as THREE from "three"
 import { Vector3 } from "three"
@@ -45,11 +45,6 @@ export class MovementSystem extends System {
                 vel.z = v.z
             }
 
-            if(v.z != 0){
-                console.log("WALK:",v.z,vel.z,brot.y * (180/Math.PI))
-            }
-
-
             // Track if we are going in "reverse" so we can reverse animations
             // and if we are running or walking
             mover.current_reverse = (v.z < 0)
@@ -70,8 +65,10 @@ export class MovementSystem extends System {
                 }
             }else{
                 if(actions.jump && e.hasComponent(OnGroundComponent)){
-                    vel.y = mover.jump_speed
-                    e.removeComponent(OnGroundComponent) 
+                    if(!e.hasComponent(JumpComponent)){
+                        console.log("Adding jump")
+                        e.addComponent(JumpComponent) 
+                    }
                 }
             }
 

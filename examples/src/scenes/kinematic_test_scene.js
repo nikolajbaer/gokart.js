@@ -87,12 +87,13 @@ export class KinematicTestScene extends Physics3dScene {
             kinematic:true,
             turner:false,
             local:true,
-            jump_speed: 0.25,
-            gravity: -10,
-            fly_mode: true,
+            fly_mode: false,
         })
         e.addComponent(OrbitControlComponent,{offset:new Vector3(0,0,-20),min_polar_angle:0,max_polar_angle:Math.PI/2})
-        e.addComponent(KinematicCharacterComponent,{})
+        e.addComponent(KinematicCharacterComponent,{
+            jump_speed: 10,
+            gravity: 20,
+        })
         e.addComponent(DebugNormalComponent)
         e.name = "player"
 

@@ -1,5 +1,5 @@
 import { System, Not } from "ecsy";
-import { PhysicsComponent, BodyComponent, CollisionComponent, ApplyVelocityComponent, SetRotationComponent, KinematicCharacterComponent, PhysicsControllerComponent } from "../components/physics.js"
+import { PhysicsComponent, BodyComponent, CollisionComponent, ApplyVelocityComponent, SetRotationComponent, KinematicCharacterComponent, PhysicsControllerComponent, JumpComponent } from "../components/physics.js"
 import { HeightfieldDataComponent } from "../components/heightfield.js"
 import { LocRotComponent } from "../components/position.js"
 import { Obj3dComponent } from "../components/render.js"
@@ -194,10 +194,13 @@ export class PhysicsSystem extends System {
         this.physics_world.getBroadphase().getOverlappingPairCache().setInternalGhostPairCallback(new Ammo.btGhostPairCallback())
 
         const controller = new Ammo.btKinematicCharacterController(ghost, shape, kchar.step_height, 1);
-        controller.setUseGhostSweepTest(true)
+        //controller.setUseGhostSweepTest(true)
         controller.setGravity(kchar.gravity) // default 9.8*3
-        controller.setMaxSlope(kchar.max_slope) // default Math.PI / 4
+        controller.setFallSpeed(kchar.gravity*2)
         controller.setJumpSpeed(kchar.jump_speed)
+        /*
+        controller.setMaxSlope(kchar.max_slope) // default Math.PI / 4
+        */ 
         this.physics_world.addCollisionObject(ghost, 32, -1)
         this.physics_world.addAction(controller)
 
@@ -295,12 +298,27 @@ export class PhysicsSystem extends System {
                 e.removeComponent(SetRotationComponent) 
             }
 
-            if(ctrl.onGround() && !e.hasComponent(OnGroundComponent)){
-                e.addComponent(OnGroundComponent) 
+            if(ctrl.onGround()){
+                if(!e.hasComponent(OnGroundComponent)){
+                    e.addComponent(OnGroundComponent) 
+                }
+                if(e.hasComponent(JumpComponent)){
+                    const jump = e.getMutableComponent(JumpComponent) 
+                    console.log("have jump",jump.started)
+                    if(jump.started == null){
+                        console.log("JUMPING")
+                        ctrl.jump()
+                        jump.started = time
+                    }else{
+                        console.log("Jump finished")
+                        e.removeComponent(JumpComponent)
+                    }
+                }
             }else{
-                e.removeComponent(OnGroundComponent)
+                if(e.hasComponent(OnGroundComponent)){
+                    e.removeComponent(OnGroundComponent)
+                }
             }
-
         })
 
         this.physics_world.stepSimulation(delta , 2)
