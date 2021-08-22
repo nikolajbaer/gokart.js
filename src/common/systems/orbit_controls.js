@@ -102,7 +102,6 @@ export class OrbitControlsSystem extends System {
             if(e.hasComponent(SetRotationComponent)){
                 e.getComponent(SetRotationComponent).y = this.euler.y
             }else{
-                console.log("Adding rotation component")
                 e.addComponent(SetRotationComponent,{y:this.euler.y})
             }
         } 

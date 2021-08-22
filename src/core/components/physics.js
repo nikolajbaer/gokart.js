@@ -69,5 +69,5 @@ KinematicCharacterComponent.schema = {
   max_slope: { type: Types.Number, default: Math.PI / 4 },
   walk_speed: { type: Types.Number, default: 1.0 },
   jump_speeed: { type: Types.Number, default: 1.0 },
-  step_height: { type: Types.Number, default: 0.25 },
+  step_height: { type: Types.Number, default: 0.5 },
 }

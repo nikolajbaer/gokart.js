@@ -26,6 +26,7 @@ export class DefaultMeshCreator extends BaseMeshCreator {
             const s = new THREE.Mesh(new THREE.BoxGeometry(0.2,0.2,0.8),new THREE.MeshStandardMaterial({ color: 0x999999 })) 
             s.position.z = 0.4 // Proto sword to show use where we are pointing
             s.position.x = -0.7
+            s.position.y = 0.3
             s.rotation.x = -Math.PI/4
             s.rotation.y = -Math.PI/10
             s.receiveShadow = receiveShadow

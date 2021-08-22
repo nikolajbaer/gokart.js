@@ -75,7 +75,7 @@ export class KinematicTestScene extends Physics3dScene {
         e.addComponent(ActionListenerComponent)
         e.addComponent(BodyComponent,{
             body_type: BodyComponent.KINEMATIC_CHARACTER,
-            bounds_type:BodyComponent.CAPSULE_TYPE,
+            bounds_type:BodyComponent.CYLINDER_TYPE,
             track_collisions:true,
             bounds: new Vector3(1,2,1),
             material: "player",
@@ -91,28 +91,43 @@ export class KinematicTestScene extends Physics3dScene {
             gravity: -10,
             fly_mode: true,
         })
-        e.addComponent(OrbitControlComponent,{offset:new Vector3(0,0,-40),min_polar_angle:0,max_polar_angle:Math.PI/2})
+        e.addComponent(OrbitControlComponent,{offset:new Vector3(0,0,-20),min_polar_angle:0,max_polar_angle:Math.PI/2})
         e.addComponent(KinematicCharacterComponent,{})
         e.addComponent(DebugNormalComponent)
         e.name = "player"
 
         // create some ramps and platforms to test character controller on
         for(var i=0;i<5;i++){
-            for(var j=0;j<5;j++){
-                const box = this.world.createEntity()
-                box.addComponent(ModelComponent,{geometry:"box",material:"ground",scale: new Vector3(10,10,10)})
-                box.addComponent(BodyComponent,{
-                    mass:0,
-                    bounds:new Vector3(10,10,10),
-                    body_type:BodyComponent.STATIC,
-                    bounds_type:BodyComponent.BOX_TYPE,
-                    collision_groups: 0xffff0002,
-                })
-                box.addComponent(LocRotComponent,{
-                    location: new Vector3(10 + i*20,0,10+j*20),
-                    rotation: new Vector3(Math.PI/180 * (j*15),Math.PI/180 * (i*15),0)
-                })
-            }
+            const box = this.world.createEntity()
+            box.addComponent(ModelComponent,{geometry:"box",material:"ground",scale: new Vector3(10,10,10)})
+            box.addComponent(BodyComponent,{
+                mass:0,
+                bounds:new Vector3(10,10,10),
+                body_type:BodyComponent.STATIC,
+                bounds_type:BodyComponent.BOX_TYPE,
+                collision_groups: 0xffff0002,
+            })
+            box.addComponent(LocRotComponent,{
+                location: new Vector3(10,0,10+i*20),
+                rotation: new Vector3(Math.PI/180 * (i*15),Math.PI/180 * (i*15),0)
+            })
+        }
+
+        // create a stair
+        const stepHeight = 0.5 
+        for(var i=0; i<20; i++){
+            const box = this.world.createEntity()
+            box.addComponent(ModelComponent,{geometry:"box",material:"ground",scale: new Vector3(4,stepHeight,stepHeight*2.5)})
+            box.addComponent(BodyComponent,{
+                mass:0,
+                bounds:new Vector3(4,stepHeight,stepHeight*2.5),
+                body_type:BodyComponent.STATIC,
+                bounds_type:BodyComponent.BOX_TYPE,
+                collision_groups: 0xffff0002,
+            })
+            box.addComponent(LocRotComponent,{
+                location: new Vector3(-10,i*stepHeight,i*stepHeight*2.4),
+            })
         }
 
         const density = 0.01

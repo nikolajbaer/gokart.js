@@ -33,17 +33,22 @@ export class MovementSystem extends System {
             const speed = actions.shift?mover.speed*mover.run_mult:mover.speed
             let vel = v.multiplyScalar(speed)
 
+
             // If controls map to movement in local space (forward in direction player is facing)
             // then rotated this by our Y rotation (assuming not directed)
             if( mover.local ){
                 // we only move in X/Z, not Y
-                console.log("local yrot",brot.y)
                 const v = new THREE.Vector3(vel.x,vel.y,vel.z)
                 v.applyAxisAngle(new THREE.Vector3(0,1,0),brot.y)
                 vel.x = v.x
                 vel.y = v.y
                 vel.z = v.z
             }
+
+            if(v.z != 0){
+                console.log("WALK:",v.z,vel.z,brot.y * (180/Math.PI))
+            }
+
 
             // Track if we are going in "reverse" so we can reverse animations
             // and if we are running or walking

@@ -120,10 +120,10 @@ export class PhysicsSystem extends System {
                 shape = new Ammo.btSphereShape(body.bounds.x/2)
                 break
             case BodyComponent.CYLINDER_TYPE:
-                shape = new Ammo.btCylinderShape(body.bounds.y/2, body.bounds.z/2)
+                shape = new Ammo.btCylinderShape(new Ammo.btVector3(body.bounds.x/2, body.bounds.y/2, body.bounds.z/2))
                 break
             case BodyComponent.CAPSULE_TYPE:
-                shape = new Ammo.btCapsuleShape(body.bounds.y/2, body.bounds.z/2)
+                shape = new Ammo.btCapsuleShape(body.bounds.z/2, body.bounds.y)
                 break
             case BodyComponent.HEIGHTFIELD_TYPE:
                 if(!e.hasComponent(HeightfieldDataComponent)){ 
@@ -261,7 +261,6 @@ export class PhysicsSystem extends System {
 
         this.queries.kinematic_characters.results.forEach( e => {
             // TODO step any kinematic character controllers?
-            console.log("Working kinematic character",e.hasComponent(ApplyVelocityComponent),e.hasComponent(SetRotationComponent))
             const pctrl = e.getComponent(PhysicsControllerComponent)
             const ctrl = pctrl.ctrl
             const ghost = pctrl.ghost
@@ -276,7 +275,6 @@ export class PhysicsSystem extends System {
             // CONSIDER combine with phyics body setrotation?
             if(e.hasComponent(SetRotationComponent)){
                 const rot = e.getComponent(SetRotationComponent)
-                console.log("Setting character rot",rot.y)
 
                 const quat = new THREE.Quaternion()
                 if(rot.x != null) {
@@ -288,7 +286,6 @@ export class PhysicsSystem extends System {
                 if(rot.z != null) {
                     quat.setFromAxisAngle(AXIS.Z,rot.z)
                 }
-
 
                 const tr = ghost.getWorldTransform()
                 const btquat = new Ammo.btQuaternion(quat.x,quat.y,quat.z,quat.w)
@@ -354,9 +351,11 @@ export class PhysicsMeshUpdateSystem extends System {
         loc.location.x = pos.x()
         loc.location.y = pos.y()
         loc.location.z = pos.z()
-        loc.rotation.x = obj3d.rotation.x
-        loc.rotation.y = obj3d.rotation.y
-        loc.rotation.z = obj3d.rotation.z
+        const euler = new THREE.Euler()
+        euler.setFromQuaternion(obj3d.quaternion,'YZX')
+        loc.rotation.x = euler.x
+        loc.rotation.y = euler.y
+        loc.rotation.z = euler.z
     }
 
     execute(delta){
