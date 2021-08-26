@@ -2,6 +2,7 @@ import * as THREE from "three";
 import { SkeletonUtils } from 'three/examples/jsm/utils/SkeletonUtils.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { Sky } from 'three/examples/jsm/objects/Sky.js';
+import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js';
 
 export class BaseMeshCreator {
     create_mesh(geometry,material){
@@ -50,33 +51,79 @@ export class DefaultMeshCreator extends BaseMeshCreator {
         "invisible": new THREE.MeshBasicMaterial({color:0xff00ff,colorWrite:false,depthWrite:false}), 
     }
 
+    import_glb(prefab,glb){
+        const scene = gltf.scene
+        //console.log("glb loaded ",gltf)
+        if(prefab.scale){
+            scene.scale.set(prefab.scale,prefab.scale,prefab.scale)
+        }
+        if(prefab.offset){
+            scene.position.set(
+                prefab.offset.x,
+                prefab.offset.y,
+                prefab.offset.z,
+            )
+        }
+        prefab.obj = scene
+
+        if(gltf.animations){
+            scene.animations = gltf.animations;
+        }
+
+        console.log("loaded ",prefab.url," with scale ",prefab.scale,prefab.obj)
+    }
+
+    import_fbx(prefab,fbx){
+        const scene = fbx
+        console.log(fbx)
+        if(prefab.scale){
+            scene.scale.multiplyScalar(prefab.scale)
+        }
+        if(prefab.offset){
+            scene.position.set(
+                prefab.offset.x,
+                prefab.offset.y,
+                prefab.offset.z,
+            )
+        }
+        prefab.obj = scene
+    
+        if(fbx.animations){
+            console.log("FBX Animations",fbx.animations)
+            scene.animations = fbx.animations;
+        }
+    
+        console.log("loaded ",prefab.url," with scale ",prefab.scale,prefab.obj)
+    }
+
     load(){
         const manager = new THREE.LoadingManager()
-        const loader = new GLTFLoader(manager)
+        const glb_loader = new GLTFLoader(manager)
+        const fbx_loader = new FBXLoader(manager)
 
         return new Promise((all_resolve,all_reject) => {
             return Promise.all(
                 Object.values(this.PREFABS).map( prefab => {
                     return new Promise((resolve,reject) => {
-                        loader.load(prefab.url, (gltf) =>{
-                            const scene = gltf.scene
-                            //console.log("glb loaded ",gltf)
-                            if(prefab.scale){
-                                scene.scale.set(prefab.scale,prefab.scale,prefab.scale)
-                            }
-                            prefab.obj = scene
+                        if( prefab.url.match(/.*\.glb/i)){
+                            glb_loader.load(prefab.url, (glb) =>{
+                                this.import_glb(prefab,glb)
+                                if(prefab.animation_urls){
 
-                            if(gltf.animations){
-                                scene.animations = gltf.animations;
-                            }
+                                }else{
+                                    resolve()
+                                }
+                            })
+                        }else if( prefab.url.match(/.*\.fbx/i)){
+                            fbx_loader.load(prefab.url, (fbx) =>{
+                                this.import_fbx(prefab,fbx)
+                                if(prefab.animation_urls){
 
-                            if(prefab.animation_urls){
-                                // load animations from separate fbx files
-                            }else{
-                                console.log("loaded ",prefab.url," with scale ",prefab.scale,prefab.obj)
-                                resolve()
-                            }
-                        })
+                                }else{
+                                    resolve()
+                                }
+                            })
+                        }
                     })
                 })
             ).then(() => {
@@ -115,7 +162,7 @@ export class DefaultMeshCreator extends BaseMeshCreator {
         }
 
         const m = new THREE.Mesh(
-            this.BASE_GEOMETRIES[geometry],
+            this.BASE_GEOMETRIES[geometry]?this.BASE_GEOMETRIES[geometry]:this.BASE_GEOMETRIES['box'],
             this.BASE_MATERIALS[material]?this.BASE_MATERIALS[material]:new THREE.MeshStandardMaterial({ color: material })
         )
         m.receiveShadow = receiveShadow

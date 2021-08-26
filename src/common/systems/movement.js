@@ -68,6 +68,7 @@ export class MovementSystem extends System {
                     if(!e.hasComponent(JumpComponent)){
                         console.log("Adding jump")
                         e.addComponent(JumpComponent) 
+                        mover.current = "jump"
                     }
                 }
             }

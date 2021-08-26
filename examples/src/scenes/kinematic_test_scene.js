@@ -19,6 +19,11 @@ import { OrbitControlsSystem } from "../../../src/common/systems/orbit_controls"
 import { DebugNormalComponent } from "../../../src/common/components/debug"
 import { Debug3dSystem } from "../../../src/common/systems/debug"
 
+import CHARACTER_FBX from "../assets/test_char_anim/character.fbx";
+import { OutlineEffect } from 'three/examples/jsm/effects/OutlineEffect.js';
+
+//    var effect = new OutlineEffect( renderer );
+
 export class KinematicTestScene extends Physics3dScene {
 
     register_components(){
@@ -70,7 +75,7 @@ export class KinematicTestScene extends Physics3dScene {
 
         // add a player
         const e = this.world.createEntity()
-        e.addComponent(ModelComponent,{geometry:"player",scale: new Vector3(1,2,1)})
+        e.addComponent(ModelComponent,{geometry:"character",scale: new Vector3(1,2,1)})
         e.addComponent(LocRotComponent,{location: new Vector3(0,3,0)})
         e.addComponent(ActionListenerComponent)
         e.addComponent(BodyComponent,{
@@ -91,7 +96,7 @@ export class KinematicTestScene extends Physics3dScene {
         })
         e.addComponent(OrbitControlComponent,{offset:new Vector3(0,0,-20),min_polar_angle:0,max_polar_angle:Math.PI/2})
         e.addComponent(KinematicCharacterComponent,{
-            jump_speed: 10,
+            jump_speed: 15,
             gravity: 20,
         })
         e.addComponent(DebugNormalComponent)
@@ -138,6 +143,19 @@ export class KinematicTestScene extends Physics3dScene {
             box.addComponent(ModelComponent,{geometry:"box",scale:new Vector3(s,s,s)})
             box.addComponent(LocRotComponent,{location: new Vector3(20 - Math.random()*40,10,20 - Math.random()*40)})
             box.addComponent(BodyComponent,{mass:s*s*s*density,bounds_type:BodyComponent.BOX_TYPE,bounds: new Vector3(s,s,s)})
+        }
+    }
+
+    get_meshes_to_load(){
+        return {
+            "character":{ 
+                url:CHARACTER_FBX,
+                scale: 0.01,
+//                offset: {x:0,y:-1.5,z:0},
+/*                animation_urls: [
+
+                ]*/
+            },
         }
     }
 }
