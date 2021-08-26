@@ -32,18 +32,12 @@ export class RenderSystem extends System {
             scene.add( axesHelper );
         }
 
-        this.renderer = renderer
 
-        // TODO make this configurable..
-        this.composer = new EffectComposer( renderer )
-        this.default_camera = new THREE.PerspectiveCamera()
-        this.renderPass = new RenderPass( scene, this.default_camera )
-        this.composer.addPass( this.renderPass )
-
-        /*
-        const filmPass = new FilmPass( ) 
-        this.composer.addPass( filmPass )
-        */
+        if(attributes && attributes.customize_renderer){
+            this.renderer = attributes.customize_renderer(renderer) 
+        }else{
+            this.renderer = renderer
+        }
 
         this.scene = scene
         window.scene = scene
@@ -188,7 +182,6 @@ export class RenderSystem extends System {
         if(this.queries.camera.results.length > 0) {
             const e = this.queries.camera.results[0]
             const camera = e.getComponent(Obj3dComponent).obj.camera
-            this.renderPass.camera = camera
 
             this.queries.projectors.results.forEach( e => {
                 const proj = e.getMutableComponent(Project2dComponent)
@@ -199,8 +192,7 @@ export class RenderSystem extends System {
                 proj.y = cpos.y
             })
 
-            //this.renderer.render( this.scene, camera )
-            this.composer.render()
+            this.renderer.render( this.scene, camera )
         }
     }
 }

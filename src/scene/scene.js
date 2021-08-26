@@ -98,7 +98,15 @@ export class BaseScene {
             render_element_id:this.render_element_id,
             mesh_creator: this.mesh_creator?this.mesh_creator:null,
             show_axes: true,
+            customize_renderer: this.customize_renderer, 
         })
+    }
+
+    customize_renderer(renderer){
+        // TODO consider how to make this more dynamic
+        // as cameras are changed so we need to pass more information in
+        // for a lot of effects
+        return renderer
     }
 
     init_entities(){

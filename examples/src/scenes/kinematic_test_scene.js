@@ -20,7 +20,6 @@ import { DebugNormalComponent } from "../../../src/common/components/debug"
 import { Debug3dSystem } from "../../../src/common/systems/debug"
 
 import CHARACTER_GLB from "../assets/combined_character.glb";
-
 import { OutlineEffect } from 'three/examples/jsm/effects/OutlineEffect.js';
 
 //    var effect = new OutlineEffect( renderer );
@@ -47,6 +46,11 @@ export class KinematicTestScene extends Physics3dScene {
         this.world.registerSystem(AnimatedMovementSystem)
     }
 
+    customize_renderer(renderer){
+        const effect = new OutlineEffect( renderer)
+        return effect
+    }
+    
     init_entities(){
 
         const g = this.world.createEntity()
@@ -55,9 +59,8 @@ export class KinematicTestScene extends Physics3dScene {
             bounds_type: BodyComponent.BOX_TYPE,
             body_type: BodyComponent.STATIC,
             bounds: new Vector3(1000,1,1000),
-            collision_groups: 0xffff0002,
         })
-        g.addComponent( ModelComponent, {geometry:"box",material:0x247d3c,scale: new Vector3(1000,1,1000)})
+        g.addComponent( ModelComponent, {geometry:"box",material:0x111111,scale: new Vector3(1000,1,1000)})
         g.addComponent( LocRotComponent, { rotation: new Vector3(0,0,0), location: new Vector3(0,-0.5,0) } )
         g.name = "ground_plane"
 
@@ -88,13 +91,12 @@ export class KinematicTestScene extends Physics3dScene {
             body_type: BodyComponent.KINEMATIC_CHARACTER,
             bounds_type:BodyComponent.CYLINDER_TYPE,
             track_collisions:true,
-            bounds: new Vector3(1,1,1),
+            bounds: new Vector3(0.5,0.5,0.5),
             material: "player",
             mass: 0,
-            collision_groups: 0xffff0004,
         })
         e.addComponent(MoverComponent,{
-            speed:0.25,
+            speed:0.15,
             kinematic:true,
             turner:false,
             local:true,
@@ -107,9 +109,9 @@ export class KinematicTestScene extends Physics3dScene {
             run: "Run",
             jump: "Jump",
         })
-        e.addComponent(OrbitControlComponent,{offset:new Vector3(0,0,-12),min_polar_angle:0,max_polar_angle:Math.PI/2})
+        e.addComponent(OrbitControlComponent,{offset:new Vector3(0,0,-10),min_polar_angle:Math.PI/10,max_polar_angle:Math.PI/2})
         e.addComponent(KinematicCharacterComponent,{
-            jump_speed: 15,
+            jump_speed: 10,
             gravity: 20,
         })
         e.addComponent(DebugNormalComponent)
@@ -124,7 +126,6 @@ export class KinematicTestScene extends Physics3dScene {
                 bounds:new Vector3(10,10,10),
                 body_type:BodyComponent.STATIC,
                 bounds_type:BodyComponent.BOX_TYPE,
-                collision_groups: 0xffff0002,
             })
             box.addComponent(LocRotComponent,{
                 location: new Vector3(10,0,10+i*20),
@@ -142,7 +143,6 @@ export class KinematicTestScene extends Physics3dScene {
                 bounds:new Vector3(4,stepHeight,stepHeight*2.5),
                 body_type:BodyComponent.STATIC,
                 bounds_type:BodyComponent.BOX_TYPE,
-                collision_groups: 0xffff0002,
             })
             box.addComponent(LocRotComponent,{
                 location: new Vector3(-10,i*stepHeight,i*stepHeight*2.4),

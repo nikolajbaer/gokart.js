@@ -48,14 +48,18 @@ export class MovementSystem extends System {
             // Track if we are going in "reverse" so we can reverse animations
             // and if we are running or walking
             mover.current_reverse = (v.z < 0)
-            if(actions.shift){
-                mover.current = "run"
-            }else if(v.length() > 0){
-                mover.current = "walk"
+            if(e.hasComponent(OnGroundComponent)){
+                if(actions.shift){
+                    mover.current = "run"
+                }else if(v.length() > 0){
+                    mover.current = "walk"
+                }else{
+                    mover.current = "rest"
+                }
             }else{
-                mover.current = "rest"
+                // TODO fall vs jump?
+                mover.current = "jump"
             }
-
             // TODO rework jump with btKinematicCharacterController
             if(mover.fly_mode){
                 if(actions.jump){
