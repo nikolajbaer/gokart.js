@@ -14,7 +14,7 @@ import { Body2dComponent } from "../../../src/core/components/physics2d"
 import { Movement2dSystem } from "../../../src/common/systems/movement2d"
 
 // asset urls
-import mechaGLB from "../assets/mecha.glb"
+import CHARACTER_GLB from "../assets/combined_character.glb"
 import bleepMP3 from "../assets/bleep.mp3"
 import * as pl from "planck-js"
 
@@ -64,7 +64,7 @@ export class TopDownScene extends Physics2dScene {
 
         // add a player
         const e = this.world.createEntity()
-        e.addComponent(ModelComponent,{geometry:"mecha"})
+        e.addComponent(ModelComponent,{geometry:"character"})
         e.addComponent(LocRotComponent,{location: new Vector3(0,0.5,0)})
         e.addComponent(ActionListenerComponent)
         e.addComponent(Body2dComponent,{
@@ -77,9 +77,9 @@ export class TopDownScene extends Physics2dScene {
         e.addComponent(MoverComponent,{speed:10.0,kinematic:true})
         e.addComponent(AnimatedComponent)
         e.addComponent(AnimatedMovementComponent,{
-            rest: "Rest",
+            rest: "Idle",
             walk: "Walk",
-            run: "Walk",
+            run: "Run",
         })
         e.addComponent(CameraFollowComponent,{offset:new Vector3(0,35,-15)})
 
@@ -93,7 +93,7 @@ export class TopDownScene extends Physics2dScene {
 
     get_meshes_to_load(){
         return {
-            "mecha":{ url:mechaGLB },
+            "character":{ url:CHARACTER_GLB, scale: 2 },
         }
     }
 

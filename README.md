@@ -1,6 +1,6 @@
 # Web Game Starter 
 
-A web game starter kit based on ECSY.io, Three.js, Cannon-es and React with webpack bindings. This starter provides 
+A web game starter kit based on ECSY.io, Three.js, Ammo.js and React with webpack bindings. This starter provides 
 a game canvas with basic Three.js rendering system, ECSY component structure, and Cannon-ES 
 physics support, controls handling, as well as a React component layer to build on, and a HUD data communication
 layer. Mostly targeted at "action" games, currently focused on single player.  
@@ -12,7 +12,7 @@ layer. Mostly targeted at "action" games, currently focused on single player.
 * Mobile touch based gamepads for on-screen controls
 * Control system to handle and map controls to "actions" (ala Godot)
 * HUD bindings to show realtime game info in React-driven HUD
-* JEST test setup for unit tests on ECS component/systems
+* TBD - JEST test setup for unit tests on ECS component/systems
 * Webpack example
 * Docker-Compose file for build env
 
@@ -34,10 +34,12 @@ at [ld48.nikolaj.dev](https://ld48.nikolaj.dev).
 All possible only due to much awesome work:
 
 - [ECSY](https://www.ecsy.io/) for ECS
-- [Rapier](https://rapier.rs/) for 3D Physics
+- [Ammo.js](https://github.com/kripken/ammo.js/) for 3D Physics
 - [THREE.js](https://threejs.org/) for Rendering
 - [React](https://reactjs.org/) for UI
 - [MobX](https://mobx.js.org/) for HUD communication
 - [Planck.js](https://https://piqnt.com/planck.js/) for 2D Physics
 - [Howler.js](https://howlerjs.com/) for Sound (TBD)
+
+Bundled character model by [nikolaj](https://github.com/nikolajbaer) with animations from [Mixamo](https://www.mixamo.com/).
 

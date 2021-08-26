@@ -17,7 +17,7 @@ export class BaseMeshCreator {
 
 export class DefaultMeshCreator extends BaseMeshCreator {
     PREFABS = {
-        // {url:"glb_url",animation_urls:["anim fbx",..], obj:null,animations:null}
+        // geometry_name: {url:"glb_url",animation_urls:["anim_fbx_url",..], obj:null,animations:null}
     }
     FUNCTIONS = { // useful for procgen or compound geometry
         "player": function(entity,material,receiveShadow,castShadow){
@@ -52,7 +52,7 @@ export class DefaultMeshCreator extends BaseMeshCreator {
     }
 
     import_glb(prefab,glb){
-        const scene = gltf.scene
+        const scene = glb.scene
         //console.log("glb loaded ",gltf)
         if(prefab.scale){
             scene.scale.set(prefab.scale,prefab.scale,prefab.scale)
@@ -66,8 +66,8 @@ export class DefaultMeshCreator extends BaseMeshCreator {
         }
         prefab.obj = scene
 
-        if(gltf.animations){
-            scene.animations = gltf.animations;
+        if(glb.animations){
+            scene.animations = glb.animations;
         }
 
         console.log("loaded ",prefab.url," with scale ",prefab.scale,prefab.obj)
@@ -89,7 +89,6 @@ export class DefaultMeshCreator extends BaseMeshCreator {
         prefab.obj = scene
     
         if(fbx.animations){
-            console.log("FBX Animations",fbx.animations)
             scene.animations = fbx.animations;
         }
     
@@ -118,7 +117,15 @@ export class DefaultMeshCreator extends BaseMeshCreator {
                             fbx_loader.load(prefab.url, (fbx) =>{
                                 this.import_fbx(prefab,fbx)
                                 if(prefab.animation_urls){
-
+                                    prefab.animation_urls.forEach( (anim_url) => {
+                                        fbx_loader.load(anim_url, (fbx) => {
+                                            const anim = fbx.animations[0]
+                                            console.log("Animation loaded",anim)
+                                            prefab.obj.animations.concat(fbx.animations)
+                                        })
+                                    })
+                                    // TODO more promises..
+                                    resolve()
                                 }else{
                                     resolve()
                                 }
