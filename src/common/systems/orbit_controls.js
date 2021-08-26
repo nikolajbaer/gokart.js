@@ -33,10 +33,17 @@ export class OrbitControlsSystem extends System {
         this.wheelchange = function(event){
             self.handle_wheel_change(event)
         }
+
+        document.addEventListener('pointerlockerror', this.handle_lock_error, false)
     }
 
     lock(){
-        this.listen_element.requestPointerLock()
+        if(this.locked || this.listen_element.ownerDocument.pointerLockElement === this.listen_element){
+            return
+        }
+        this.listen_element.requestPointerLock().then( () => {
+            // not sure this is standardized.. 
+        }).catch( e => {}) // not sure what this error is
         this.listen_element.ownerDocument.addEventListener('pointerlockchange', this.pointerlockchange)
         this.listen_element.ownerDocument.addEventListener('mousemove', this.mousemove)
         this.listen_element.ownerDocument.addEventListener('wheel', this.wheelchange)
@@ -47,7 +54,12 @@ export class OrbitControlsSystem extends System {
             this.locked = true
         }else{
             this.locked = false
+            this.unlock()
         }
+    }
+
+    handle_lock_error(e){
+        //console.error("pointer lock failed",e)
     }
 
     handle_mouse_move(event){
@@ -63,7 +75,6 @@ export class OrbitControlsSystem extends System {
         this.listen_element.ownerDocument.exitPointerLock()
         this.listen_element.ownerDocument.removeEventListener('mousemove', this.mousemove)
         this.listen_element.ownerDocument.removeEventListener('pointerlockchange', this.pointerlockchange)
-
     }
 
     execute(delta, time){
