@@ -59,8 +59,8 @@ export class TopDownScene extends Physics2dScene {
         l1.addComponent(LightComponent,{type:"ambient"})
 
         const l2 = this.world.createEntity()
-        l2.addComponent(LocRotComponent,{location: new Vector3(10,30,0)})
-        l2.addComponent(LightComponent,{type:"point",cast_shadow:true})
+        l2.addComponent(LocRotComponent,{location: new Vector3(0,30,20),rotation: new Vector3(-Math.PI/4,0,0)})
+        l2.addComponent(LightComponent,{type:"directional",cast_shadow:true,intensity:0.6})
 
         // add a player
         const e = this.world.createEntity()

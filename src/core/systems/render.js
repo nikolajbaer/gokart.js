@@ -118,8 +118,9 @@ export class RenderSystem extends System {
                     dir.shadow.camera.near = 0.5; // default
                     dir.shadow.camera.far = shadowSize*2; // default
                 }
-                const helper = new THREE.DirectionalLightHelper( dir, 5 );
-                holder.add( helper );
+                //
+                //const helper = new THREE.DirectionalLightHelper( dir, 5 );
+                //holder.add( helper );
                 this.scene.add(holder)
                 e.addComponent(Obj3dComponent, {obj:holder})
                 break
