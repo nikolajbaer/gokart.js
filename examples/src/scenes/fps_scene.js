@@ -69,8 +69,8 @@ export class FPSScene extends Physics3dScene {
         l1.addComponent(LightComponent,{type:"ambient"})
 
         const l2 = this.world.createEntity()
-        l2.addComponent(LocRotComponent,{location: new Vector3(10,30,0)})
-        l2.addComponent(LightComponent,{type:"point",cast_shadow:true,intensity:0.8})
+        l2.addComponent(LocRotComponent,{location: new Vector3(0,30,20),rotation: new Vector3(-Math.PI/4,0,0)})
+        l2.addComponent(LightComponent,{type:"directional",cast_shadow:true,intensity:0.6})
 
         // Add our FPS camera
         const c = this.world.createEntity()
@@ -86,20 +86,17 @@ export class FPSScene extends Physics3dScene {
             body_type: BodyComponent.KINEMATIC_CHARACTER,
             bounds_type: BodyComponent.CYLINDER_TYPE,
             track_collisions:true,
-            bounds: new Vector3(1,2,1),
+            bounds: new Vector3(0.5,0.5,0.5),
             material: "player",
-            mass: 100,
-            collision_groups: 0xffff0004,
+            mass: 0,
         })
         e.addComponent(HitComponent)
         e.addComponent(MoverComponent,{
-            speed:10.0,
+            speed:0.15,
             kinematic:true,
             turner:false,
             local:true,
-            jump_speed: 10,
-            gravity: -10,
-            //fly_mode: true,
+            fly_mode: false,
         })
         e.addComponent(MouseLookComponent,{offset:new Vector3(0,2,0),invert_y:true})
         e.addComponent(KinematicCharacterComponent,{})

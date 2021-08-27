@@ -16,11 +16,6 @@ export class MouseLookSystem extends System {
             this.listen_element = document 
         }
 
-        // https://developer.mozilla.org/en-US/docs/Web/API/Pointer_Lock_API
-        this.listen_element.requestPointerLock = this.listen_element.requestPointerLock || this.listen_element.mozRequestPointerLock
-        this.listen_element.ownerDocument.addEventListener('pointerlockchange', this.pointerlockchange)
-        document.addEventListener('pointerlockerror', this.handle_lock_error, false)
-
         this.mx = 0
         this.my = 0
         this.euler = new THREE.Euler(0,0,0,'YXZ')
@@ -36,37 +31,43 @@ export class MouseLookSystem extends System {
         this.pointerlockchange = function(event){
             self.handle_pointer_lock_change(event)
         }
+
+        document.addEventListener('pointerlockerror', this.handle_lock_error, false)
     }
 
     lock(){
-        this.listen_element.requestPointerLock()
+        if(this.locked || this.listen_element.ownerDocument.pointerLockElement === this.listen_element){
+            return
+        }
+        this.listen_element.requestPointerLock().then( () => {
+            // not sure this is standardized.. 
+        }).catch( e => {}) // not sure what this error is
+        this.listen_element.ownerDocument.addEventListener('pointerlockchange', this.pointerlockchange)
+        this.listen_element.ownerDocument.addEventListener('mousemove', this.mousemove)
     } 
 
     handle_lock_error(e){
-        console.error("pointer lock failed",e)
+        //console.error("pointer lock failed",e)
     }
 
     handle_pointer_lock_change(){
         if(this.listen_element.ownerDocument.pointerLockElement === this.listen_element){
             this.locked = true
-            this.listen_element.ownerDocument.addEventListener('mousemove', this.mousemove)
         }else{
             this.locked = false
-            this.listen_element.ownerDocument.removeEventListener('mousemove', this.mousemove)
+            this.unlock()
         }
     }
 
     handle_mouse_move(event){
-        if(this.listen_element.ownerDocument.pointerLockElement === this.listen_element){
-            this.mx += event.movementX || event.mozMovementX || event.webkitMovementX || 0;
-    		this.my += event.movementY || event.mozMovementY || event.webkitMovementY || 0;
-        }
+        this.mx += event.movementX || event.mozMovementX || event.webkitMovementX || 0;
+        this.my += event.movementY || event.mozMovementY || event.webkitMovementY || 0;
     }
 
     unlock(){
-        if(this.listen_element === document.pointerLockElement){
-            this.listen_element.exitPointerLock()
-        }
+        this.listen_element.exitPointerLock()
+        this.listen_element.ownerDocument.removeEventListener('mousemove', this.mousemove)
+        this.listen_element.ownerDocument.removeEventListener('pointerlockchange', this.pointerlockchange)
     }
 
     execute(delta, time){
@@ -74,7 +75,7 @@ export class MouseLookSystem extends System {
         if(this.queries.mouselook.results.length == 0){ return }
        
         // Todo make this exit-able if we want to look at a menu
-        if(!this.locked && !(this.listen_element === document.pointerLockElement)){ 
+        if(!this.locked){ 
             this.lock()
             return
         }
