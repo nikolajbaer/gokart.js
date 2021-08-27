@@ -31,6 +31,7 @@ export class ControlsSystem extends System {
         window.addEventListener("keyup", event => {
             if(action_key_map[event.code]){ actions[action_key_map[event.code]] = 0.0 }
         });
+
         const render = document.getElementById(attributes.listen_element_id)
 
         // Mouse Controls

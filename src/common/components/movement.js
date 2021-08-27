@@ -15,6 +15,7 @@ MoverComponent.schema = {
     jump_speed: { type:Types.Number, default: 10.0 },
     fly_mode: { type:Types.Boolean, default: false }, // fly around a level, e.g. in Minecraft fly mode, or in CSGO while waiting for a round
     gravity: { type: Types.Number, default: 0 },
+    default_run: { type: Types.Boolean, default: false }, // default movement is run, shift to walk (vs shift to run)
 }
 
 export class OnGroundComponent extends TagComponent {}

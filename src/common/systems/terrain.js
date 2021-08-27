@@ -19,8 +19,6 @@ export class TerrainSystem extends System {
         const terrainWidth = hfield.width
         const terrainDepth = hfield.height
 
-
-
         const geometry = new THREE.PlaneBufferGeometry( hfield.scale.x, hfield.scale.z, terrainWidth - 1, terrainDepth - 1 );
         geometry.rotateX( - Math.PI / 2 );
 

@@ -59,7 +59,7 @@ export class FPSScene extends Physics3dScene {
             bounds: new Vector3(1000,1,1000),
             collision_groups: 0xffff0002,
         })
-        g.addComponent( ModelComponent, {geometry:"box",material:"ground",scale: new Vector3(1000,1,1000)})
+        g.addComponent( ModelComponent, {geometry:"box",material:0x111111,scale: new Vector3(1000,1,1000)})
         g.addComponent( LocRotComponent, { rotation: new Vector3(0,0,0), location: new Vector3(0,-0.5,0) } )
         g.name = "ground_plane"
 
@@ -79,7 +79,7 @@ export class FPSScene extends Physics3dScene {
 
         // add a player
         const e = this.world.createEntity()
-        e.addComponent(ModelComponent,{geometry:"none",scale: new Vector3(1,1,1)})
+        e.addComponent(ModelComponent,{geometry:"sphere",material:"invisible",scale: new Vector3(1,1,1)})
         e.addComponent(LocRotComponent,{location: new Vector3(0,13,0)})
         e.addComponent(ActionListenerComponent)
         e.addComponent(BodyComponent,{

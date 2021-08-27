@@ -2,6 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 import { GameComponent } from "../../src/core/ui_components/GameComponent"
 import { HUDView } from "../../src/core/ui_components/HUDView"
+import { MobileStick } from "../../src/core/ui_components/MobileStick";
 import { TopDownScene } from "./scenes/topdown_scene.js"
 import { FPSScene } from "./scenes/fps_scene.js"
 import "./style.css"
@@ -39,10 +40,23 @@ export class Game extends React.Component {
         this.setState({scene:scene})
     } 
 
+    getTouchControls(){
+        let touch_controls = ""
+        if('ontouchstart' in window){
+            touch_controls = (
+                <React.Fragment>
+                    <MobileStick className="dpad" joystickId="dpad" pad_radius={20} width={150} height={150} />
+                    <MobileStick className="aim" joystickId="aim" pad_radius={20} width={150} height={150} />
+                </React.Fragment>
+            )
+        }
+        return touch_controls
+    }
+
     render(){
         if(this.state.playing){
             return  (
-                <GameComponent scene={this.state.scene}>
+                <GameComponent scene={this.state.scene} touch_controls={this.getTouchControls()}>
                 	{hudState => (
                         <HUDView hudState={hudState}>
                 	    {hudState => (

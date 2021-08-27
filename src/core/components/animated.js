@@ -15,3 +15,6 @@ PlayActionComponent.schema = {
     blend: { type: Types.Number, default: 0.5 },
     playback_speed: { type: Types.Number, default: 1 },
 }
+PlayActionComponent.LoopOnce = THREE.LoopOnce
+PlayActionComponent.LoopRepeat = THREE.LoopRepeat
+PlayActionComponent.LoopPingPong = THREE.LoopPingPong

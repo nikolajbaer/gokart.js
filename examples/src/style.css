@@ -31,3 +31,25 @@ body {
     margin: 8px;
     cursor: pointer;
 }
+
+
+.mobilestick {
+    position: fixed;
+    vertical-align: bottom;
+}
+.mobilestick .debug {
+    position: absolute;
+    text-align: center;
+    left: 50%;
+    bottom: 0px;
+    color: white;
+    font-size: 10px;
+}
+#dpad {
+    left: 10px;
+    bottom: 10px;
+}
+#aim {
+    right: 10px;
+    bottom: 10px;
+}

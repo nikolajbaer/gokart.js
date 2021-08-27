@@ -20,21 +20,9 @@ export class DefaultMeshCreator extends BaseMeshCreator {
         // geometry_name: {url:"glb_url",animation_urls:["anim_fbx_url",..], obj:null,animations:null}
     }
     FUNCTIONS = { // useful for procgen or compound geometry
-        "player": function(entity,material,receiveShadow,castShadow){
-            const p = new THREE.Mesh(new THREE.CylinderGeometry(0.5,0.5,1,32),new THREE.MeshStandardMaterial({ color: 0x0000ee }))
-            p.receiveShadow = receiveShadow
-            p.castShadow = castShadow
-            const s = new THREE.Mesh(new THREE.BoxGeometry(0.2,0.2,0.8),new THREE.MeshStandardMaterial({ color: 0x999999 })) 
-            s.position.z = 0.4 // Proto sword to show use where we are pointing
-            s.position.x = -0.7
-            s.position.y = 0.3
-            s.rotation.x = -Math.PI/4
-            s.rotation.y = -Math.PI/10
-            s.receiveShadow = receiveShadow
-            s.castShadow = castShadow
-             p.add(s)
-            return p
-        }
+//        "name": function(entity,material,receiveShadow,castShadow){
+//            return new THREE.Object3D()
+//        }
     }
     BASE_GEOMETRIES = {
         "box": new THREE.BoxGeometry(),

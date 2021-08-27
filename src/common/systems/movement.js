@@ -30,7 +30,8 @@ export class MovementSystem extends System {
             v.normalize()
 
             // Apply speed (walk or run)
-            const speed = actions.shift?mover.speed*mover.run_mult:mover.speed
+            const run_mode = mover.default_run?!actions.shift:actions.shift
+            const speed = run_mode?mover.speed*mover.run_mult:mover.speed
             let vel = v.multiplyScalar(speed)
 
 
@@ -50,9 +51,9 @@ export class MovementSystem extends System {
             mover.current_reverse = (v.z < 0)
             if(e.hasComponent(OnGroundComponent)){
                 if(actions.shift){
-                    mover.current = "run"
+                    mover.current = (mover.default_run)?"walk":"run"
                 }else if(v.length() > 0){
-                    mover.current = "walk"
+                    mover.current = (mover.default_run)?"run":"walk"
                 }else{
                     mover.current = "rest"
                 }

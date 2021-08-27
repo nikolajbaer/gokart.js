@@ -1,9 +1,6 @@
 # Web Game Starter 
 
-A web game starter kit based on ECSY.io, Three.js, Ammo.js and React with webpack bindings. This starter provides 
-a game canvas with basic Three.js rendering system, ECSY component structure, and Cannon-ES 
-physics support, controls handling, as well as a React component layer to build on, and a HUD data communication
-layer. Mostly targeted at "action" games, currently focused on single player.  
+A web game starter kit based on ECSY.io, Three.js, Ammo.js and React with webpack bindings. This starter provides a game canvas with basic Three.js rendering system, ECSY component structure, and 2D/3D physics support, controls handling, as well as a React component layer to build on, and a HUD data communication layer. Mostly targeted at "action" games, currently focused on single player.
 
 [Try Out the Demo](https://webgamestarter.nikolaj.dev)
 
@@ -18,7 +15,7 @@ layer. Mostly targeted at "action" games, currently focused on single player.
 
 ## Using This ##
 
-TBD still figuring out how to make this reusable! 
+TBD still figuring out how to make this reusable!  Goal is to have something as simple/low-barrier as the Crafty.js API.
 
 For now you just clone it and rework the "example" folder.
 

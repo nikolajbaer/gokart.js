@@ -1,6 +1,5 @@
 import React from "react";
 import { MobileStick } from "./MobileStick"
-import { HUDView } from "./HUDView"
 import { HUDSystem } from "../systems/hud"
 
 export class GameComponent extends React.Component {
@@ -48,11 +47,13 @@ export class GameComponent extends React.Component {
         this.setState({fullscreen:showFullscreen})
     }
 
+
     render() {
         return (
         <div id="game">
             <canvas id="render"></canvas>
             {this.props.children?this.props.children(this.state.hudState):""}
+            {this.props.touch_controls}
         </div>
         )
     }
