@@ -58,8 +58,12 @@ export class MovementSystem extends System {
                     mover.current = "rest"
                 }
             }else{
-                // TODO fall vs jump?
-                mover.current = "jump"
+                if(e.hasComponent(JumpComponent)){
+                    mover.current = "jump"
+                }else{ 
+                    console.log("falling!")
+                    mover.current = "fall"
+                }
             }
             // TODO rework jump with btKinematicCharacterController
             if(mover.fly_mode){

@@ -14,6 +14,7 @@ PlayActionComponent.schema = {
     loop: { type: Types.Number, default: THREE.LoopRepeat },
     blend: { type: Types.Number, default: 0.5 },
     playback_speed: { type: Types.Number, default: 1 },
+    clamp_when_finished: { type: Types.Boolean, default: false },
 }
 PlayActionComponent.LoopOnce = THREE.LoopOnce
 PlayActionComponent.LoopRepeat = THREE.LoopRepeat

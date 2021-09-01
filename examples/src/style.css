@@ -53,3 +53,9 @@ body {
     right: 10px;
     bottom: 10px;
 }
+a {
+    color: white;
+}
+a:visited {
+    color: white;
+}

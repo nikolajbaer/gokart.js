@@ -79,7 +79,9 @@ export class Game extends React.Component {
         }else{
             return (
                 <div className="menu">
-                    <h1>Select Example Scene Type:</h1>
+                    <h1>🏎️ GoKart.js Demos</h1> 
+                    <p><a href="https://github.com/nikolajbaer/gokart.js">github</a></p>
+                    <h3>Select Example Scene Type:</h3>
                     <button onClick={() => this.startLoading("fps")}>FPS</button>
                     <button onClick={() => this.startLoading("topdown")}>Top Down</button>
                     <button onClick={() => this.startLoading("physics_test")}>3D Physics Test</button>

@@ -108,7 +108,8 @@ export class KinematicTestScene extends Physics3dScene {
             rest: "Idle",
             walk: "Walk",
             run: "Run",
-            jump: "Jump.001",
+            jump: "Jump",
+            fall: "Fall",
         })
         e.addComponent(OrbitControlComponent,{offset:new Vector3(0,0,-10),min_polar_angle:Math.PI/10,max_polar_angle:Math.PI/2})
         e.addComponent(KinematicCharacterComponent,{
