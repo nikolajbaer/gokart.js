@@ -6,7 +6,7 @@ export function initialize_test_world(systems,components){
         world.registerComponent(c)
     })
     systems.forEach( s => {
-        world.registerSystem(s)
+        world.registerSystem(s.system,s.attr)
     })
     return world
 }

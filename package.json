@@ -1,10 +1,10 @@
 {
-  "name": "rect-web-game-starter",
+  "name": "gokart.js",
   "version": "0.1.0",
-  "description": "A starting point for a web game based on ECSY, Three.js, Cannon-ES with React HUD/UI",
+  "description": "GoKart is a starting point for 3D web games based on ECSY, Three.js, Ammo.js with React HUD/UI",
   "repository": {
     "type": "git",
-    "url": "https://github.com/nikolajbaer/rect-web-game-starter.git#TODO"
+    "url": "https://github.com/nikolajbaer/gokart.js.git"
   },
   "module": "src/index.js",
   "main": "webpack.config.js",

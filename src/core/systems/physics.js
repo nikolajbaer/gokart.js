@@ -4,10 +4,7 @@ import { HeightfieldDataComponent } from "../components/heightfield.js"
 import { LocRotComponent } from "../components/position.js"
 import { Obj3dComponent } from "../components/render.js"
 import * as THREE from "three"
-//import * as RAPIER from  '@dimforge/rapier3d-compat'
 import { OnGroundComponent } from "../../common/components/movement.js";
-import { DebugNormalComponent } from "../../common/components/debug.js";
-import { Vector3 } from "three";
 import * as AMMO from "ammo.js/builds/ammo.js";
 
 let Ammo = null
@@ -24,16 +21,12 @@ export class PhysicsSystem extends System {
 
         AMMO().then( _ammo => {
             Ammo = _ammo
-            console.log("hello from ammo",Ammo)
             const collisionConfiguration = new Ammo.btDefaultCollisionConfiguration()
             const dispatcher = new Ammo.btCollisionDispatcher(collisionConfiguration)
             const overlappingPairCache = new Ammo.btDbvtBroadphase()
             const solver = new Ammo.btSequentialImpulseConstraintSolver()
             this.physics_world = new Ammo.btDiscreteDynamicsWorld(dispatcher, overlappingPairCache, solver, collisionConfiguration)
             this.physics_world.setGravity(new Ammo.btVector3(0, -10, 0));
-
-            // Per https://discourse.threejs.org/t/ammo-js-with-three-js/12530/45 for Kinematic Controllers
-            
         })
 
         if(attributes && attributes.collision_handler){
@@ -41,7 +34,6 @@ export class PhysicsSystem extends System {
         }else{
             this.collision_handler = null
         }
-
     }
 
     create_heightfield_shape(e,body,locrot,quat){
