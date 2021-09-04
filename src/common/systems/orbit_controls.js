@@ -16,6 +16,7 @@ export class OrbitControlsSystem extends System {
         this.my = 0 
         this.mw = 1
         this.zoom_sensitivity = 0.001
+        this.scale = 1
     }
 
     execute(delta, time){
@@ -33,16 +34,24 @@ export class OrbitControlsSystem extends System {
         const location = e.getComponent(LocRotComponent).location
         camera_holder.position.set(location.x,location.y,location.z)
 
-        this.mw += mouse.mousewheel
-        this.scale = this.mw * this.zoom_sensitivity
-        this.scale = Math.min(orbit.max_zoom,Math.max(this.scale,orbit.min_zoom))
+        // TODO fix mousewheel
+        if(false){ //mouse.mousewheel != null){
+            this.mw += mouse.mousewheel
+            this.scale = this.mw * this.zoom_sensitivity
+            this.scale = Math.min(orbit.max_zoom,Math.max(this.scale,orbit.min_zoom))
+        }
         const offset = new THREE.Vector3().copy(orbit.offset).multiplyScalar(this.scale)
         camera.position.set(offset.x,offset.y,offset.z)
         camera.lookAt(new THREE.Vector3(location.x,location.y,location.z))
 
         this.euler.setFromQuaternion(camera_holder.quaternion)
-        this.euler.y -= mouse.mousex * orbit.sensitivity
-        this.euler.x -= mouse.mousey * orbit.sensitivity * (orbit.invert_y?-1:1)
+        if(mouse.absolute){
+            this.euler.x = -mouse.mousey
+            this.euler.y = mouse.mousex
+        }else{
+            this.euler.y -= mouse.mousex * orbit.sensitivity
+            this.euler.x -= mouse.mousey * orbit.sensitivity * (orbit.invert_y?-1:1)
+        }
         this.euler.x = Math.max(
             _PI_2 - orbit.max_polar_angle, 
             Math.min( _PI_2 - orbit.min_polar_angle, this.euler.x) 

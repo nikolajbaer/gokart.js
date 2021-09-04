@@ -116,7 +116,10 @@ export class KinematicTestScene extends Physics3dScene {
             jump_speed: 10,
             gravity: 20,
         })
-        e.addComponent(MouseLockComponent)
+        // TODO make touch control config more sensible
+        if(!this.touch_enabled){
+            e.addComponent(MouseLockComponent)
+        }
         e.addComponent(MouseListenerComponent)
         e.name = "player"
 

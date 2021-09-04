@@ -38,13 +38,20 @@ export class ControlsSystem extends System {
             if(action_key_map[event.code]){ actions[action_key_map[event.code]] = 0.0 }
         });
 
+        // CONSIDER breaking out different control systems into their own systems
+        // or at least methods to make it easier for customization
+
         // TODO maybe pointer lock component?
         // Pointer Lock Management
         this.locked = false
 
         // Mouse Controls
+        // relative mouse change (for mouse)
         this.mx = 0
         this.my = 0
+        // absolute mouse position (for touch stick mouse emulation)
+        this.amx = 0 
+        this.amy = 0
         this.mw = 0
 
         // use these functions to add/remove with "this" scope
@@ -61,14 +68,26 @@ export class ControlsSystem extends System {
         // TODO map mouse actions to click
 
         // On-Screen Controls
+        // CONSIDER watching touch events and handlign dpad in system rahter
+        // than slower react processing (also removes react requirement)
+        this.touchchange = function(event){
+            self.handle_touch_change(event)
+        }
+        this.touch_pads = (attributes.touch_pads != null)?attributes.touch_pads:null
+        this.connect_touch_handler()
+        this.mouse_absolute = true
 
-        // TODO Joystick Controls
+        // TODO buttons
+
+        // TODO Web Joystick Controls
 
         this.actions = actions
         this.action_key_map = action_key_map
     }
 
+    // TODO integrate ESC to menu functionality that pauses game?
     lock(){
+        this.mouse_absolute = false
         if(this.locked || this.listen_element.ownerDocument.pointerLockElement === this.listen_element){
             return
         }
@@ -78,7 +97,16 @@ export class ControlsSystem extends System {
         this.listen_element.ownerDocument.addEventListener('pointerlockchange', this.pointerlockchange)
         this.listen_element.ownerDocument.addEventListener('mousemove', this.mousemove)
         this.listen_element.ownerDocument.addEventListener('wheel', this.wheelchange)
+        this.connect_touch_handler()
     } 
+
+    connect_touch_handler(){
+        window.addEventListener("mobilestick", this.touchchange)
+    }
+
+    disconnect_touch_handler(){
+        window.removeEventListener('mobilestick', this.touchchange)
+    }
 
     handle_pointer_lock_change(){
         if(this.listen_element.ownerDocument.pointerLockElement === this.listen_element){
@@ -102,10 +130,38 @@ export class ControlsSystem extends System {
         this.mw += event.deltaY
     }
 
+    handle_touch_change(event){
+        console.log(event.detail.id,event.detail.x,event.detail.y)
+        if(this.touch_pads[event.detail.id]){
+            const dpad = this.touch_pads[event.detail.id]
+            if(dpad.mouse){
+                this.amx = event.detail.x * dpad.mouse_sensitivity
+                this.amy = event.detail.y * dpad.mouse_sensitivity
+            }else{
+                if(Array.isArray(dpad.x_action)){
+                    this.actions[dpad.x_action[0]] = (event.detail.x > 0)?event.detail.x:0
+                    this.actions[dpad.x_action[1]] = (event.detail.x <= 0)?Math.abs(event.detail.x):0
+                }else{
+                    this.actions[dpad.x_action] = event.detail.x
+                }
+                if(Array.isArray(dpad.y_action)){
+                    this.actions[dpad.y_action[0]] = (event.detail.y > 0)?event.detail.y:0
+                    this.actions[dpad.y_action[1]] = (event.detail.y <= 0)?Math.abs(event.detail.y):0
+                }else{
+                    this.actions[dpad.y_action] = event.detail.y
+                } 
+                if(dpad.active_action){
+                    this.actions[dpad.active_action] = event.active
+                }
+            }
+        }
+    }
+
     unlock(){
         document.exitPointerLock()
         this.listen_element.ownerDocument.removeEventListener('mousemove', this.mousemove)
         this.listen_element.ownerDocument.removeEventListener('pointerlockchange', this.pointerlockchange)
+        this.disconnect_touch_handler()
     }
 
     execute(delta){
@@ -114,8 +170,15 @@ export class ControlsSystem extends System {
         })
         this.queries.mouse_listeners.results.forEach( e => {
             const mouse = e.getMutableComponent(MouseListenerComponent)
-            mouse.mousex = this.mx
-            mouse.mousey = this.my
+            if(this.mouse_absolute){
+                mouse.mousex = this.amx
+                mouse.mousey = this.amy
+                mouse.absolute = true             
+            }else{
+                mouse.mousex = this.mx
+                mouse.mousey = this.my
+                mouse.absolute = false             
+            }
             mouse.mousewheel = this.mw
             //console.log(mouse.mousex,mouse.mousey,mouse.mousewheel)
         })

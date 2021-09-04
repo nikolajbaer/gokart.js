@@ -90,7 +90,14 @@ export class MobileStick extends React.Component {
     }
 
     sendEvent(x,y,active){
-        const event = new CustomEvent("joystick-"+this.props.joystickId, { detail: { x:x, y:y, active:active } })
+        const event = new CustomEvent("mobilestick",{ 
+            detail: { 
+                id: this.props.joystickId,
+                x:x, 
+                y:y, 
+                active:active,
+            } 
+        })
         window.dispatchEvent(event)
     }
 

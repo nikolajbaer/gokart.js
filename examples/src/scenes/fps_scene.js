@@ -99,7 +99,9 @@ export class FPSScene extends Physics3dScene {
             fly_mode: false,
         })
         e.addComponent(MouseLookComponent,{offset:new Vector3(0,2,0),invert_y:true})
-        e.addComponent(MouseLockComponent)
+        if(!this.touch_enabled){
+            e.addComponent(MouseLockComponent)
+        } 
         e.addComponent(MouseListenerComponent)
         e.addComponent(KinematicCharacterComponent,{})
         e.name = "player"

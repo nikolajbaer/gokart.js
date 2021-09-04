@@ -59,26 +59,36 @@ export class BaseScene {
         })
     }
 
-    init(render_element_id){
+    init(render_element_id,touch_enabled){
         this.render_element_id = render_element_id
+        this.touch_enabled = touch_enabled
+        if(touch_enabled){
+            console.log("Touch Enabled Scene!")
+        }
         this.world = new World()
         this.register_components()
         this.register_systems()
     }
 
     register_components(){
-        this.world.registerComponent(Obj3dComponent)
         this.world.registerComponent(LocRotComponent)
+
+        // Render Components
+        this.world.registerComponent(Obj3dComponent)
         this.world.registerComponent(ModelComponent)
-        this.world.registerComponent(HUDDataComponent)
         this.world.registerComponent(CameraComponent)
         this.world.registerComponent(LightComponent)
-        this.world.registerComponent(ActionListenerComponent)
-        this.world.registerComponent(MouseListenerComponent)
-        this.world.registerComponent(MouseLockComponent)
         this.world.registerComponent(CameraFollowComponent)
         this.world.registerComponent(Project2dComponent)
         this.world.registerComponent(RayCastTargetComponent)
+       
+        // UI Interaction Components
+        this.world.registerComponent(HUDDataComponent)
+
+        // Control Components
+        this.world.registerComponent(ActionListenerComponent)
+        this.world.registerComponent(MouseListenerComponent)
+        this.world.registerComponent(MouseLockComponent)
 
         // sound components
         this.world.registerComponent(SoundEffectComponent)
@@ -88,7 +98,8 @@ export class BaseScene {
 
     register_systems(){
         this.world.registerSystem(ControlsSystem,{
-            listen_element_id:this.render_element_id
+            listen_element_id:this.render_element_id,
+            touch_pads: this.get_touch_pad_config(),
         })
         this.world.registerSystem(HUDSystem,{hud_state:this.hud_state})
         this.world.registerSystem(CameraFollowSystem)
@@ -103,6 +114,18 @@ export class BaseScene {
         })
     }
 
+    // TODO make controls config more sensible
+    get_touch_pad_config(){
+        return {
+            'dpad':{
+                x_action: ['right','left'],
+                y_action: ['up','down'],
+                active_action: 'interact',
+            },
+            'aim':{ mouse: true, mouse_sensitivity: 1.0 },
+        }
+    }
+    
     customize_renderer(renderer){
         // TODO consider how to make this more dynamic
         // as cameras are changed so we need to pass more information in

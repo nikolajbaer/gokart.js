@@ -14,7 +14,8 @@ export class GameComponent extends React.Component {
     }
 
     componentDidMount(){
-        this.props.scene.init("render")
+        // TOOD make touch control config more sensible
+        this.props.scene.init("render", 'ontouchstart' in window)
         this.props.scene.start()
 
         this.setState({
