@@ -5,7 +5,7 @@ import { HUDDataComponent } from "../../src/core/components/hud"
 import { RenderSystem } from "../../src/core/systems/render"
 import { HUDState, HUDSystem } from "../../src/core/systems/hud"
 import { ControlsSystem } from "../../src/core/systems/controls"
-import { ActionListenerComponent } from "../../src/core/components/controls"
+import { ActionListenerComponent, MouseListenerComponent, MouseLockComponent } from "../../src/core/components/controls"
 import { CameraFollowComponent } from "../../src/common/components/camera_follow"
 import { CameraFollowSystem } from "../../src/common/systems/camera_follow"
 import { SoundEffectSystem } from "../../src/core/systems/sound"
@@ -74,16 +74,17 @@ export class BaseScene {
         this.world.registerComponent(CameraComponent)
         this.world.registerComponent(LightComponent)
         this.world.registerComponent(ActionListenerComponent)
+        this.world.registerComponent(MouseListenerComponent)
+        this.world.registerComponent(MouseLockComponent)
         this.world.registerComponent(CameraFollowComponent)
         this.world.registerComponent(Project2dComponent)
         this.world.registerComponent(RayCastTargetComponent)
-
 
         // sound components
         this.world.registerComponent(SoundEffectComponent)
         this.world.registerComponent(MusicLoopComponent)
 
-   }
+    }
 
     register_systems(){
         this.world.registerSystem(ControlsSystem,{

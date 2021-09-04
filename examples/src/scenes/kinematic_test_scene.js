@@ -2,7 +2,7 @@ import { CameraComponent,  ModelComponent, LightComponent  } from "../../../src/
 import { BodyComponent, KinematicCharacterComponent } from "../../../src/core/components/physics"
 import { LocRotComponent } from "../../../src/core/components/position"
 import { Vector3 } from "../../../src/core/ecs_types"
-import { ActionListenerComponent } from "../../../src/core/components/controls"
+import { ActionListenerComponent, MouseListenerComponent, MouseLockComponent } from "../../../src/core/components/controls"
 import { MoverComponent, OnGroundComponent } from "../../../src/common/components/movement"
 import { AnimatedComponent, PlayActionComponent } from "../../../src/core/components/animated"
 import { AnimatedMovementComponent } from "../../../src/common/components/animated_movement"
@@ -116,7 +116,8 @@ export class KinematicTestScene extends Physics3dScene {
             jump_speed: 10,
             gravity: 20,
         })
-        e.addComponent(DebugNormalComponent)
+        e.addComponent(MouseLockComponent)
+        e.addComponent(MouseListenerComponent)
         e.name = "player"
 
         // create some ramps and platforms to test character controller on

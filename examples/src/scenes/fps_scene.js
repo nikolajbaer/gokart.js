@@ -2,7 +2,7 @@ import { CameraComponent,  ModelComponent, LightComponent  } from "../../../src/
 import { BodyComponent, KinematicCharacterComponent } from "../../../src/core/components/physics"
 import { LocRotComponent } from "../../../src/core/components/position"
 import { Vector3 } from "../../../src/core/ecs_types"
-import { ActionListenerComponent } from "../../../src/core/components/controls"
+import { ActionListenerComponent, MouseListenerComponent, MouseLockComponent } from "../../../src/core/components/controls"
 import { OnGroundComponent, MoverComponent } from "../../../src/common/components/movement"
 import { TagComponent } from "ecsy"
 import { AnimatedComponent, PlayActionComponent } from "../../../src/core/components/animated"
@@ -99,6 +99,8 @@ export class FPSScene extends Physics3dScene {
             fly_mode: false,
         })
         e.addComponent(MouseLookComponent,{offset:new Vector3(0,2,0),invert_y:true})
+        e.addComponent(MouseLockComponent)
+        e.addComponent(MouseListenerComponent)
         e.addComponent(KinematicCharacterComponent,{})
         e.name = "player"
 
