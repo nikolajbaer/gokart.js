@@ -136,7 +136,7 @@ export class ControlsSystem extends System {
             const dpad = this.touch_pads[event.detail.id]
             if(dpad.mouse){
                 this.mx = event.detail.x * dpad.mouse_sensitivity.x
-                this.my = event.detail.y * dpad.mouse_sensitivity.y
+                this.my = -event.detail.y * dpad.mouse_sensitivity.y
             }else{
                 if(Array.isArray(dpad.x_action)){
                     this.actions[dpad.x_action[0]] = (event.detail.x > 0)?event.detail.x:0

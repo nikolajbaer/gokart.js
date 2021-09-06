@@ -1,5 +1,4 @@
 import React from "react";
-import { MobileStick } from "./MobileStick"
 import { HUDSystem } from "../systems/hud"
 
 export class GameComponent extends React.Component {
@@ -7,10 +6,8 @@ export class GameComponent extends React.Component {
         super(props);
         this.state = { 
             hudState: null, 
-            fullscreen: false,
             world: null,
         }
-        this.handleFullscreen = this.handleFullscreen.bind(this)
     }
 
     componentDidMount(){
@@ -35,19 +32,6 @@ export class GameComponent extends React.Component {
             this.props.gamePausedHandler()
         }
     }
-
-    handleFullscreen(event){
-        const showFullscreen = event.target.checked
-        if (!document.fullscreenElement && showFullscreen) {
-            document.documentElement.requestFullscreen();
-        } else {
-            if (document.exitFullscreen && !showFullscreen) {
-                document.exitFullscreen();
-            }
-        }
-        this.setState({fullscreen:showFullscreen})
-    }
-
 
     render() {
         return (

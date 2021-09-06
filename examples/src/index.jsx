@@ -17,7 +17,21 @@ export class Game extends React.Component {
             playing: false,
             loading: false,
             scene: null,
+            fullscreen: false,
         }
+        this.handleFullscreen = this.handleFullscreen.bind(this)
+    }
+
+    handleFullscreen(event){
+        const showFullscreen = event.target.checked
+        if (!document.fullscreenElement && showFullscreen) {
+            document.documentElement.requestFullscreen();
+        } else {
+            if (document.exitFullscreen && !showFullscreen) {
+                document.exitFullscreen();
+            }
+        }
+        this.setState({fullscreen:showFullscreen})
     }
 
     startLoading(selected_scene){
@@ -64,6 +78,8 @@ export class Game extends React.Component {
                         		<h1>Web Game Starter - Demo</h1>
                         		<p>This is an example from the <a href="https://github.com/nikolajbaer/web-game-starter">web game starter kit</a>. WASD to move.</p>
                                 <p>{hudState?hudState.fps.toFixed(1):"-"} fps</p>
+                                <p><input type="checkbox" checked={this.state.fullscreen} onChange={this.handleFullscreen} /> Fullscreen</p>
+
                         	</div>
                         )} 
                         </HUDView>
