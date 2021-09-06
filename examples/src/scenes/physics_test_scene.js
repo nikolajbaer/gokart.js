@@ -9,6 +9,7 @@ import { HUDDataComponent } from "../../../src/core/components/hud"
 import { TerrainSystem } from "../../../src/common/systems/terrain"
 import { TerrainTileComponent } from "../../../src/common/components/terrain"
 import { HeightfieldDataComponent } from "../../../src/core/components/heightfield"
+import { MouseListenerComponent, MouseLockComponent } from "../../../src/core/components/controls"
 
 export class PhysicsTestScene extends Physics3dScene {
     register_components(){
@@ -116,6 +117,11 @@ export class PhysicsTestScene extends Physics3dScene {
         const e = this.world.createEntity()
         e.addComponent(LocRotComponent)
         e.addComponent(OrbitControlComponent,{offset:new Vector3(0,0,100)})
+        e.addComponent(MouseListenerComponent)
+        // TODO make touch control config more sensible
+        if(!this.touch_enabled){
+            e.addComponent(MouseLockComponent)
+        }
         e.addComponent(HUDDataComponent,{fps:0})
 
         const density = 1

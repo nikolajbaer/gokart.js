@@ -49,9 +49,6 @@ export class ControlsSystem extends System {
         // relative mouse change (for mouse)
         this.mx = 0
         this.my = 0
-        // absolute mouse position (for touch stick mouse emulation)
-        this.amx = 0 
-        this.amy = 0
         this.mw = 0
 
         // use these functions to add/remove with "this" scope
@@ -75,7 +72,10 @@ export class ControlsSystem extends System {
         }
         this.touch_pads = (attributes.touch_pads != null)?attributes.touch_pads:null
         this.connect_touch_handler()
-        this.mouse_absolute = true
+
+        this.clear_mouse = true
+        // TODO figure out how to better toggle/manage this
+        //this.mouse_absolute = true
 
         // TODO buttons
 
@@ -87,7 +87,6 @@ export class ControlsSystem extends System {
 
     // TODO integrate ESC to menu functionality that pauses game?
     lock(){
-        this.mouse_absolute = false
         if(this.locked || this.listen_element.ownerDocument.pointerLockElement === this.listen_element){
             return
         }
@@ -131,12 +130,13 @@ export class ControlsSystem extends System {
     }
 
     handle_touch_change(event){
+        this.clear_mouse = false
         console.log(event.detail.id,event.detail.x,event.detail.y)
         if(this.touch_pads[event.detail.id]){
             const dpad = this.touch_pads[event.detail.id]
             if(dpad.mouse){
-                this.amx = event.detail.x * dpad.mouse_sensitivity
-                this.amy = event.detail.y * dpad.mouse_sensitivity
+                this.mx = event.detail.x * dpad.mouse_sensitivity.x
+                this.my = event.detail.y * dpad.mouse_sensitivity.y
             }else{
                 if(Array.isArray(dpad.x_action)){
                     this.actions[dpad.x_action[0]] = (event.detail.x > 0)?event.detail.x:0
@@ -185,9 +185,11 @@ export class ControlsSystem extends System {
 
         // clear accumulated mouse movement
         // most likely this won't be updated faster than request animation frame?
-        this.mx = 0
-        this.my = 0
-        this.mw = 0
+        if(this.clear_mouse){
+            this.mx = 0
+            this.my = 0
+            this.mw = 0
+        }
 
         if(this.queries.mouse_locks.results.length > 0){
             if(!this.locked){
