@@ -91,7 +91,7 @@ export class KinematicTestScene extends Physics3dScene {
             body_type: BodyComponent.KINEMATIC_CHARACTER,
             bounds_type:BodyComponent.CYLINDER_TYPE,
             track_collisions:true,
-            bounds: new Vector3(0.5,0.5,0.5),
+            bounds: new Vector3(0.75,2,0.75),
             material: "player",
             mass: 0,
         })
@@ -170,6 +170,7 @@ export class KinematicTestScene extends Physics3dScene {
             "character":{ 
                 url:CHARACTER_GLB,
                 scale: 1,
+                offset: new Vector3(0,-0.95,0),
             },
         }
     }

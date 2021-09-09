@@ -1,8 +1,8 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import { GameComponent } from "../../src/core/ui_components/GameComponent"
-import { HUDView } from "../../src/core/ui_components/HUDView"
-import { MobileStick } from "../../src/core/ui_components/MobileStick";
+import { GameComponent } from "../../src/core/ui_components/GameComponent.jsx"
+import { HUDView } from "../../src/core/ui_components/HUDView.jsx"
+import { MobileStick } from "../../src/core/ui_components/MobileStick.jsx";
 import { TopDownScene } from "./scenes/topdown_scene.js"
 import { FPSScene } from "./scenes/fps_scene.js"
 import "./style.css"
