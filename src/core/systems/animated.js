@@ -30,7 +30,7 @@ export class AnimatedSystem extends System {
             if(anim.actions[play.action]){
                 const action = anim.actions[play.action]
                 action.clampWhenFinished = play.clamp_when_finished
-                if(play.clamp_when_finished){ console.log("Clamping ",play.action)}
+                //if(play.clamp_when_finished){ console.log("Clamping ",play.action)}
                 action.setLoop(play.loop)
                 action.reset()
                 action.setEffectiveTimeScale(play.playback_speed)

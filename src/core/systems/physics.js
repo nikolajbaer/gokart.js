@@ -1,4 +1,4 @@
-import { System, Not } from "ecsy";
+import { System, Not, Types } from "ecsy";
 import { PhysicsComponent, BodyComponent, CollisionComponent, ApplyVelocityComponent, SetRotationComponent, KinematicCharacterComponent, PhysicsControllerComponent, JumpComponent } from "../components/physics.js"
 import { HeightfieldDataComponent } from "../components/heightfield.js"
 import { LocRotComponent } from "../components/position.js"
@@ -6,6 +6,7 @@ import { Obj3dComponent } from "../components/render.js"
 import * as THREE from "three"
 import { OnGroundComponent } from "../../common/components/movement.js";
 import * as AMMO from "ammo.js/builds/ammo.js";
+import { Vector3 } from "../ecs_types.js";
 
 let Ammo = null
 
@@ -17,7 +18,8 @@ const AXIS = {
 
 export class PhysicsSystem extends System {
     init(attributes) {
-        this.body_entity_map = {}
+        // track ammo.js body id of ghost to associate
+        this.ghost_entity_id_map = {}
 
         AMMO().then( _ammo => {
             Ammo = _ammo
@@ -27,6 +29,7 @@ export class PhysicsSystem extends System {
             const solver = new Ammo.btSequentialImpulseConstraintSolver()
             this.physics_world = new Ammo.btDiscreteDynamicsWorld(dispatcher, overlappingPairCache, solver, collisionConfiguration)
             this.physics_world.setGravity(new Ammo.btVector3(0, -10, 0));
+
         })
 
         if(attributes && attributes.collision_handler){
@@ -159,6 +162,7 @@ export class PhysicsSystem extends System {
             this.physics_world.addRigidBody(btBody, 1, -1)
 
             // consider do i need to clean up colliders?
+            btBody.entity = e
             e.addComponent(PhysicsComponent, { body: btBody })
 
             // TODO figure out how to link up entity to body in Ammo.js
@@ -196,9 +200,101 @@ export class PhysicsSystem extends System {
         this.physics_world.addCollisionObject(ghost, 32, -1)
         this.physics_world.addAction(controller)
 
+        controller.entity = e
+        ghost.entity = e
+        // Sadly this does not appear to persist in the body showing up for collisions
+        // so we need to manually associate this
+        this.ghost_entity_id_map[ghost.a] = e
+        console.log("Ghost",ghost,controller,e)
+
         // consider do i need to clean up colliders?
         // TODO where do I store this kinematic controller action? 
         e.addComponent(PhysicsControllerComponent, { ctrl: controller,ghost: ghost })
+    }
+
+    // https://medium.com/@bluemagnificent/collision-detection-in-javascript-3d-physics-using-ammo-js-and-three-js-31a5569291ef
+    update_collisions(){
+        let dispatcher = this.physics_world.getDispatcher()
+        let numManifolds = dispatcher.getNumManifolds()
+
+        const entities = {}
+        for( let i=0;i<numManifolds; i++){
+            const contactManifold = dispatcher.getManifoldByIndexInternal( i )
+            const numContacts = contactManifold.getNumContacts()
+            const rb0 = Ammo.castObject( contactManifold.getBody0(), Ammo.btRigidBody )
+            const rb1 = Ammo.castObject( contactManifold.getBody1(), Ammo.btRigidBody )
+            const en0 = rb0.entity
+            const en1 = rb1.entity
+
+            // associate ghost entities since they seem to get lost along the way
+            if(!en0 && this.ghost_entity_id_map[rb0.a])
+                rb0.entity = this.ghost_entity_id_map[rb0.a]
+                en0 = rb0.entity
+            if(!en1 && this.ghost_entity_id_map[rb1.a])
+                rb1.entity = this.ghost_entity_id_map[rb1.a]
+                en1 = rb1.entity
+
+            // make sure we have associated entities
+            if( !en0 && !en1 ){ continue }
+          
+            // if we are not tracking collisions on either of these 
+            let phys0 = null
+            let phys1 = null
+            if(en0){
+                phys0 = en0.getComponent(BodyComponent)
+            }
+            if(en1){
+                phys1 = en1.getComponent(BodyComponent)
+            }
+            // if we have no attached entitites or neither entity is tracking collisions, continue
+            if(!phys0 && !phys1) continue
+            if(!phys0 && (phys1 && !phys1.track_collisions)) continue
+            if(!phys1 && (phys0 && !phys0.track_collisions)) continue
+            if((phys0 && !phys0.track_collisions) && (phys1 && !phys1.track_collisions)) continue
+
+            // at least one entity is tracking collisions
+            const velocity0 = rb0.getLinearVelocity()
+            const velocity1 = rb1.getLinearVelocity()
+
+            // NOTE how do we handle multiple collisions?
+            for ( let j = 0; j < numContacts; j++ ) {
+                const contactPoint = contactManifold.getContactPoint( j )
+                const worldPos0 = contactPoint.get_m_positionWorldOnA()
+                const worldPos1 = contactPoint.get_m_positionWorldOnB()
+                const localPos0 = contactPoint.get_m_localPointA()
+                const localPos1 = contactPoint.get_m_localPointB()
+                const normal = contactPoint.get_m_normalWorldOnB()
+                const distance = contactPoint.getDistance();
+                if(distance > 0.0){ continue }
+
+                if(phys0 && phys0.track_collisions){
+                    if(!entities[en0.id]){
+                        entities[en0.id] = {e:en0,c:[]}
+                    }
+                    entities[en0.id].c.push({
+                        entity: en1?en1:null,
+                        contact_point: new Vector3(worldPos0.x,worldPos0.y,worldPos0.z),
+                        contact_normal: new Vector3(-normal.x,-normal.y,-normal.z),
+                        velocity: velocity0, // TODO make impact velocity
+                    })
+                }
+                if(phys1 && phys1.track_collisions){
+                    if(!entities[en1.id]){
+                        entities[en1.id] = {e:en1,c:[]} 
+                    }
+                    entities[en1.id].c.push({
+                        entity: en0?en0:null,
+                        contact_point: new Vector3(worldPos1.x,worldPos1.y,worldPos1.z),
+                        contact_normal: new Vector3(normal.x,normal.y,normal.z),
+                        velocity: velocity1, // TODO make impact velocity
+                    })
+                }
+            }
+        }
+
+        for(let eid in entities){
+            entities[eid].e.addComponent(CollisionComponent,{collisions:entities[eid].c})
+        }
     }
 
     execute(delta,time){
@@ -234,6 +330,7 @@ export class PhysicsSystem extends System {
         // TODO also remove controllers
         this.queries.remove_bodies.results.forEach( e => {
             const body = e.getComponent(PhysicsComponent).body
+            body.entity = null
             Ammo.destroy(body)
             //delete this.body_entity_map[body.handle]
             e.removeComponent(PhysicsComponent)
@@ -241,21 +338,17 @@ export class PhysicsSystem extends System {
 
         this.queries.remove_controllers.results.forEach( e => {
             const ctrl = e.getComponent(PhysicsControllerComponent).ctrl
-            Ammo.destroy(body)
+            ctrl.ctrl.entity = null
+            ctrl.ghost.entity = null
+            delete this.ghost_entity_id_map[ctrl.ghost.a]
+            Ammo.destroy(ctrl.ctrl)
+            Ammo.destroy(ctrl.ghost)
             e.removeComponent(PhysicsControllerComponent)
-        })
-
-        // clean up old collisions
-        // we are assuming here that physics is the last system to register/run
-        // and when run, any collision components are added in the event system
-        // so every system that wants a chance to process a collision can do so
-        // CONSIDER what about multiple collisions? How do we handle that?
-        this.queries.colliders.results.forEach( e => {
-            e.removeComponent(CollisionComponent)
         })
 
         this.queries.kinematic_characters.results.forEach( e => {
             // TODO step any kinematic character controllers?
+            const kchar = e.getComponent(KinematicCharacterComponent)
             const pctrl = e.getComponent(PhysicsControllerComponent)
             const ctrl = pctrl.ctrl
             const ghost = pctrl.ghost
@@ -296,13 +389,10 @@ export class PhysicsSystem extends System {
                 }
                 if(e.hasComponent(JumpComponent)){
                     const jump = e.getMutableComponent(JumpComponent) 
-                    console.log("have jump",jump.started)
                     if(jump.started == null){
-                        console.log("JUMPING")
                         ctrl.jump()
                         jump.started = time
                     }else{
-                        console.log("Jump finished")
                         e.removeComponent(JumpComponent)
                     }
                 }
@@ -311,9 +401,39 @@ export class PhysicsSystem extends System {
                     e.removeComponent(OnGroundComponent)
                 }
             }
+
+            if(kchar.rigid_body_impulse && e.hasComponent(CollisionComponent)){
+                const collisions = e.getComponent(CollisionComponent).collisions
+                const touched = {} 
+                collisions.forEach( c => {
+                    if(c.entity.id in touched) return
+                    const b1 = c.entity.getComponent(PhysicsComponent).body
+                    if(b1.isStaticObject() || b1.isKinematicObject()){  // ignore static and kinematic bodies
+                        touched[c.entity.id] = true
+                        return
+                    }
+                    const v = kchar.rigid_body_impulse
+                    const vi = new Ammo.btVector3(c.contact_normal.x * v,c.contact_normal.y * v,c.contact_normal.z * v)
+                    const vp = new Ammo.btVector3(c.contact_point.x,c.contact_point.y,c.contact_point.z)
+                    console.log("Apply impulse to ",c.entity,vi,vp)
+                    b1.applyImpulse(vi,vp)
+                    touched[c.entity.id] = true
+                })
+            }
         })
 
+        // clean up old collisions
+        // we are assuming here that physics is the last system to register/run
+        // and when run, any collision components are added in the event system
+        // so every system that wants a chance to process a collision can do so
+        // CONSIDER what about multiple collisions? How do we handle that?
+        this.queries.colliders.results.forEach( e => {
+            e.removeComponent(CollisionComponent)
+        })
+        // Step
         this.physics_world.stepSimulation(delta , 2)
+        // prepare new collisions for next systems tick
+        this.update_collisions()
     }
  }
 
@@ -335,7 +455,7 @@ PhysicsSystem.queries = {
         components: [PhysicsControllerComponent,KinematicCharacterComponent]
     },
     colliders: {
-        components: [CollisionComponent,PhysicsComponent],
+        components: [CollisionComponent],
     },
     remove_bodies: {
         components: [PhysicsComponent,Not(BodyComponent)]

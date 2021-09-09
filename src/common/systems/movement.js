@@ -61,7 +61,7 @@ export class MovementSystem extends System {
                 if(e.hasComponent(JumpComponent)){
                     mover.current = "jump"
                 }else{ 
-                    console.log("falling!")
+                    //console.log("falling!")
                     mover.current = "fall"
                 }
             }
@@ -75,7 +75,7 @@ export class MovementSystem extends System {
             }else{
                 if(actions.jump && e.hasComponent(OnGroundComponent)){
                     if(!e.hasComponent(JumpComponent)){
-                        console.log("Adding jump")
+                        //console.log("Adding jump")
                         e.addComponent(JumpComponent) 
                         mover.current = "jump"
                     }

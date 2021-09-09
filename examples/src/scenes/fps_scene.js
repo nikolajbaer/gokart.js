@@ -108,13 +108,14 @@ export class FPSScene extends Physics3dScene {
 
         // and some walls
         const W = 100
+        const H = 25
         for(var i=0; i<4;i++){
             const w = this.world.createEntity()
-            w.addComponent(ModelComponent,{geometry:"box",material:"ground",scale:new Vector3(W,10,5)})
+            w.addComponent(ModelComponent,{geometry:"box",material:"ground",scale:new Vector3(W,H,5)})
             w.addComponent(BodyComponent,{
                 bounds_type:BodyComponent.BOX_TYPE,
                 body_type:BodyComponent.STATIC,
-                bounds: new Vector3(W,10,5),
+                bounds: new Vector3(W,H,5),
                 mass: 0,
                 collision_groups: 0xffff0002,
             })

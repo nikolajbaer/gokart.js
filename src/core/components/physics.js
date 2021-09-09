@@ -44,10 +44,8 @@ PhysicsControllerComponent.schema = {
 
 export class CollisionComponent extends Component {}
 CollisionComponent.schema = {
-  entity: { type: Types.Ref },
-  contact_normal: { type: Vector3Type },
-  contact_point: { type: Vector3Type }, // world coordinates of contact point in relation to this entity's body
-  impact_velocity: { type: Types.Number },
+  collisions: { type: Types.Array }
+  // Array of {entity:,contact_point,contact_normal,velocity} all in world coords
 }
 
 export class ApplyVelocityComponent extends Component {}
@@ -70,6 +68,7 @@ KinematicCharacterComponent.schema = {
   walk_speed: { type: Types.Number, default: 1.0 },
   jump_speed: { type: Types.Number, default: 10.0 },
   step_height: { type: Types.Number, default: 0.5 },
+  rigid_body_impulse: { type: Types.Number, default: 10000 }, // whether or not to apply impulse on rigid bodies on collision
 }
 
 export class JumpComponent extends Component {}
