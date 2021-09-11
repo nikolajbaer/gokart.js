@@ -60,7 +60,6 @@ export class Game extends React.Component {
             touch_controls = (
                 <React.Fragment>
                     <MobileStick className="dpad" joystickId="dpad" pad_radius={20} width={150} height={150} />
-                    <MobileStick className="aim" joystickId="aim" pad_radius={20} width={150} height={150} />
                 </React.Fragment>
             )
         }

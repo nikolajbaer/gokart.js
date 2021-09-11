@@ -50,6 +50,8 @@ export class ControlsSystem extends System {
         this.mx = 0
         this.my = 0
         this.mw = 0
+        this.mouse_touch_id = null
+        this.mouse_touch = {x:0,y:0}
 
         // use these functions to add/remove with "this" scope
         const self = this
@@ -69,6 +71,16 @@ export class ControlsSystem extends System {
         // than slower react processing (also removes react requirement)
         this.touchchange = function(event){
             self.handle_touch_change(event)
+        }
+
+        this.touchstart = function(event){
+            self.handle_touch_start(event)
+        }
+        this.touchmove = function(event){
+            self.handle_touch_move(event)
+        }
+        this.touchend = function(event){
+            self.handle_touch_end(event)  
         }
         this.touch_pads = (attributes.touch_pads != null)?attributes.touch_pads:null
         this.connect_touch_handler()
@@ -101,10 +113,39 @@ export class ControlsSystem extends System {
 
     connect_touch_handler(){
         window.addEventListener("mobilestick", this.touchchange)
+        window.addEventListener('touchstart', this.touchstart)
+        window.addEventListener('touchmove', this.touchmove)
+        window.addEventListener('touchend', this.touchend)
     }
 
     disconnect_touch_handler(){
-        window.removeEventListener('mobilestick', this.touchchange)
+        //window.removeEventListener('mobilestick', this.touchchange)
+    }
+
+    handle_touch_start(event){
+        if(this.mouse_touch_id == null){
+            this.mouse_touch_id = event.changedTouches[0].identifier
+            this.mouse_touch.x = event.changedTouches[0].clientX
+            this.mouse_touch.y = event.changedTouches[0].clientY
+        }
+        console.log("touch started",event)
+    }
+
+    handle_touch_move(event){
+        if(this.mouse_touch_id != null && event.changedTouches[this.mouse_touch_id]){
+            this.mx += event.changedTouches[this.mouse_touch_id].clientX - this.mouse_touch.x 
+		    this.my += event.changedTouches[this.mouse_touch_id].clientY - this.mouse_touch.y
+            this.mouse_touch.x = event.changedTouches[this.mouse_touch_id].clientX
+            this.mouse_touch.y = event.changedTouches[this.mouse_touch_id].clientY
+            console.log("touch moved",this.mx,this.my)
+        }
+    }
+
+    handle_touch_end(event){
+        if(this.mouse_touch_id != null && event.changedTouches[this.mouse_touch_id]){
+            this.mouse_touch_id = null
+            console.log("touch ended",event)
+        }
     }
 
     handle_pointer_lock_change(){
@@ -130,7 +171,7 @@ export class ControlsSystem extends System {
     }
 
     handle_touch_change(event){
-        this.clear_mouse = false
+        //this.clear_mouse = false
         console.log(event.detail.id,event.detail.x,event.detail.y)
         if(this.touch_pads[event.detail.id]){
             const dpad = this.touch_pads[event.detail.id]

@@ -122,7 +122,6 @@ export class BaseScene {
                 y_action: ['up','down'],
                 active_action: 'interact',
             },
-            'aim':{ mouse: true, mouse_sensitivity: {x:20.0,y:10.0} },
         }
     }
     
