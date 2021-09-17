@@ -223,8 +223,8 @@ export class PhysicsSystem extends System {
             const numContacts = contactManifold.getNumContacts()
             const rb0 = Ammo.castObject( contactManifold.getBody0(), Ammo.btRigidBody )
             const rb1 = Ammo.castObject( contactManifold.getBody1(), Ammo.btRigidBody )
-            const en0 = rb0.entity
-            const en1 = rb1.entity
+            let en0 = rb0.entity
+            let en1 = rb1.entity
 
             // associate ghost entities since they seem to get lost along the way
             if(!en0 && this.ghost_entity_id_map[rb0.a])
