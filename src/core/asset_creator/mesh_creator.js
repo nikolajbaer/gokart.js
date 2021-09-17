@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { SkeletonUtils } from 'three/examples/jsm/utils/SkeletonUtils.js';
+import { clone } from 'three/examples/jsm/utils/SkeletonUtils.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { Sky } from 'three/examples/jsm/objects/Sky.js';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js';
@@ -168,7 +168,7 @@ export class DefaultMeshCreator extends BaseMeshCreator {
     create_prefab(geometry,receiveShadow,castShadow){
         const obj = new THREE.Group()
         const og = this.PREFABS[geometry].obj
-        const prefab = SkeletonUtils.clone(og)
+        const prefab = clone(og)
         obj.add(prefab)
         obj.traverse( function ( child ) {
             if ( child.isMesh ) {

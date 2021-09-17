@@ -5,7 +5,8 @@ import { LocRotComponent } from "../components/position.js"
 import { Obj3dComponent } from "../components/render.js"
 import * as THREE from "three"
 import { OnGroundComponent } from "../../common/components/movement.js";
-import * as AMMO from "ammo.js/builds/ammo.js";
+//import * as AMMO from "ammo.js/builds/ammo.js";
+import ammo from "ammo.js";
 import { Vector3 } from "../ecs_types.js";
 
 let Ammo = null
@@ -21,7 +22,7 @@ export class PhysicsSystem extends System {
         // track ammo.js body id of ghost to associate
         this.ghost_entity_id_map = {}
 
-        AMMO().then( _ammo => {
+        ammo().then( _ammo => {
             Ammo = _ammo
             const collisionConfiguration = new Ammo.btDefaultCollisionConfiguration()
             const dispatcher = new Ammo.btCollisionDispatcher(collisionConfiguration)
