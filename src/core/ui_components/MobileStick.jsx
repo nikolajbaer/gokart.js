@@ -29,16 +29,14 @@ export class MobileStick extends React.Component {
     handleTouchStart(event){
         if(this.state.touch_id == null){
             this.updateVector(event.changedTouches[0])
-            event.stopPropagation()
+            event.stopPropagation() // capture the start if we are taking this touch
         }
     }
 
     handleTouchMove(event){
         if(this.state.touch_id != null && event.touches[this.state.touch_id]){
             this.updateVector(event.touches[this.state.touch_id])
-            event.stopPropagation()
         }
-
     }
 
     // CONSIDER do i need to handle window touch end?
@@ -51,7 +49,6 @@ export class MobileStick extends React.Component {
                 this.setState({ touch_id: null,x: 0,y: 0,active:false})
                 this.sendEvent(0,0,false)
                 this.drawCanvas(null,false)
-                event.stopPropagation()
                 break
             }
         }
