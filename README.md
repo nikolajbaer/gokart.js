@@ -6,6 +6,8 @@ GoKart.js is a web game starter kit based on ECSY.io, Three.js, Ammo.js and Reac
 
 [Try Out the Demo](https://demo.gokart.dev)
 
+[Check out a template project](https://github.com/nikolajbaer/gokart.js-template)
+
 #### Core Features ####
 * 3D with physics pre-connected (just customize the entity components classes) 
 * Mobile touch based gamepads for on-screen controls
