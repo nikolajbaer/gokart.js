@@ -6,8 +6,6 @@ GoKart.js is a web game starter kit based on ECSY.io, Three.js, Ammo.js and Reac
 
 [Try Out the Demo](https://demo.gokart.dev)
 
-[Check out a template project](https://github.com/nikolajbaer/gokart.js-template)
-
 #### Core Features ####
 * 3D with physics pre-connected (just customize the entity components classes) 
 * Mobile touch based gamepads for on-screen controls
@@ -19,9 +17,9 @@ GoKart.js is a web game starter kit based on ECSY.io, Three.js, Ammo.js and Reac
 
 ## Using This ##
 
-TBD still figuring out how to make this reusable!  Goal is to have something as simple/low-barrier as the Crafty.js API.
+You can either look in the examples folder for the demo projects, or [Look at the template project](https://github.com/nikolajbaer/gokart.js-template).
 
-For now you just clone it and rework the "example" folder.
+The template project will show gokart being pulled in as a library, and is currently setup with esbuild rather than webpack.
 
 ## Origin ##
 
