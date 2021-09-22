@@ -16,6 +16,7 @@ export class Game extends React.Component {
         this.state = { 
             playing: false,
             loading: false,
+            paused: false,
             scene: null,
             fullscreen: false,
         }
@@ -48,6 +49,9 @@ export class Game extends React.Component {
         }else if(selected_scene == "kinematic_test"){
             scene = new KinematicTestScene()
         }
+        scene.pause_callback = () => {
+            this.setState({paused:true})
+        }
         scene.load().then( () => {
             this.setState({playing:true,loading:false})
         })
@@ -66,24 +70,53 @@ export class Game extends React.Component {
         return touch_controls
     }
 
+    resumeScene(){
+        if(this.state.scene){
+            this.state.scene.resume()
+        }
+        this.setState({paused:false})
+    }
+
+    quitScene(){
+        if(this.state.scene){
+            this.state.scene.destroy()
+        }
+        this.setState({paused:false,playing:false,scene:null})
+    }
+
+    pauseMenu(){
+        if(this.state.paused){
+            return (<div className="menu">
+                <h1>PAUSED</h1>
+                <button onClick={() => this.resumeScene()}>Play</button>
+                <button onClick={() => this.quitScene()}>Exit</button>
+            </div>)
+        }else{
+            return ""
+        }
+    }
+
     render(){
         if(this.state.playing){
             return  (
-                <GameComponent scene={this.state.scene} touch_controls={this.getTouchControls()}>
-                	{hudState => (
-                        <HUDView hudState={hudState}>
-                	    {hudState => (
-                            <div className="overlay">
-                        		<h1>Web Game Starter - Demo</h1>
-                        		<p>This is an example from the <a href="https://github.com/nikolajbaer/web-game-starter">web game starter kit</a>. WASD to move.</p>
-                                <p>{hudState?hudState.fps.toFixed(1):"-"} fps</p>
-                                <p><input type="checkbox" checked={this.state.fullscreen} onChange={this.handleFullscreen} /> Fullscreen</p>
+                <div>
+                    <GameComponent scene={this.state.scene} touch_controls={this.getTouchControls()}>
+                    	{hudState => (
+                            <HUDView hudState={hudState}>
+                    	    {hudState => (
+                                <div className="overlay">
+                            		<h1>Web Game Starter - Demo</h1>
+                            		<p>This is an example from the <a href="https://github.com/nikolajbaer/web-game-starter">web game starter kit</a>. WASD to move.</p>
+                                    <p>{hudState?hudState.fps.toFixed(1):"-"} fps</p>
+                                    <p><input type="checkbox" checked={this.state.fullscreen} onChange={this.handleFullscreen} /> Fullscreen</p>
 
-                        	</div>
-                        )} 
-                        </HUDView>
-                   )}
-                </GameComponent>
+                            	</div>
+                            )} 
+                            </HUDView>
+                       )}
+                    </GameComponent>
+                    {this.pauseMenu()}
+                </div>
             )
         }else if(this.state.loading){
             return (

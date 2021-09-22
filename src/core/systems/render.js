@@ -196,9 +196,23 @@ export class RenderSystem extends System {
             this.renderer.render( this.scene, camera )
         }
     }
+
+    stop(){
+        // Dispose of all meshes
+        this.queries.meshes.results.forEach( e => {
+            const m = e.getComponent(Obj3dComponent)
+            // CONSIDER need to dispose geometries and materials
+            // Maybe better to do in meshcreator?
+            e.removeComponent(Obj3dComponent)
+        })
+        this.scene.dispose()
+    }
 }
 
 RenderSystem.queries = {
+    meshes: {
+        components: [ Obj3dComponent ],
+    },
     unitialized_meshes: {
         components: [ ModelComponent, LocRotComponent, Not(Obj3dComponent)]
     },

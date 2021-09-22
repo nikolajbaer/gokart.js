@@ -183,5 +183,4 @@ export class DefaultMeshCreator extends BaseMeshCreator {
         window.obj = obj
         return obj
     }
-
 }

@@ -14,17 +14,22 @@ import { DefaultMeshCreator } from "../core/asset_creator/mesh_creator"
 import { SoundLoader } from "../core/asset_creator/sound_loader"
 import { runInAction } from "mobx"
 import { Clock } from "three"
+import { PauseSystem } from "../core/systems/pause"
+import { PauseComponent } from "../core/components/pause"
 
 export class BaseScene {
     constructor(){
         this.lastTime = null
         this.paused = false
+        this.pause_callback = null
+        this.resume_callback = null
         this.render_element_id = null
         this.init_mesh_creator()
         this.init_sound_loader()
         this.fps = null 
         this.hud_state = this.init_hud_state()
         this.clock = new Clock()
+        this.destroyed = false
     }
 
     init_hud_state(){
@@ -71,6 +76,7 @@ export class BaseScene {
     }
 
     register_components(){
+        this.world.registerComponent(PauseComponent)
         this.world.registerComponent(LocRotComponent)
 
         // Render Components
@@ -97,6 +103,11 @@ export class BaseScene {
     }
 
     register_systems(){
+        this.world.registerSystem(PauseSystem, {
+            pause_callback: (resume_callback) => {
+                this.pause(resume_callback)
+            }
+        })
         this.world.registerSystem(ControlsSystem,{
             listen_element_id:this.render_element_id,
             touch_pads: this.get_touch_pad_config(),
@@ -147,8 +158,33 @@ export class BaseScene {
         this.loop()
     }
 
-    loop() {
+    pause(resume_callback){
+        this.paused = true
+        this.resume_callback = resume_callback
+        if(this.pause_callback){
+            this.pause_callback()
+        }
+    }
+
+    resume(){
+        this.paused = false
+        if(this.resume_callback){
+            this.resume_callback()
+            this.resume_callback = null
+        }
         requestAnimationFrame( () => this.loop() );            
+    }
+
+    loop() {
+        if(this.destroyed){
+            console.log("scene exiting")
+            return
+        }
+
+        requestAnimationFrame( () => this.loop() );            
+        // CONSIDER we probably want to just identify certain systems as "pause" systems 
+        // i.e. if we pause and resize, three doesn't get to re-render
+        // Maybe this is a bitecs pipeline thing?
         if(this.paused){ return }
 
         let delta = this.clock.getDelta()
@@ -158,6 +194,13 @@ export class BaseScene {
         runInAction( () => {
             this.hud_state.fps = 1/delta
         })
+    }
+
+    destroy(){
+        this.pause_callback = null
+        this.resume_callback = null
+        this.world.stop()
+        this.destroyed = true
     }
 }
 

@@ -8,6 +8,9 @@ export class ControlsSystem extends System {
         }else{
             this.listen_element = document 
         }
+
+        this.pause_on_unlock = (attributes && attributes.pause_on_unlock != undefined)?attributes.pause_on_unlock:true
+        
         let action_key_map = { // Nikolaj's preferred defaults :)
             "KeyW":"up",
             "KeyS":"down",
@@ -109,6 +112,10 @@ export class ControlsSystem extends System {
         this.listen_element.ownerDocument.addEventListener('mousemove', this.mousemove)
         this.listen_element.ownerDocument.addEventListener('wheel', this.wheelchange)
         this.connect_touch_handler()
+        if(this.pause_on_unlock){
+            console.log("disabling pause as we are locking")
+            this.actions["pause"] = false
+        }
     } 
 
     connect_touch_handler(){
@@ -154,6 +161,11 @@ export class ControlsSystem extends System {
         }else{
             this.locked = false
             this.unlock()
+            if(this.pause_on_unlock){
+                console.log("pausing on unlock")
+                this.actions["pause"] = true
+            }
+            // CONSIDER trigger pause? 
         }
     }
 
