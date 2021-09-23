@@ -1,7 +1,7 @@
 import { System,Not } from "ecsy"
 import { BodyComponent, PhysicsComponent } from "../../core/components/physics"
 import { Obj3dComponent } from "../../core/components/render"
-import { ActiveTileComponent, TerrainTileComponent } from "../components/terrain"
+import { TerrainTileComponent } from "../components/terrain"
 import * as THREE from "three"
 import { HeightfieldDataComponent } from "../../core/components/heightfield"
 

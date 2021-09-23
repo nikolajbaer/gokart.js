@@ -9,9 +9,8 @@
   "module": "src/index.js",
   "main": "webpack.config.js",
   "scripts": {
-    "build": "webpack --config ./webpack.prod.js",
-    "start": "webpack serve --open --config ./webpack.dev.js --host 0.0.0.0",
-    "test": "jest"
+    "build": "node ./build.js deploy",
+    "start": "node ./build.js dev"
   },
   "author": "Nikolaj Baer",
   "license": "MIT",
@@ -20,6 +19,7 @@
     "ammo.js": "github:kripken/ammo.js",
     "css-loader": "^5.1.3",
     "ecsy": "^0.4.2",
+    "esbuild": "^0.13.0",
     "howler": "^2.2.1",
     "mobx": "^6.1.8",
     "mobx-react-lite": "^3.2.0",
