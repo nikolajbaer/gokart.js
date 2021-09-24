@@ -4,10 +4,7 @@ import { RenderSystem } from "./render"
 import { initialize_test_world } from "../testing/game_helpers"
 import { PhysicsSystem } from "./physics"
 import { ApplyVelocityComponent, BodyComponent, CollisionComponent, KinematicCharacterComponent, PhysicsComponent, PhysicsControllerComponent, SetRotationComponent } from "../components/physics"
-
-test('physics currently not testable', () => {
-    // dang.
-})
+import { Vector3 } from "../ecs_types"
 
 /* NOTE can't seem to import node_modules ems modules. */
 test('physics body entity map removes on entity removal', () => {
@@ -36,6 +33,8 @@ test('physics body entity map removes on entity removal', () => {
     }) 
     
     psys = world.getSystem(PhysicsSystem)
+
+    psys.execute(1,1)
 
     // TODO add then remove entity to see it get cleaned up    
 })
