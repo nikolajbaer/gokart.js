@@ -8,6 +8,8 @@ console.log("Building for mode " + mode)
 const index_file = path.join(__dirname,'examples/src/index.html')
 const dist_index = path.join(__dirname,'dist/index.html')
 
+fs.mkdirSync("dist")
+
 // Base config for esbuild
 const config = {
     entryPoints: ['examples/src/index.jsx'],
@@ -24,12 +26,12 @@ const config = {
 
 // DEV build with watch
 if(mode == "dev"){
-  fs.copyFile(index_file,dist_index, () => console.log("index.html updated"))
+  fs.copyFileSync(index_file,dist_index)
   config.watch = {
     onRebuild(error, result) {
       if (error) console.error('watch build failed:', error)
       else console.error('watch build succeeded:', result)
-      fs.copyFile(index_file,dist_index, () => console.log("index.html updated")) // todo figure out how to move this file automatically
+      fs.copyFileSync(index_file,dist_index) // todo figure out how to move this file automatically
     } 
   }
   esbuild.build(config).catch(() => process.exit(1))
@@ -44,7 +46,7 @@ if(mode == "dev"){
 
 // DEPLOY
 } else if(mode == "deploy"){
-  fs.copyFile(index_file,dist_index, () => console.log("index.html updated"))
+  fs.copyFileSync(index_file,dist_index)
   config.minify = true
   esbuild.build(config).catch(() => process.exit(1))
 }
