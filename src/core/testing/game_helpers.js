@@ -1,4 +1,12 @@
 import { System, World } from "ecsy"
+import "webgl-mock-threejs"
+
+export function mock_renderer(){
+    return {
+        shadowMap: { enabled: false },
+        setSize: function(width,height){ this.width=width; this.height=height; }
+    }
+}
 
 export function initialize_test_world(systems,components){
     const world = new World()

@@ -118,7 +118,7 @@ export class BaseScene {
             sounds:this.sound_loader.SOUNDS
         })
         this.world.registerSystem(RenderSystem,{
-            render_element_id:this.render_element_id,
+            render_element_id:document.getElementById(this.render_element_id),
             mesh_creator: this.mesh_creator?this.mesh_creator:null,
             show_axes: true,
             customize_renderer: this.customize_renderer, 

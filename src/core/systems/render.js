@@ -4,15 +4,15 @@ import { Obj3dComponent, ModelComponent, CameraComponent, LightComponent, Projec
 import * as THREE from "three"
 import { DefaultMeshCreator } from "../asset_creator/mesh_creator"
 
-import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
-import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
-import { FilmPass } from 'three/examples/jsm/postprocessing/FilmPass.js';
-
 export class RenderSystem extends System {
     init(attributes) {
         const scene = this.init_three_scene()
-        const domElement = document.getElementById(attributes.render_element_id) 
-        const renderer = this.init_three_renderer(domElement)
+        let renderer;
+        if(attributes.renderer){
+            renderer = attributes.renderer
+        }else{
+            renderer = this.init_three_renderer(attributes.render_element)
+        }
 
         if(attributes && attributes.mesh_creator){
             this.mesh_creator = attributes.mesh_creator
@@ -31,7 +31,6 @@ export class RenderSystem extends System {
             const axesHelper = new THREE.AxesHelper( 5 );
             scene.add( axesHelper );
         }
-
 
         if(attributes && attributes.customize_renderer){
             this.renderer = attributes.customize_renderer(renderer) 
