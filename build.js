@@ -8,7 +8,9 @@ console.log("Building for mode " + mode)
 const index_file = path.join(__dirname,'examples/src/index.html')
 const dist_index = path.join(__dirname,'dist/index.html')
 
-fs.mkdirSync("dist")
+if(!fs.existsSync("dist")){
+  fs.mkdirSync("dist")
+}
 
 // Base config for esbuild
 const config = {
