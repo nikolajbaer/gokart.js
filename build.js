@@ -1,8 +1,12 @@
 const esbuild = require('esbuild')
 const fs = require('fs')
+const path = require('path')
 const mode = process.argv[2]
 
 console.log("Building for mode " + mode)
+
+const index_file = path.join(__dirname,'examples/src/index.html')
+const dist_index = path.join(__dirname,'dist/index.html')
 
 // Base config for esbuild
 const config = {
@@ -20,12 +24,12 @@ const config = {
 
 // DEV build with watch
 if(mode == "dev"){
-  fs.copyFile('examples/src/index.html','dist/index.html', () => console.log("index.html updated"))
+  fs.copyFile(index_file,dist_index, () => console.log("index.html updated"))
   config.watch = {
     onRebuild(error, result) {
       if (error) console.error('watch build failed:', error)
       else console.error('watch build succeeded:', result)
-      fs.copyFile('examples/src/index.html','dist/index.html', () => console.log("index.html updated")) // todo figure out how to move this file automatically
+      fs.copyFile(index_file,dist_index, () => console.log("index.html updated")) // todo figure out how to move this file automatically
     } 
   }
   esbuild.build(config).catch(() => process.exit(1))
@@ -40,7 +44,7 @@ if(mode == "dev"){
 
 // DEPLOY
 } else if(mode == "deploy"){
-  fs.copyFile('examples/src/index.html','dist/index.html', () => console.log("index.html updated"))
+  fs.copyFile(index_file,dist_index, () => console.log("index.html updated"))
   config.minify = true
   esbuild.build(config).catch(() => process.exit(1))
 }
