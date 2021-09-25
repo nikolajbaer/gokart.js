@@ -2,7 +2,7 @@
 
 *NOTE: this is very much in alpha stage, more exploring the pure ECS pattern and current web toolkits. Suitable for a jam game at most!*
 
-GoKart.js is a web game starter kit based on ECSY.io, Three.js, Ammo.js and React with webpack bindings. This starter provides a game canvas with basic Three.js rendering system, ECSY component structure, and 2D/3D physics support, controls handling, as well as a React component layer to build on, and a HUD data communication layer. Mostly targeted at "action" games, currently focused on single player.
+GoKart.js is a web game starter kit based on ECSY.io, Three.js, and Ammo.js, with React examples. This starter provides a game canvas with basic Three.js rendering system, ECSY component structure, and 2D/3D physics support, controls handling, as well as a React component layer to build on, and a HUD data communication layer. Mostly targeted at "action" games, currently focused on single player.
 
 [Try Out the Demo](https://demo.gokart.dev)
 
