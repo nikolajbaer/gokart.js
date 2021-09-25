@@ -1,6 +1,7 @@
 {
   "name": "gokart.js",
-  "version": "0.1.0",
+  "version": "0.0.1",
+  "author": "Nikolaj Baer <https://www.nikolajbaer.us>",
   "description": "GoKart is a starting point for 3D web games based on ECSY, Three.js, Ammo.js with React HUD/UI",
   "repository": {
     "type": "git",
