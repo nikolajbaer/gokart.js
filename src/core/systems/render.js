@@ -14,6 +14,8 @@ export class RenderSystem extends System {
             renderer = this.init_three_renderer(attributes.render_element)
         }
 
+        this.render_element = attributes.render_element
+
         if(attributes && attributes.mesh_creator){
             this.mesh_creator = attributes.mesh_creator
         }else{
@@ -23,9 +25,9 @@ export class RenderSystem extends System {
         // todo make this size from the element
         //console.log("setting size to ",window.innerWidth,window.innerHeight)
         window.addEventListener('resize', e => {
-            this.update_renderer_size(renderer,window.innerWidth,window.innerHeight)
+            this.update_renderer_size(renderer,this.render_element.clientWidth,this.render_element.clientHeight)
         })
-        this.update_renderer_size(renderer,window.innerWidth,window.innerHeight)
+        this.update_renderer_size(renderer,this.render_element.clientWidth,this.render_element.clientHeight)
 
         if(attributes && attributes.show_axes){
             const axesHelper = new THREE.AxesHelper( 5 );

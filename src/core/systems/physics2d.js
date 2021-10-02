@@ -168,7 +168,7 @@ export class Physics2dMeshUpdateSystem extends System {
     init(attributes){
         // by default we do y up for THREE, and have to convert from 2d-y to 3d-z
         // but make this configurable
-        this.z_up = (attributes && attributes.z_up)?attributes.z_up:false
+        this.z_up = (attributes && attributes.z_up)?attributes.z_up:true
     }
 
     execute(delta){
