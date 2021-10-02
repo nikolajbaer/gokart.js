@@ -73,7 +73,7 @@ export class Physics2dSystem extends System {
         const locrot = e.getComponent(LocRotComponent)
 
         const bdef = {
-            position: new pl.Vec2(locrot.location.x,this.z_up?locrot.location.z:locrot.location.y),
+            position: new pl.Vec2(locrot.location.x,this.z_up?locrot.location.y:locrot.location.z),
             type: body.body_type,
             userData: e,
             linearVelocity: new pl.Vec2(body.velocity.x,body.velocity.y),
