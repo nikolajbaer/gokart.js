@@ -24,6 +24,12 @@ export class Physics2dSystem extends System {
             this.collision_handler = attributes.collision_handler
         }
 
+        if(attributes && attributes.z_up){
+            this.z_up = attributes.z_up
+        }else{
+            this.z_up = true
+        }
+
     }
 
     begin_contact(contact){
@@ -67,7 +73,7 @@ export class Physics2dSystem extends System {
         const locrot = e.getComponent(LocRotComponent)
 
         const bdef = {
-            position: new pl.Vec2(locrot.location.x,locrot.location.y),
+            position: new pl.Vec2(locrot.location.x,this.z_up?locrot.location.z:locrot.location.y),
             type: body.body_type,
             userData: e,
             linearVelocity: new pl.Vec2(body.velocity.x,body.velocity.y),

@@ -14,7 +14,7 @@ export class Physics2dScene extends BaseScene {
 
     register_systems(){
         super.register_systems()
-        this.world.registerSystem(Physics2dMeshUpdateSystem,{z_up:false})
+        this.world.registerSystem(Physics2dMeshUpdateSystem)
         this.world.registerSystem(Physics2dSystem,{world_attributes:this.get_world_attributes()})
     }
 

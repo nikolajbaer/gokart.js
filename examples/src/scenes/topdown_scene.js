@@ -21,6 +21,7 @@ import * as pl from "planck-js"
 class HitComponent extends TagComponent {}
 
 export class TopDownScene extends Physics2dScene {
+
     register_components(){
         super.register_components()
         this.world.registerComponent(MoverComponent)
