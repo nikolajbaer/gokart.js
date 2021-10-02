@@ -27,9 +27,12 @@ export class HUDSystem extends System {
         // use runInAction per https://stackoverflow.com/a/64771774
         runInAction( () => {
             this.queries.hud_data.results.forEach( e => {
-                const data = e.getComponent(HUDDataComponent).data
-                Object.keys(data).forEach( k => {
-                    this.state[k] = data[k]
+                const hud = e.getComponent(HUDDataComponent)
+                Object.keys(hud.data).forEach( k => {
+                    this.state[k] = hud.data[k]
+                })
+                Object.keys(this.state).forEach( k => {
+                    hud.recv[k] = this.state[k]
                 })
             })
         })
