@@ -120,7 +120,7 @@ export class BaseScene {
         this.world.registerSystem(RenderSystem,{
             render_element:document.getElementById(this.render_element_id),
             mesh_creator: this.mesh_creator?this.mesh_creator:null,
-            show_axes: true,
+            show_axes: false,
             customize_renderer: this.customize_renderer, 
         })
     }

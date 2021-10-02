@@ -13,7 +13,6 @@
     "start": "node ./build.js dev",
     "test": "jest"
   },
-  "author": "Nikolaj Baer",
   "license": "MIT",
   "dependencies": {
     "@tweenjs/tween.js": "^18.6.4",
