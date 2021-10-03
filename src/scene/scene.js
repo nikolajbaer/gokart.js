@@ -39,6 +39,7 @@ export class BaseScene {
     init_mesh_creator(mesh_data){
         this.mesh_creator = new DefaultMeshCreator() 
         this.mesh_creator.PREFABS = this.get_meshes_to_load()
+        this.mesh_creator.FUNCTIONS = this.get_mesh_functions()
     }
 
     init_sound_loader(){
@@ -47,6 +48,10 @@ export class BaseScene {
     }
 
     get_meshes_to_load(){
+        return {}
+    }
+
+    get_mesh_functions(){
         return {}
     }
 
