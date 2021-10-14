@@ -5,11 +5,10 @@ import { LocRotComponent } from "../components/position.js"
 import { Obj3dComponent } from "../components/render.js"
 import * as THREE from "three"
 import { OnGroundComponent } from "../../common/components/movement.js";
-//import * as AMMO from "ammo.js/builds/ammo.js";
-import ammo from "ammo.js";
+import * as AMMO from "ammo.js";
 import { Vector3 } from "../ecs_types.js";
 
-let Ammo = null
+let Ammo = {}
 
 const AXIS = {
     X: new THREE.Vector3(1,0,0),
@@ -21,16 +20,15 @@ export class PhysicsSystem extends System {
     init(attributes) {
         // track ammo.js body id of ghost to associate
         this.ghost_entity_id_map = {}
-
-        ammo().then( _ammo => {
-            Ammo = _ammo
+        
+        AMMO({}).then( _ammo => {
+            //Ammo = _ammo
             const collisionConfiguration = new Ammo.btDefaultCollisionConfiguration()
             const dispatcher = new Ammo.btCollisionDispatcher(collisionConfiguration)
             const overlappingPairCache = new Ammo.btDbvtBroadphase()
             const solver = new Ammo.btSequentialImpulseConstraintSolver()
             this.physics_world = new Ammo.btDiscreteDynamicsWorld(dispatcher, overlappingPairCache, solver, collisionConfiguration)
             this.physics_world.setGravity(new Ammo.btVector3(0, -10, 0));
-
         })
 
         if(attributes && attributes.collision_handler){
