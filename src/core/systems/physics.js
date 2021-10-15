@@ -1,14 +1,14 @@
-import { System, Not, Types } from "ecsy";
+import { System, Not, Types, cloneClonable } from "ecsy";
 import { PhysicsComponent, BodyComponent, CollisionComponent, ApplyVelocityComponent, SetRotationComponent, KinematicCharacterComponent, PhysicsControllerComponent, JumpComponent } from "../components/physics.js"
 import { HeightfieldDataComponent } from "../components/heightfield.js"
 import { LocRotComponent } from "../components/position.js"
 import { Obj3dComponent } from "../components/render.js"
 import * as THREE from "three"
 import { OnGroundComponent } from "../../common/components/movement.js";
-import * as AMMO from "ammo.js";
+import AMMO from "ammo.js";
 import { Vector3 } from "../ecs_types.js";
 
-let Ammo = {}
+let Ammo = null
 
 const AXIS = {
     X: new THREE.Vector3(1,0,0),
@@ -18,11 +18,11 @@ const AXIS = {
 
 export class PhysicsSystem extends System {
     init(attributes) {
-        // track ammo.js body id of ghost to associate
+        // track Ammo.js body id of ghost to associate
         this.ghost_entity_id_map = {}
-        
-        AMMO({}).then( _ammo => {
-            //Ammo = _ammo
+     
+        new AMMO().then((_ammo)  => {
+            Ammo = _ammo
             const collisionConfiguration = new Ammo.btDefaultCollisionConfiguration()
             const dispatcher = new Ammo.btCollisionDispatcher(collisionConfiguration)
             const overlappingPairCache = new Ammo.btDbvtBroadphase()
@@ -41,7 +41,7 @@ export class PhysicsSystem extends System {
     create_heightfield_shape(e,body,locrot,quat){
         const hfield = e.getComponent(HeightfieldDataComponent)
 
-        // Reference https://github.com/kripken/ammo.js/blob/main/examples/webgl_demo_terrain/index.html#L238
+        // Reference https://github.com/kripken/Ammo.js/blob/main/examples/webgl_demo_terrain/index.html#L238
         const terrainWidth = hfield.width
         const terrainDepth = hfield.height
         //const heightData = this.generateHeight(terrainWidth,terrainDepth,-2,8) //hfield.data // column major order 
@@ -62,7 +62,7 @@ export class PhysicsSystem extends System {
         var flipQuadEdges = false;
 
         // Creates height data buffer in Ammo heap
-        const ammoHeightData = Ammo._malloc( 4 * terrainWidth * terrainDepth );
+        const AmmoHeightData = Ammo._malloc( 4 * terrainWidth * terrainDepth );
 
         // Copy the javascript height data array to the Ammo one.
         var p = 0;
@@ -71,7 +71,7 @@ export class PhysicsSystem extends System {
             for ( var i = 0; i < terrainWidth; i ++ ) {
 
                 // write 32-bit float data to memory
-                Ammo.HEAPF32[ammoHeightData + p2 >> 2] = heightData[ p ];
+                Ammo.HEAPF32[AmmoHeightData + p2 >> 2] = heightData[ p ];
 
                 p ++;
 
@@ -84,7 +84,7 @@ export class PhysicsSystem extends System {
         var heightFieldShape = new Ammo.btHeightfieldTerrainShape(
             terrainWidth,
             terrainDepth,
-            ammoHeightData,
+            AmmoHeightData,
             heightScale,
             terrainMinHeight,
             terrainMaxHeight,
@@ -95,7 +95,7 @@ export class PhysicsSystem extends System {
 
         heightFieldShape.setLocalScaling( new Ammo.btVector3( hfield.scale.x/(terrainWidth-1), hfield.scale.y, hfield.scale.z/(terrainDepth-1) ) );
         heightFieldShape.setMargin( 0.05 );
-        console.log("Creating Heightfield Shape",heightFieldShape,"from",ammoHeightData)
+        console.log("Creating Heightfield Shape",heightFieldShape,"from",AmmoHeightData)
 
         return heightFieldShape;
     }
@@ -140,7 +140,7 @@ export class PhysicsSystem extends System {
 
         // TODO handle kinematic character controller:
         // Refernece:
-        // https://discourse.threejs.org/t/ammo-js-with-three-js/12530/36
+        // https://discourse.threejs.org/t/Ammo-js-with-three-js/12530/36
 
         if( e.hasComponent(KinematicCharacterComponent)){
             if(!e.hasComponent(PhysicsControllerComponent) && body.body_type == BodyComponent.KINEMATIC_CHARACTER ){
@@ -173,9 +173,9 @@ export class PhysicsSystem extends System {
     create_kinematic_character_controller(shape,e,transform){
         const body = e.getComponent(BodyComponent)
 
-         // https://github.com/enable3d/enable3d/blob/kinematicCharacterController/packages/enable3d/src/ammoWrapper/kinematicCharacterController.ts#L32
+         // https://github.com/enable3d/enable3d/blob/kinematicCharacterController/packages/enable3d/src/AmmoWrapper/kinematicCharacterController.ts#L32
 
-        // https://github.com/kripken/ammo.js/issues/254
+        // https://github.com/kripken/Ammo.js/issues/254
         const kchar = e.getComponent(KinematicCharacterComponent)
         const ghost = new Ammo.btPairCachingGhostObject();
         ghost.setWorldTransform(transform);
@@ -211,7 +211,7 @@ export class PhysicsSystem extends System {
         e.addComponent(PhysicsControllerComponent, { ctrl: controller,ghost: ghost })
     }
 
-    // https://medium.com/@bluemagnificent/collision-detection-in-javascript-3d-physics-using-ammo-js-and-three-js-31a5569291ef
+    // https://medium.com/@bluemagnificent/collision-detection-in-javascript-3d-physics-using-Ammo-js-and-three-js-31a5569291ef
     update_collisions(){
         let dispatcher = this.physics_world.getDispatcher()
         let numManifolds = dispatcher.getNumManifolds()
