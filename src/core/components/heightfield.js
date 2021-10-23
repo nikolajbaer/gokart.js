@@ -1,5 +1,5 @@
 import { Component, Types } from 'ecsy'
-import { Vector3Type } from "../ecs_types"
+import { Vector3Type } from "../ecs_types.js"
 
 export class HeightfieldDataComponent extends Component {}
 HeightfieldDataComponent.schema = {

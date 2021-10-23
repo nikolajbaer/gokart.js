@@ -1,5 +1,5 @@
 import { System } from "ecsy"
-import { MusicLoopComponent, SoundEffectComponent } from "../components/sound"
+import { MusicLoopComponent, SoundEffectComponent } from "../components/sound.js"
 
 export class SoundEffectSystem extends System {
     init(options){

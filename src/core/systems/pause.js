@@ -1,6 +1,6 @@
 import { System } from "ecsy"
-import { ActionListenerComponent } from "../components/controls"
-import { PauseComponent } from "../components/pause"
+import { ActionListenerComponent } from "../components/controls.js"
+import { PauseComponent } from "../components/pause.js"
 
 export class PauseSystem extends System {
     init(attributes){

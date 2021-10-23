@@ -1,5 +1,5 @@
 import { SystemStateComponent, Component, Types, TagComponent } from 'ecsy'
-import { Vector3Type } from '../ecs_types'
+import { Vector3Type } from '../ecs_types.js'
 import { Vector3 } from 'three'
 
 // inpsired by https://github.com/macaco-maluco/thermal-runway/blob/master/src/components/

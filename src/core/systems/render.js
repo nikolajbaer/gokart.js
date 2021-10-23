@@ -1,8 +1,8 @@
 import { System, Not } from "ecsy";
-import { LocRotComponent } from "../components/position"
-import { Obj3dComponent, ModelComponent, CameraComponent, LightComponent, Project2dComponent } from "../components/render"
+import { LocRotComponent } from "../components/position.js"
+import { Obj3dComponent, ModelComponent, CameraComponent, LightComponent, Project2dComponent } from "../components/render.js"
 import * as THREE from "three"
-import { DefaultMeshCreator } from "../asset_creator/mesh_creator"
+import { DefaultMeshCreator } from "../asset_creator/mesh_creator.js"
 
 export class RenderSystem extends System {
     init(attributes) {

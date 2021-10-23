@@ -1,6 +1,6 @@
 import { Component, TagComponent, Types } from "ecsy"
 import { Vector3 } from "three"
-import { Vector3Type } from "../../core/ecs_types"
+import { Vector3Type } from "../../core/ecs_types.js"
 
 export class MoverComponent extends Component {}
 MoverComponent.schema = {
