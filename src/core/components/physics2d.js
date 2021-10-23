@@ -1,5 +1,5 @@
 import { SystemStateComponent, Component, Types, TagComponent } from 'ecsy'
-import { Vector2Type,Vector2 } from '../ecs_types'
+import { Vector2Type,Vector2 } from '../ecs_types.js'
 
 // inpsired by https://github.com/macaco-maluco/thermal-runway/blob/master/src/components/
 

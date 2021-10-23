@@ -1,5 +1,5 @@
-import { Body2dComponent, Collision2dComponent, Joint2dComponent, Physics2dComponent, PhysicsJoint2dComponent } from "../core/components/physics2d"
-import { Physics2dMeshUpdateSystem, Physics2dSystem } from "../core/systems/physics2d"
+import { Body2dComponent, Collision2dComponent, Joint2dComponent, Physics2dComponent, PhysicsJoint2dComponent } from "../core/components/physics2d.js"
+import { Physics2dMeshUpdateSystem, Physics2dSystem } from "../core/systems/physics2d.js"
 import { BaseScene } from "./scene.js"
 
 export class Physics2dScene extends BaseScene {

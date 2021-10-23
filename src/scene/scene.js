@@ -19,7 +19,6 @@ import { PauseComponent } from "../core/components/pause.js"
 
 export class BaseScene {
     constructor(){
-        this.lastTime = null
         this.paused = false
         this.pause_callback = null
         this.resume_callback = null
@@ -163,7 +162,6 @@ export class BaseScene {
             return
         }
         this.init_entities()
-        this.lastTime = performance.now() / 1000
         this.paused = false
         this.loop()
     }
