@@ -1,5 +1,5 @@
 import { ApplyVelocityComponent, BodyComponent, KinematicCharacterComponent, CollisionComponent, PhysicsComponent, SetRotationComponent, PhysicsControllerComponent, JumpComponent  } from "../../src/core/components/physics.js"
-import { PhysicsMeshUpdateSystem, PhysicsSystem } from "../../src/core/systems/physics.js"
+import { PhysicsLocRotUpdateSystem, PhysicsMeshUpdateSystem, PhysicsSystem } from "../../src/core/systems/physics.js"
 import { HeightfieldDataComponent } from "../core/components/heightfield.js"
 import { BaseScene } from "./scene.js"
 import { Vector3 } from "../core/ecs_types.js"
@@ -21,6 +21,7 @@ export class Physics3dScene extends BaseScene {
     register_systems(){
         super.register_systems()
         this.world.registerSystem(PhysicsMeshUpdateSystem)
+        this.world.registerSystem(PhysicsLocRotUpdateSystem)
         this.world.registerSystem(PhysicsSystem, {
             collision_handler: (entity_a,entity_b,event) => this.handle_collision(entity_a,entity_b,event),
             contact_materials: this.contact_materials(),

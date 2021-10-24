@@ -182,7 +182,7 @@ export class RenderSystem extends System {
         })
 
         this.queries.locrot_update.results.forEach( e => {
-            const obj = e.getComponent(Obj3dComponent)
+            const obj = e.getComponent(Obj3dComponent).obj
             const lr = e.getComponent(LocRotComponent)
             obj.position.set(lr.location.x,lr.location.y,lr.location.z)
             obj.rotation.set(lr.rotation.x,lr.rotation.y,lr.rotation.z)
