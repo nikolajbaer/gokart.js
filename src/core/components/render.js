@@ -44,3 +44,6 @@ Project2dComponent.schema = {
   x: { type: Types.Number },
   y: { type: Types.Number },
 }
+
+// add if you want to move obj3d based on changes to locrot component
+export class UpdateFromLocRotComponent extends TagComponent {}

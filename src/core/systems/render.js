@@ -1,6 +1,6 @@
 import { System, Not } from "ecsy";
 import { LocRotComponent } from "../components/position.js"
-import { Obj3dComponent, ModelComponent, CameraComponent, LightComponent, Project2dComponent } from "../components/render.js"
+import { Obj3dComponent, ModelComponent, CameraComponent, LightComponent, Project2dComponent, UpdateFromLocRotComponent } from "../components/render.js"
 import * as THREE from "three"
 import { DefaultMeshCreator } from "../asset_creator/mesh_creator.js"
 
@@ -181,6 +181,13 @@ export class RenderSystem extends System {
             e.removeComponent(Obj3dComponent)
         })
 
+        this.queries.locrot_update.results.forEach( e => {
+            const obj = e.getComponent(Obj3dComponent)
+            const lr = e.getComponent(LocRotComponent)
+            obj.position.set(lr.location.x,lr.location.y,lr.location.z)
+            obj.rotation.set(lr.rotation.x,lr.rotation.y,lr.rotation.z)
+        })
+
         if(this.queries.camera.results.length > 0) {
             const e = this.queries.camera.results[0]
             const camera = e.getComponent(Obj3dComponent).obj.camera
@@ -232,4 +239,7 @@ RenderSystem.queries = {
     remove: {
         components: [Not(ModelComponent),Obj3dComponent,Not(CameraComponent),Not(LightComponent)]
     },
+    locrot_update: {
+        components: [Obj3dComponent,LocRotComponent,UpdateFromLocRotComponent]
+    }
 }
