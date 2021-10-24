@@ -1,5 +1,5 @@
 import { World} from "ecsy"
-import { CameraComponent, Obj3dComponent, ModelComponent, LightComponent, Project2dComponent, RayCastTargetComponent } from "../../src/core/components/render.js"
+import { CameraComponent, Obj3dComponent, ModelComponent, LightComponent, Project2dComponent, RayCastTargetComponent, UpdateFromLocRotComponent } from "../../src/core/components/render.js"
 import { LocRotComponent } from "../../src/core/components/position.js"
 import { HUDDataComponent } from "../../src/core/components/hud.js"
 import { RenderSystem } from "../../src/core/systems/render.js"
@@ -91,6 +91,7 @@ export class BaseScene {
         this.world.registerComponent(CameraFollowComponent)
         this.world.registerComponent(Project2dComponent)
         this.world.registerComponent(RayCastTargetComponent)
+        this.world.registerComponent(UpdateFromLocRotComponent)
        
         // UI Interaction Components
         this.world.registerComponent(HUDDataComponent)
