@@ -21,7 +21,8 @@ export class Physics3dScene extends BaseScene {
     register_systems(){
         super.register_systems()
         this.world.registerSystem(PhysicsMeshUpdateSystem)
-        this.world.registerSystem(PhysicsLocRotUpdateSystem)
+        // TODO cleanup, but for now register this on a headless system
+        //this.world.registerSystem(PhysicsLocRotUpdateSystem)
         this.world.registerSystem(PhysicsSystem, {
             collision_handler: (entity_a,entity_b,event) => this.handle_collision(entity_a,entity_b,event),
             contact_materials: this.contact_materials(),
