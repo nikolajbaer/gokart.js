@@ -2,7 +2,15 @@
 
 *NOTE: this is very much in alpha stage, more exploring the pure ECS pattern and current web toolkits. Suitable for a jam game at most!*
 
-GoKart.js is a web game starter kit based on ECSY.io, Three.js, and Ammo.js, with React examples. This starter provides a game canvas with basic Three.js rendering system, ECSY component structure, and 2D/3D physics support, controls handling, as well as a React component layer to build on, and a HUD data communication layer. Mostly targeted at "action" games, currently focused on single player.
+GoKart.js is a web game starter kit based on ECSY.io, Three.js, and Ammo.js, with React examples. This starter provides a game canvas with basic Three.js rendering system, ECSY component structure, and 2D/3D physics support, controls handling, as well as a React component layer to build on, and a HUD data communication layer. Mostly targeted at "action" games.
+
+### The GoKart.js Ethos ###
+
+* Fun > Features
+* API > Performance
+* Probably not street legal
+
+### Try it Out ###
 
 [Try Out the Demo](https://demo.gokart.dev)
 
@@ -21,6 +29,8 @@ You can either look in the examples folder for the demo projects, or [Look at th
 
 The template project will show gokart being pulled in as a library, and is currently setup with esbuild rather than webpack.
 
+Also there is a [WIP Multiplayer Example](https://github.com/nikolajbaer/gokart.js-multiplayer-example)
+
 ## Origin ##
 
 This started as a web game experiment [procgen-bhell](https://github.com/nikolajbaer/procgen-bhell), playable at
@@ -35,10 +45,9 @@ All possible only due to much awesome work:
 - [ECSY](https://www.ecsy.io/) for ECS
 - [Ammo.js](https://github.com/kripken/ammo.js/) for 3D Physics
 - [THREE.js](https://threejs.org/) for Rendering
-- [React](https://reactjs.org/) for UI
+- [React](https://reactjs.org/) for UI (soon to be preact)
 - [MobX](https://mobx.js.org/) for HUD communication
 - [Planck.js](https://https://piqnt.com/planck.js/) for 2D Physics
 - [Howler.js](https://howlerjs.com/) for Sound (TBD)
 
 Bundled character model by [nikolaj](https://github.com/nikolajbaer) with animations from [Mixamo](https://www.mixamo.com/).
-
