@@ -1,6 +1,6 @@
 import { System } from "ecsy"
 import { makeAutoObservable, runInAction } from "mobx"
-import { HUDDataComponent } from "../components/hud"
+import { HUDDataComponent } from "../components/hud.js"
 
 /* make an observable object and pass in as hudstate  */
 export class HUDState {

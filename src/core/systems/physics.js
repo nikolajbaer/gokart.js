@@ -480,6 +480,7 @@ export class PhysicsMeshUpdateSystem extends System {
         loc.location.x = pos.x()
         loc.location.y = pos.y()
         loc.location.z = pos.z()
+
         const euler = new THREE.Euler()
         euler.setFromQuaternion(obj3d.quaternion,'YZX')
         loc.rotation.x = euler.x
@@ -501,4 +502,41 @@ export class PhysicsMeshUpdateSystem extends System {
 PhysicsMeshUpdateSystem.queries = {
   body_entities: { components: [PhysicsComponent, Obj3dComponent] },
   ctrl_entities: { components: [PhysicsControllerComponent, Obj3dComponent] }
+};
+
+// TODO make this a bitless duplicated 
+export class PhysicsLocRotUpdateSystem extends System {
+    update_entity(e,body){
+        const loc = e.getMutableComponent(LocRotComponent) 
+
+        const btTransform = body.getWorldTransform() //.getCenterOfMassTransform()
+        const pos = btTransform.getOrigin()
+        const btQuat = btTransform.getRotation()
+
+        // update our locrot component
+        loc.location.x = pos.x()
+        loc.location.y = pos.y()
+        loc.location.z = pos.z()
+
+        const euler = new THREE.Euler()
+        euler.setFromQuaternion(btQuat,'YZX')
+        loc.rotation.x = euler.x
+        loc.rotation.y = euler.y
+        loc.rotation.z = euler.z
+    }
+
+    execute(delta){
+        this.queries.body_entities.results.forEach( e => {
+            this.update_entity(e,e.getComponent(PhysicsComponent).body)
+        })
+
+        this.queries.ctrl_entities.results.forEach( e => {
+            this.update_entity(e,e.getComponent(PhysicsControllerComponent).ghost)
+        })
+    }
+}
+
+PhysicsLocRotUpdateSystem.queries = {
+  body_entities: { components: [PhysicsComponent, LocRotComponent] },
+  ctrl_entities: { components: [PhysicsControllerComponent, LocRotComponent] }
 };

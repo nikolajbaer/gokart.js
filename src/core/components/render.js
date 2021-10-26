@@ -1,5 +1,5 @@
 import { SystemStateComponent,Component, TagComponent, Types } from 'ecsy'
-import { Vector2Type, Vector3Type, Vector3 } from '../ecs_types'
+import { Vector2Type, Vector3Type, Vector3 } from '../ecs_types.js'
 
 export class Obj3dComponent extends SystemStateComponent {}
 Obj3dComponent.schema = {
@@ -44,3 +44,6 @@ Project2dComponent.schema = {
   x: { type: Types.Number },
   y: { type: Types.Number },
 }
+
+// add if you want to move obj3d based on changes to locrot component
+export class UpdateFromLocRotComponent extends TagComponent {}

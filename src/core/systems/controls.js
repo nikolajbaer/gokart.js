@@ -1,5 +1,5 @@
 import { System } from "ecsy";
-import { ActionListenerComponent, MouseListenerComponent, MouseLockComponent } from "../components/controls";
+import { ActionListenerComponent, MouseListenerComponent, MouseLockComponent } from "../components/controls.js";
 
 export class ControlsSystem extends System {
     init(attributes) {

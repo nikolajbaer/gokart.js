@@ -1,5 +1,5 @@
 import { SystemStateComponent, Component, Types, TagComponent } from 'ecsy'
-import { Vector3Type } from '../ecs_types'
+import { Vector3Type } from '../ecs_types.js'
 import { Vector3 } from 'three'
 
 export class LocRotComponent extends Component {}

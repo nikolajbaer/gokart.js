@@ -1,6 +1,6 @@
 import { System } from "ecsy"
-import { CameraComponent, Obj3dComponent } from "../../core/components/render"
-import { CameraFollowComponent } from "../components/camera_follow"
+import { CameraComponent, Obj3dComponent } from "../../core/components/render.js"
+import { CameraFollowComponent } from "../components/camera_follow.js"
 
 
 export class CameraFollowSystem extends System {

@@ -1,25 +1,24 @@
 import { World} from "ecsy"
-import { CameraComponent, Obj3dComponent, ModelComponent, LightComponent, Project2dComponent, RayCastTargetComponent } from "../../src/core/components/render"
-import { LocRotComponent } from "../../src/core/components/position"
-import { HUDDataComponent } from "../../src/core/components/hud"
-import { RenderSystem } from "../../src/core/systems/render"
-import { HUDState, HUDSystem } from "../../src/core/systems/hud"
-import { ControlsSystem } from "../../src/core/systems/controls"
-import { ActionListenerComponent, MouseListenerComponent, MouseLockComponent } from "../../src/core/components/controls"
-import { CameraFollowComponent } from "../../src/common/components/camera_follow"
-import { CameraFollowSystem } from "../../src/common/systems/camera_follow"
-import { SoundEffectSystem } from "../../src/core/systems/sound"
-import { MusicLoopComponent, SoundEffectComponent } from "../../src/core/components/sound"
-import { DefaultMeshCreator } from "../core/asset_creator/mesh_creator"
-import { SoundLoader } from "../core/asset_creator/sound_loader"
+import { CameraComponent, Obj3dComponent, ModelComponent, LightComponent, Project2dComponent, RayCastTargetComponent, UpdateFromLocRotComponent } from "../../src/core/components/render.js"
+import { LocRotComponent } from "../../src/core/components/position.js"
+import { HUDDataComponent } from "../../src/core/components/hud.js"
+import { RenderSystem } from "../../src/core/systems/render.js"
+import { HUDState, HUDSystem } from "../../src/core/systems/hud.js"
+import { ControlsSystem } from "../../src/core/systems/controls.js"
+import { ActionListenerComponent, MouseListenerComponent, MouseLockComponent } from "../../src/core/components/controls.js"
+import { CameraFollowComponent } from "../../src/common/components/camera_follow.js"
+import { CameraFollowSystem } from "../../src/common/systems/camera_follow.js"
+import { SoundEffectSystem } from "../../src/core/systems/sound.js"
+import { MusicLoopComponent, SoundEffectComponent } from "../../src/core/components/sound.js"
+import { DefaultMeshCreator } from "../core/asset_creator/mesh_creator.js"
+import { SoundLoader } from "../core/asset_creator/sound_loader.js"
 import { runInAction } from "mobx"
 import { Clock } from "three"
-import { PauseSystem } from "../core/systems/pause"
-import { PauseComponent } from "../core/components/pause"
+import { PauseSystem } from "../core/systems/pause.js"
+import { PauseComponent } from "../core/components/pause.js"
 
 export class BaseScene {
     constructor(){
-        this.lastTime = null
         this.paused = false
         this.pause_callback = null
         this.resume_callback = null
@@ -92,6 +91,7 @@ export class BaseScene {
         this.world.registerComponent(CameraFollowComponent)
         this.world.registerComponent(Project2dComponent)
         this.world.registerComponent(RayCastTargetComponent)
+        this.world.registerComponent(UpdateFromLocRotComponent)
        
         // UI Interaction Components
         this.world.registerComponent(HUDDataComponent)
@@ -107,7 +107,7 @@ export class BaseScene {
 
     }
 
-    register_systems(){
+    register_ui_systems(){
         this.world.registerSystem(PauseSystem, {
             pause_callback: (resume_callback) => {
                 this.pause(resume_callback)
@@ -128,6 +128,11 @@ export class BaseScene {
             show_axes: false,
             customize_renderer: this.customize_renderer, 
         })
+
+    }
+
+    register_systems(){
+        this.register_ui_systems()
     }
 
     // TODO make controls config more sensible
@@ -158,7 +163,6 @@ export class BaseScene {
             return
         }
         this.init_entities()
-        this.lastTime = performance.now() / 1000
         this.paused = false
         this.loop()
     }
