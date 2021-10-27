@@ -95,7 +95,7 @@ export class PhysicsSystem extends System {
 
         heightFieldShape.setLocalScaling( new Ammo.btVector3( hfield.scale.x/(terrainWidth-1), hfield.scale.y, hfield.scale.z/(terrainDepth-1) ) );
         heightFieldShape.setMargin( 0.05 );
-        console.log("Creating Heightfield Shape",heightFieldShape,"from",AmmoHeightData)
+        //console.log("Creating Heightfield Shape",heightFieldShape,"from",AmmoHeightData)
 
         return heightFieldShape;
     }
@@ -204,7 +204,7 @@ export class PhysicsSystem extends System {
         // Sadly this does not appear to persist in the body showing up for collisions
         // so we need to manually associate this
         this.ghost_entity_id_map[ghost.a] = e
-        console.log("Ghost",ghost,controller,e)
+        //console.log("Ghost",ghost,controller,e)
 
         // consider do i need to clean up colliders?
         // TODO where do I store this kinematic controller action? 
@@ -414,7 +414,7 @@ export class PhysicsSystem extends System {
                     const v = kchar.rigid_body_impulse
                     const vi = new Ammo.btVector3(c.contact_normal.x * v,c.contact_normal.y * v,c.contact_normal.z * v)
                     const vp = new Ammo.btVector3(c.contact_point.x,c.contact_point.y,c.contact_point.z)
-                    console.log("Apply impulse to ",c.entity,vi,vp)
+                    //console.log("Apply impulse to ",c.entity,vi,vp)
                     b1.applyImpulse(vi,vp)
                     touched[c.entity.id] = true
                 })
@@ -518,8 +518,9 @@ export class PhysicsLocRotUpdateSystem extends System {
         loc.location.y = pos.y()
         loc.location.z = pos.z()
 
+        const threeQuat = new THREE.Quaternion(btQuat.x(),btQuat.y(),btQuat.z(),btQuat.w())
         const euler = new THREE.Euler()
-        euler.setFromQuaternion(btQuat,'YZX')
+        euler.setFromQuaternion(threeQuat,'YZX')
         loc.rotation.x = euler.x
         loc.rotation.y = euler.y
         loc.rotation.z = euler.z

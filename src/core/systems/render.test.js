@@ -1,10 +1,10 @@
 /**
  * @jest-environment jsdom
  */
-import { LocRotComponent } from "../components/position"
-import { CameraComponent, LightComponent, ModelComponent, Obj3dComponent, Project2dComponent } from "../components/render"
-import { RenderSystem } from "./render"
-import { initialize_test_world,mock_renderer } from "../testing/game_helpers"
+import { LocRotComponent } from "../components/position.js"
+import { CameraComponent, LightComponent, ModelComponent, Obj3dComponent, Project2dComponent } from "../components/render.js"
+import { RenderSystem } from "./render.js"
+import { initialize_test_world,mock_renderer } from "../testing/game_helpers.js"
 import * as THREE from "three"
 
 
