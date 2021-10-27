@@ -19,23 +19,34 @@ const AXIS = {
 export class PhysicsSystem extends System {
     init(attributes) {
         // track Ammo.js body id of ghost to associate
+        console.log("initing physics")
         this.ghost_entity_id_map = {}
-     
-        new AMMO().then((_ammo)  => {
-            Ammo = _ammo
-            const collisionConfiguration = new Ammo.btDefaultCollisionConfiguration()
-            const dispatcher = new Ammo.btCollisionDispatcher(collisionConfiguration)
-            const overlappingPairCache = new Ammo.btDbvtBroadphase()
-            const solver = new Ammo.btSequentialImpulseConstraintSolver()
-            this.physics_world = new Ammo.btDiscreteDynamicsWorld(dispatcher, overlappingPairCache, solver, collisionConfiguration)
-            this.physics_world.setGravity(new Ammo.btVector3(0, -10, 0));
-        })
+   
+        // we might preload Ammo and pass it in here
+        if(attributes && attributes.ammo){
+            Ammo = attributes.ammo
+            this.init_ammo()
+        }else{
+            new AMMO().then((_ammo)  => {
+                Ammo = _ammo
+                this.init_ammo()
+            })
+        }
 
         if(attributes && attributes.collision_handler){
             this.collision_handler = attributes.collision_handler
         }else{
             this.collision_handler = null
         }
+    }
+
+    init_ammo(){
+        const collisionConfiguration = new Ammo.btDefaultCollisionConfiguration()
+        const dispatcher = new Ammo.btCollisionDispatcher(collisionConfiguration)
+        const overlappingPairCache = new Ammo.btDbvtBroadphase()
+        const solver = new Ammo.btSequentialImpulseConstraintSolver()
+        this.physics_world = new Ammo.btDiscreteDynamicsWorld(dispatcher, overlappingPairCache, solver, collisionConfiguration)
+        this.physics_world.setGravity(new Ammo.btVector3(0, -10, 0));
     }
 
     create_heightfield_shape(e,body,locrot,quat){
@@ -330,8 +341,8 @@ export class PhysicsSystem extends System {
         this.queries.remove_bodies.results.forEach( e => {
             const body = e.getComponent(PhysicsComponent).body
             body.entity = null
+            console.log("destroying ammo body for entity "+e.id)
             Ammo.destroy(body)
-            //delete this.body_entity_map[body.handle]
             e.removeComponent(PhysicsComponent)
         })
 

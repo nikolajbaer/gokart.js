@@ -1,15 +1,18 @@
-import { LocRotComponent } from "../components/position"
-import { ModelComponent } from "../components/render"
-import { RenderSystem } from "./render"
-import { initialize_test_world } from "../testing/game_helpers"
-import { PhysicsSystem } from "./physics"
-import { ApplyVelocityComponent, BodyComponent, CollisionComponent, KinematicCharacterComponent, PhysicsComponent, PhysicsControllerComponent, SetRotationComponent } from "../components/physics"
-import { Vector3 } from "../ecs_types"
+import { LocRotComponent } from "../components/position.js"
+import { ModelComponent } from "../components/render.js"
+import { initialize_test_world } from "../testing/game_helpers.js"
+import { PhysicsSystem } from "./physics.js"
+import { ApplyVelocityComponent, BodyComponent, CollisionComponent, KinematicCharacterComponent, PhysicsComponent, PhysicsControllerComponent, SetRotationComponent } from "../components/physics.js"
+import { Vector3 } from "../ecs_types.js"
+import test from 'ava'
+import loadAmmo from "ammo.js/tests/helpers/load-ammo.js"
+
+test.before(async t => loadAmmo())
 
 /* NOTE can't seem to import node_modules ems modules. */
-test('physics body entity map removes on entity removal', () => {
+test('physics body entity map removes on entity removal', t => {
     const world = initialize_test_world(
-        [{system:PhysicsSystem,attr:{}}],
+        [{system:PhysicsSystem,attr:{ammo:Ammo}}],
         [
             LocRotComponent,
             BodyComponent,
@@ -25,16 +28,30 @@ test('physics body entity map removes on entity removal', () => {
 
     // add ground plane
     const g = world.createEntity()
-    g.addComponent( BodyComponent, {
-        mass: 0,
-        bounds_type: BodyComponent.BOX_TYPE,
-        body_type: BodyComponent.STATIC,
-        bounds: new Vector3(1000,1,1000),
-    }) 
+    g.addComponent( BodyComponent ) 
+    g.addComponent(LocRotComponent,{location:new Vector3(0,0,0),rotation: new Vector3(0,0,0)})
     
-    psys = world.getSystem(PhysicsSystem)
+    const psys = world.getSystem(PhysicsSystem)
+
+    t.true(psys.physics_world != null)
 
     psys.execute(1,1)
 
-    // TODO add then remove entity to see it get cleaned up    
+    // Now Physics body created
+    t.true(g.hasComponent(PhysicsComponent))
+
+    g.remove()
+    psys.execute(1,2)
+
+    // Now this entity should be gone
+    t.is(psys.queries.entities.results.length,0)
+
+    // Now add a new entity
+    const g1 = world.createEntity()
+    g1.addComponent(BodyComponent) 
+    g1.addComponent(LocRotComponent,{location:new Vector3(0,0,0),rotation: new Vector3(0,0,0)})
+
+    psys.execute(1,3)
+    t.true(g.hasComponent(PhysicsComponent))
+ 
 })

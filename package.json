@@ -26,10 +26,8 @@
     "three": "^0.132.2"
   },
   "devDependencies": {
+    "ava": "^3.15.0",
     "@vitejs/plugin-react": "^1.0.4",
-    "esbuild": "^0.13.0",
-    "esbuild-jest": "^0.5.0",
-    "jest": "^27.2.1",
     "mock-browser": "^0.92.14",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",

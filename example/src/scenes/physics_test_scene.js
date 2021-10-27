@@ -1,15 +1,54 @@
-import { CameraComponent,  ModelComponent, LightComponent  } from "../../../src/core/components/render"
-import { BodyComponent } from "../../../src/core/components/physics"
-import { LocRotComponent } from "../../../src/core/components/position"
-import { Vector3 } from "../../../src/core/ecs_types"
-import { Physics3dScene } from "../../../src/scene/physics3d"
-import { OrbitControlComponent } from "../../../src/common/components/orbit_controls"
-import { OrbitControlsSystem } from "../../../src/common/systems/orbit_controls"
-import { HUDDataComponent } from "../../../src/core/components/hud"
-import { TerrainSystem } from "../../../src/common/systems/terrain"
-import { TerrainTileComponent } from "../../../src/common/components/terrain"
-import { HeightfieldDataComponent } from "../../../src/core/components/heightfield"
-import { MouseListenerComponent, MouseLockComponent } from "../../../src/core/components/controls"
+import { CameraComponent,  ModelComponent, LightComponent  } from "../../../src/core/components/render.js"
+import { BodyComponent } from "../../../src/core/components/physics.js"
+import { LocRotComponent } from "../../../src/core/components/position.js"
+import { Vector3 } from "../../../src/core/ecs_types.js"
+import { Physics3dScene } from "../../../src/scene/physics3d.js"
+import { OrbitControlComponent } from "../../../src/common/components/orbit_controls.js"
+import { TerrainSystem } from "../../../src/common/systems/terrain.js"
+import { TerrainTileComponent } from "../../../src/common/components/terrain.js"
+import { OrbitControlsSystem } from "../../../src/common/systems/orbit_controls.js"
+import { HUDDataComponent } from "../../../src/core/components/hud.js"
+import { HeightfieldDataComponent } from "../../../src/core/components/heightfield.js"
+import { MouseListenerComponent, MouseLockComponent } from "../../../src/core/components/controls.js"
+import { System } from 'ecsy'
+import { ActionListenerComponent } from "../../../src/core/components/controls.js"
+import { PhysicsComponent } from "../../../src/core/components/physics.js"
+
+// quick system to remove a body when you click  to test object additional / removal
+class RespawnOnClickSystem extends System {
+    init(attributes){
+        this.cooldown = 0 
+    }
+
+    execute(delta,time){
+        this.queries.action_listeners.results.forEach( e => {
+            const actions = e.getComponent(ActionListenerComponent).actions
+            if(actions.jump && this.cooldown + 1500 >= time ){
+                if(this.queries.bodies.results.length > 0){
+                    const e1 = this.queries.bodies.results[0]
+                    console.log("removing an entity",e1.id)
+                    e1.remove()
+                    this.cooldown = time
+
+                    // spawn new cube
+                    console.log("and spawning a new one")
+                    const e2 = this.world.createEntity()
+                    e2.addComponent(LocRotComponent,{location:new Vector3(0,10,0),rotaiton: new Vector3(0,0,0)})
+                    e2.addComponent(BodyComponent)
+                    e2.addComponent(ModelComponent)
+                }
+            }
+        })
+    }
+}
+RespawnOnClickSystem.queries = {
+    action_listeners: {
+        components: [ActionListenerComponent]
+    },
+    bodies: {
+        components: [PhysicsComponent],
+    }
+}
 
 export class PhysicsTestScene extends Physics3dScene {
     register_components(){
@@ -22,6 +61,7 @@ export class PhysicsTestScene extends Physics3dScene {
         super.register_systems()
         this.world.registerSystem(OrbitControlsSystem,{listen_element_id:this.render_element_id})
         this.world.registerSystem(TerrainSystem)
+        this.world.registerSystem(RespawnOnClickSystem)
     }
 
     generateHeight( width, depth, minHeight, maxHeight ) {
@@ -118,6 +158,7 @@ export class PhysicsTestScene extends Physics3dScene {
         e.addComponent(LocRotComponent)
         e.addComponent(OrbitControlComponent,{offset:new Vector3(0,0,100)})
         e.addComponent(MouseListenerComponent)
+        e.addComponent(ActionListenerComponent)
         // TODO make touch control config more sensible
         if(!this.touch_enabled){
             e.addComponent(MouseLockComponent)

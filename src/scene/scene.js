@@ -80,7 +80,7 @@ export class BaseScene {
     }
 
     register_components(){
-        this.world.registerComponent(PauseComponent)
+        //this.world.registerComponent(PauseComponent)
         this.world.registerComponent(LocRotComponent)
 
         // Render Components
@@ -108,11 +108,12 @@ export class BaseScene {
     }
 
     register_ui_systems(){
+        /*
         this.world.registerSystem(PauseSystem, {
             pause_callback: (resume_callback) => {
                 this.pause(resume_callback)
             }
-        })
+        })*/
         this.world.registerSystem(ControlsSystem,{
             listen_element_id:this.render_element_id,
             touch_pads: this.get_touch_pad_config(),

@@ -1,5 +1,5 @@
 import { System, World } from "ecsy"
-import "webgl-mock-threejs"
+//import "webgl-mock-threejs"
 
 export function mock_renderer(){
     return {
