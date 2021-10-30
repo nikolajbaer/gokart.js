@@ -341,7 +341,7 @@ export class PhysicsSystem extends System {
         this.queries.remove_bodies.results.forEach( e => {
             const body = e.getComponent(PhysicsComponent).body
             body.entity = null
-            console.log("destroying ammo body for entity "+e.id)
+            this.physics_world.removeRigidBody(body)
             Ammo.destroy(body)
             e.removeComponent(PhysicsComponent)
         })
@@ -351,7 +351,9 @@ export class PhysicsSystem extends System {
             ctrl.ctrl.entity = null
             ctrl.ghost.entity = null
             delete this.ghost_entity_id_map[ctrl.ghost.a]
+            this.physics_world.removeAction(ctrl.ctrl)
             Ammo.destroy(ctrl.ctrl)
+            this.physics_world.removeRigidBody(ctrl.ghost)
             Ammo.destroy(ctrl.ghost)
             e.removeComponent(PhysicsControllerComponent)
         })

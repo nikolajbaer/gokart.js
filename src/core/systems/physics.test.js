@@ -42,6 +42,7 @@ test('physics body entity map removes on entity removal', t => {
 
     g.remove()
     psys.execute(1,2)
+    // physics body is fully destroyed
 
     // Now this entity should be gone
     t.is(psys.queries.entities.results.length,0)
@@ -52,6 +53,6 @@ test('physics body entity map removes on entity removal', t => {
     g1.addComponent(LocRotComponent,{location:new Vector3(0,0,0),rotation: new Vector3(0,0,0)})
 
     psys.execute(1,3)
-    t.true(g.hasComponent(PhysicsComponent))
+    t.true(g1.hasComponent(PhysicsComponent))
  
 })
