@@ -48,11 +48,15 @@ test('physics body entity map removes on entity removal', t => {
     t.is(psys.queries.entities.results.length,0)
 
     // Now add a new entity
-    const g1 = world.createEntity()
-    g1.addComponent(BodyComponent) 
-    g1.addComponent(LocRotComponent,{location:new Vector3(0,0,0),rotation: new Vector3(0,0,0)})
+    for(var i=0; i<10;i++){
+        console.log(psys.queries.entities.results.length)
+        const g1 = world.createEntity()
+        g1.addComponent(BodyComponent) 
+        g1.addComponent(LocRotComponent,{location:new Vector3(0,0,0),rotation: new Vector3(0,0,0)})
 
-    psys.execute(1,3)
-    t.true(g1.hasComponent(PhysicsComponent))
- 
+        psys.execute(1,3+i)
+        t.true(g1.hasComponent(PhysicsComponent))
+        g1.remove()
+    }
+
 })
