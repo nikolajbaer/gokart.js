@@ -105,9 +105,14 @@ export class ControlsSystem extends System {
         if(this.locked || this.listen_element.ownerDocument.pointerLockElement === this.listen_element){
             return
         }
-        this.listen_element.requestPointerLock().then( () => {
-            // not sure this is standardized.. 
-        }).catch( e => {}) // not sure what this error is
+        if(this.listen_element.requestPointerLock){
+            const plock = this.listen_element.requestPointerLock()
+            if(plock){
+                plock.then( () => {
+                // not sure this is standardized.. 
+                }).catch( e => {}) // not sure what this error is
+            }
+        }
         this.listen_element.ownerDocument.addEventListener('pointerlockchange', this.pointerlockchange)
         this.listen_element.ownerDocument.addEventListener('mousemove', this.mousemove)
         this.listen_element.ownerDocument.addEventListener('wheel', this.wheelchange)
