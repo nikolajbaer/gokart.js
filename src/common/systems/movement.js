@@ -1,10 +1,10 @@
 import { System } from "ecsy"
-import { ActionListenerComponent } from "../../core/components/controls"
-import { ApplyVelocityComponent, BodyComponent, JumpComponent, KinematicCharacterComponent, PhysicsComponent } from "../../core/components/physics"
-import { OnGroundComponent, MoverComponent } from "../components/movement"
+import { ActionListenerComponent } from "../../core/components/controls.js"
+import { ApplyVelocityComponent, BodyComponent, JumpComponent, KinematicCharacterComponent, PhysicsComponent } from "../../core/components/physics.js"
+import { OnGroundComponent, MoverComponent } from "../components/movement.js"
 import * as THREE from "three"
 import { Vector3 } from "three"
-import { LocRotComponent } from "../../core/components/position"
+import { LocRotComponent } from "../../core/components/position.js"
 
 // TODO break out into different movement types/systems (e.g. turner, strafer, jumper, globalmover )
 // TODO https://github.com/pmndrs/cannon-es/blob/master/examples/threejs_fps.html
@@ -15,6 +15,8 @@ export class MovementSystem extends System {
     execute(delta,time){
         this.queries.movers.results.forEach( e => {
             const actions =  e.getComponent(ActionListenerComponent).actions
+            if(!actions){ return }
+
             const brot = e.getComponent(LocRotComponent).rotation
             const mover = e.getMutableComponent(MoverComponent)
             const body_type = e.getComponent(BodyComponent).body_type

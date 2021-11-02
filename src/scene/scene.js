@@ -80,6 +80,7 @@ export class BaseScene {
     }
 
     register_components(){
+        console.log("registering base scene components")
         //this.world.registerComponent(PauseComponent)
         this.world.registerComponent(LocRotComponent)
 

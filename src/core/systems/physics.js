@@ -173,7 +173,6 @@ export class PhysicsSystem extends System {
 
             // consider do i need to clean up colliders?
             btBody.entity = e
-            console.log("Adding rigid body "+ btBody.id+ " to entity " + e.id)
             e.addComponent(PhysicsComponent, { body: btBody })
 
             // TODO figure out how to link up entity to body in Ammo.js
@@ -342,7 +341,6 @@ export class PhysicsSystem extends System {
         this.queries.remove_bodies.results.forEach( e => {
             const body = e.getComponent(PhysicsComponent).body
             body.entity = null
-            console.log("removing rigid body "+body.id+" from " + e.id)
             this.physics_world.removeRigidBody(body)
             Ammo.destroy(body)
             e.removeComponent(PhysicsComponent)
@@ -350,8 +348,6 @@ export class PhysicsSystem extends System {
 
         this.queries.remove_controllers.results.forEach( e => {
             const ctrl = e.getComponent(PhysicsControllerComponent).ctrl
-            ctrl.ctrl.entity = null
-            ctrl.ghost.entity = null
             delete this.ghost_entity_id_map[ctrl.ghost.a]
             this.physics_world.removeAction(ctrl.ctrl)
             Ammo.destroy(ctrl.ctrl)
