@@ -38,8 +38,8 @@ PhysicsComponent.schema = {
 
 export class PhysicsControllerComponent extends SystemStateComponent {}
 PhysicsControllerComponent.schema = {
-  ctrl: { type: Types.Ref },
-  ghost: { type: Types.Ref },
+  ctrl: { type: Types.Number },
+  ghost: { type: Types.Number },
 }
 
 export class CollisionComponent extends Component {}

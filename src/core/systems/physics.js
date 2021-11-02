@@ -347,12 +347,16 @@ export class PhysicsSystem extends System {
         })
 
         this.queries.remove_controllers.results.forEach( e => {
-            const ctrl = e.getComponent(PhysicsControllerComponent).ctrl
-            delete this.ghost_entity_id_map[ctrl.ghost.a]
-            this.physics_world.removeAction(ctrl.ctrl)
-            Ammo.destroy(ctrl.ctrl)
-            this.physics_world.removeRigidBody(ctrl.ghost)
-            Ammo.destroy(ctrl.ghost)
+            const p_ctrl = e.getComponent(PhysicsControllerComponent)
+            
+            // ISSUE the ghost/ctrl aren't being preserved, so i guess
+            // we aren't really removing them. Need to figure out how to get this
+            // actual body removed?
+            delete this.ghost_entity_id_map[p_ctrl.ghost.a]
+            this.physics_world.removeRigidBody(p_ctrl.ghost)
+            Ammo.destroy(p_ctrl.ghost)
+            this.physics_world.removeAction(p_ctrl.ctrl)
+            Ammo.destroy(p_ctrl.ctrl)
             e.removeComponent(PhysicsControllerComponent)
         })
 

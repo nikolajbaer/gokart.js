@@ -6,6 +6,7 @@ import { ApplyVelocityComponent, BodyComponent, CollisionComponent, KinematicCha
 import { Vector3 } from "../ecs_types.js"
 import test from 'ava'
 import loadAmmo from "ammo.js/tests/helpers/load-ammo.js"
+import { OnGroundComponent } from "../../common/components/movement.js"
 
 test.before(async t => loadAmmo())
 
@@ -58,5 +59,47 @@ test('physics body entity map removes on entity removal', t => {
         t.true(g1.hasComponent(PhysicsComponent))
         g1.remove()
     }
+
+})
+
+test('physics kinmatic controller removes on entity removal', t => {
+    const world = initialize_test_world(
+        [{system:PhysicsSystem,attr:{ammo:Ammo}}],
+        [
+            LocRotComponent,
+            BodyComponent,
+            ModelComponent,
+            PhysicsComponent,
+            PhysicsControllerComponent,
+            SetRotationComponent,
+            CollisionComponent,
+            KinematicCharacterComponent,
+            ApplyVelocityComponent,
+            OnGroundComponent,
+        ]
+    )
+
+    // add ground plane
+    const g = world.createEntity()
+    g.addComponent( BodyComponent, {body_type: BodyComponent.KINEMATIC_CHARACTER} ) 
+    g.addComponent( KinematicCharacterComponent )
+    g.addComponent(LocRotComponent,{location:new Vector3(0,0,0),rotation: new Vector3(0,0,0)})
+    
+    const psys = world.getSystem(PhysicsSystem)
+
+    t.true(psys.physics_world != null)
+
+    psys.execute(1,1)
+
+    // Now Physics body created
+    t.true(g.hasComponent(PhysicsControllerComponent))
+
+    g.remove()
+    psys.execute(1,2)
+    // physics body is fully destroyed
+
+    // Now this entity should be gone
+    t.is(psys.queries.entities.results.length,0)
+    // how do i know this is gone from the physics_world?
 
 })
