@@ -1,9 +1,9 @@
 import { System } from "ecsy"
-import { CameraComponent, Obj3dComponent } from "../../core/components/render";
-import { MouseLookComponent } from "../components/mouselook";
+import { CameraComponent, Obj3dComponent } from "../../core/components/render.js";
+import { MouseLookComponent } from "../components/mouselook.js";
 import * as THREE from "three"
-import { PhysicsComponent, PhysicsControllerComponent, SetRotationComponent } from "../../core/components/physics";
-import { MouseListenerComponent } from "../../core/components/controls";
+import { PhysicsComponent, PhysicsControllerComponent, SetRotationComponent } from "../../core/components/physics.js";
+import { MouseListenerComponent } from "../../core/components/controls.js";
         
 const _PI_2 = Math.PI / 2;
 

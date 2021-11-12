@@ -445,7 +445,7 @@ export class PhysicsSystem extends System {
             e.removeComponent(CollisionComponent)
         })
         // Step
-        this.physics_world.stepSimulation(delta , 2)
+        this.physics_world.stepSimulation(delta , 5)
         // prepare new collisions for next systems tick
         this.update_collisions()
     }

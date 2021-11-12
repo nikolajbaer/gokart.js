@@ -1,5 +1,5 @@
 import { Component,Types } from "ecsy"
-import { Vector3Type,Vector3 } from "../../core/ecs_types"
+import { Vector3Type,Vector3 } from "../../core/ecs_types.js"
 
 export class OrbitControlComponent extends Component {}
 OrbitControlComponent.schema = {
